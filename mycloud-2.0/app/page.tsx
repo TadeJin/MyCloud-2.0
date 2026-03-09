@@ -1,5 +1,11 @@
+import { getServerSession } from "next-auth";
 import { LoginForm } from "./components/LoginForm";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return <LoginForm />;
+export default async function Home() {
+    const session = await getServerSession();
+
+    if (session) redirect("/storage");
+    
+    return <LoginForm />;
 }
