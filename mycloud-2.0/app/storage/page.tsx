@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { LogOutButton } from "../components/UserDisplay";
 
 export default async function StoragePage() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session) redirect("/");
 

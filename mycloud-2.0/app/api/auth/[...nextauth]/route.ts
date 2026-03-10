@@ -1,9 +1,10 @@
 import prisma from "@/app/lib/prisma";
-import NextAuth from "next-auth";
+import NextAuth, { Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import argon2 from "argon2";
+import { JWT } from "next-auth/jwt";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
         name: "Credentials",
@@ -39,12 +40,30 @@ const handler = NextAuth({
         }),
     ],
 
-    session: { strategy: "jwt" },
+    callbacks: {
+        async jwt({ token, user }: { token: JWT; user: User }): Promise<JWT> {
+            if (user) {
+                token.id = parseInt(user.id);
+                token.email = user.email;
+            }
+            return token;
+        },
+
+        async session({ session, token }: { session: Session; token: JWT }): Promise<Session> {
+            if (session.user) {
+                session.user.id = token.id as number;
+            }
+            return session;
+        },
+    },
+    session: { strategy: "jwt"  as const},
     secret: process.env.NEXTAUTH_SECRET,
 
     pages: {
         signIn: "/",
     },
-});
+}
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
