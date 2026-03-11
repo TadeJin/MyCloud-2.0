@@ -21,6 +21,13 @@ export const DELETE = async (req: NextRequest) => {
         where: {id: id}
     });
 
+    await prisma.user.update({
+        where: {id: session.user.id},
+        data: {
+            takenSpace: {decrement: file.size}
+        }
+    });
+
     const filePath = path.join(process.cwd(), "public", "test_storage", session.user.id.toString(), file.name);
     await unlink(filePath);
 

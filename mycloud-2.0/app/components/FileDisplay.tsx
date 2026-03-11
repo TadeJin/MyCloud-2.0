@@ -2,14 +2,7 @@
 
 import { useQuery } from "react-query";
 import { FileBox } from "./FileBox";
-
-interface DBFile {
-    id: number,
-    name: string,
-    userId: number,
-    type: string,
-    size: number
-}
+import { DBFile } from "../types";
 
 export const FileDisplay = () => {
     const fetchFiles = async () => {

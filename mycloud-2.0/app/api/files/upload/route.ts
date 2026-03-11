@@ -30,8 +30,16 @@ export const POST = async (req: Request) => {
             name: file.name,
             userId: session.user.id,
             type: file.type,
-            size: file.size
+            size: file.size,
+            uploadedAt: new Date()
         },
+    });
+
+    await prisma.user.update({
+        where: {id: session.user.id},
+        data: {
+            takenSpace: {increment: file.size}
+        }
     });
 
     const filePath = path.join(process.cwd(), "public", "test_storage", session.user.id.toString(), file.name);

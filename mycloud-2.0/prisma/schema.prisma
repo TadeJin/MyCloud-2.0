@@ -17,6 +17,8 @@ model User {
     id       Int    @id @default(autoincrement())
     email    String @unique
     password String
+    maxStorage  Int //In bytes
+    takenSpace  Int @default(0) //In bytes
     files   File[]
 }
 
@@ -27,4 +29,5 @@ model File {
     userId  Int
     type    String
     size    Int
+    uploadedAt    DateTime
 }

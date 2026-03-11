@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import argon2 from "argon2";
 import { mkdir } from "fs/promises";
 import path from "path";
+import { DEFAULT_MAX_STORAGE } from "@/app/constants";
 
 export const POST = async (req: NextRequest) => {
     const {email, password} = await req.json();
@@ -18,6 +19,7 @@ export const POST = async (req: NextRequest) => {
         data: {
             email: email,
             password: await argon2.hash(password),
+            maxStorage: DEFAULT_MAX_STORAGE
         },
     });
 
