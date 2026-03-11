@@ -15,6 +15,13 @@ export const PATCH = async (req: NextRequest) => {
         {status: 401})
     }
 
+    if (!process.env.FILE_STORAGE_PATH) {
+        return NextResponse.json(
+        { error: "Storage path not set" },
+        { status: 400 }
+        );
+    }
+
     const {id, oldName, newName} = await req.json();
 
     await prisma.file.update({
@@ -22,7 +29,7 @@ export const PATCH = async (req: NextRequest) => {
         data: {name: newName}
     });
 
-    const filePath = path.join(process.cwd(), "public", "test_storage", session.user.id.toString());
+    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
     await rename(path.join(filePath, oldName), path.join(filePath, newName));
 
     return NextResponse.json({message: "File name changed"});

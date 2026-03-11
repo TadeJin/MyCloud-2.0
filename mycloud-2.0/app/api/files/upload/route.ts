@@ -25,6 +25,13 @@ export const POST = async (req: Request) => {
         );
     }
 
+    if (!process.env.FILE_STORAGE_PATH) {
+        return NextResponse.json(
+        { error: "Storage path not set" },
+        { status: 400 }
+        );
+    }
+
     await prisma.file.create({
         data: {
             name: file.name,
@@ -42,7 +49,7 @@ export const POST = async (req: Request) => {
         }
     });
 
-    const filePath = path.join(process.cwd(), "public", "test_storage", session.user.id.toString(), file.name);
+    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), file.name);
     const buffer = Buffer.from(await file.arrayBuffer());
 
     await writeFile(filePath, buffer);

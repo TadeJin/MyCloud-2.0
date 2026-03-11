@@ -23,7 +23,14 @@ export const GET = async (req: NextRequest ) => {
         );
     }
 
-    const filePath = path.join(process.cwd(), "public", "test_storage", session.user.id.toString(), name);
+    if (!process.env.FILE_STORAGE_PATH) {
+        return NextResponse.json(
+        { error: "Storage path not set" },
+        { status: 400 }
+        );
+    }
+
+    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), name);
     const fileBuffer = await readFile(filePath);
 
     return new NextResponse(fileBuffer, {

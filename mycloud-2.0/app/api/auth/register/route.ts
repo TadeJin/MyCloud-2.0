@@ -15,6 +15,13 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
+    if (!process.env.FILE_STORAGE_PATH) {
+        return NextResponse.json(
+        { error: "Storage path not set" },
+        { status: 400 }
+        );
+    }
+
     const user = await prisma.user.create({
         data: {
             email: email,
@@ -23,7 +30,7 @@ export const POST = async (req: NextRequest) => {
         },
     });
 
-    const dirPath = path.join(process.cwd(), "public", "test_storage", user.id.toString());
+    const dirPath = path.join(process.env.FILE_STORAGE_PATH, user.id.toString());
     await mkdir(dirPath);
 
     return NextResponse.json({ message: "User created" }, { status: 201 });
