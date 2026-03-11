@@ -1,21 +1,25 @@
 "use client";
-import Image from "next/image";
-import file from "../../public/file.svg";
 
-interface FileDisplayProps {
-    name: string
-}
+import { useQuery } from "react-query";
+import { FileBox } from "./FileBox";
 
-export const FileDisplay = ({name}: FileDisplayProps) => {
-    const handleClick = (e: Event) =>{
-        e.preventDefault();
-        console.log("CLick");
+export const FileDisplay = () => {
+    const fetchFiles = async () => {
+        const res = await fetch("/api/fetchFiles")
+        return res.json();
     }
 
+    const {data, status} = useQuery("files", fetchFiles);
+
+    if (status === "loading") return <p>Loading files...</p>;
+
+    if (status === "error") return <p>Error loading files</p>;
+
     return (
-        <div className="flex space-x-1 outline-2 outline-black items-center hover:bg-gray-600 cursor-pointer" onClick={handleClick}>
-            <Image src={file} alt="fileIcon" width={20}  height={20}/>
-            <div>{name}</div>
-        </div>
+        <>
+        {data.map((file: File) => (
+            <FileBox key = {file.name} name={file.name} />
+        ))}
+        </>
     )
 }

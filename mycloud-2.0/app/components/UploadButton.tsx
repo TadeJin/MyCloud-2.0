@@ -1,10 +1,11 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { useQueryClient } from "react-query";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");
-
+    const queryClient = useQueryClient();
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleClick = () => {
@@ -19,6 +20,7 @@ export const UploadButton = () => {
         for (const file of files) {
             await uploadFile(file);
         }
+        queryClient.invalidateQueries("files");
     }
 
     const uploadFile = async (file: File) => {
@@ -34,7 +36,6 @@ export const UploadButton = () => {
 
         setStatus("");
     }
-
 
     return (
         <div>

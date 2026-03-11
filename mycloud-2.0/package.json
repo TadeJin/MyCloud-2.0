@@ -19,7 +19,8 @@
     "next-auth": "^4.24.13",
     "pg": "^8.20.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-query": "^3.39.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
