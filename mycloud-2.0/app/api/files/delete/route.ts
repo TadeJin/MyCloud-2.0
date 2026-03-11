@@ -11,7 +11,7 @@ export const DELETE = async (req: NextRequest) => {
     if (!session) {
         return NextResponse.json(
         { error: "No session set" },
-        { status: 400 }
+        { status: 401 }
         );
     }
 

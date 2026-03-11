@@ -9,10 +9,17 @@ export const GET = async (req: NextRequest ) => {
     const name = req.nextUrl.searchParams.get('name');
     const type = req.nextUrl.searchParams.get('type');
   
-    if (!name || !type || !session) {
+    if (!name || !type) {
         return NextResponse.json(
         { error: "Error downloading" },
         { status: 400 }
+        );
+    }
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "No session set" },
+        { status: 401 }
         );
     }
 

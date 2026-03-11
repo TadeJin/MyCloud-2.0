@@ -9,7 +9,7 @@ export const GET = async () => {
     if (!session) {
         return NextResponse.json(
         { error: "No session set" },
-        { status: 400 }
+        { status: 401 }
         );
     }
 
