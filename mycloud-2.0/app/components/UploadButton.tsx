@@ -29,7 +29,7 @@ export const UploadButton = () => {
         formData.append("file", file);
         setStatus("Uploading: " + file.name);
 
-        await fetch("/api/upload", {
+        await fetch("/api/files/upload", {
             method: "POST",
             body: formData
         })

@@ -3,9 +3,17 @@
 import { useQuery } from "react-query";
 import { FileBox } from "./FileBox";
 
+interface DBFile {
+    id: number,
+    name: string,
+    userId: number,
+    type: string,
+    size: number
+}
+
 export const FileDisplay = () => {
     const fetchFiles = async () => {
-        const res = await fetch("/api/fetchFiles")
+        const res = await fetch("/api/files/fetchFiles")
         return res.json();
     }
 
@@ -17,8 +25,8 @@ export const FileDisplay = () => {
 
     return (
         <>
-        {data.map((file: File) => (
-            <FileBox key = {file.name} name={file.name} />
+        {data.map((file: DBFile) => (
+            <FileBox key = {file.name} name={file.name} mimeType={file.type}/>
         ))}
         </>
     )
