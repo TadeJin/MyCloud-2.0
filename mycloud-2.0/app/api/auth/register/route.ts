@@ -1,10 +1,10 @@
 import prisma from "@/app/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import argon2 from "argon2";
 import { mkdir } from "fs/promises";
 import path from "path";
 
-export const POST = async (req: Request) => {
+export const POST = async (req: NextRequest) => {
     const {email, password} = await req.json();
 
     if (!email || !password) {

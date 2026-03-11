@@ -39,7 +39,5 @@ export const POST = async (req: Request) => {
 
     await writeFile(filePath, buffer);
 
-    return NextResponse.json({ 
-        message: "File uploaded successfully",
-    });
+    return NextResponse.json({ message: "File uploaded successfully" }, {status: 201});
 }

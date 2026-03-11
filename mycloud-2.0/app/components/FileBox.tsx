@@ -1,14 +1,18 @@
 "use client";
 import Image from "next/image";
 import file from "../../public/file.svg";
+import { useQueryClient } from "react-query";
 
 interface FileBoxProps {
+    id: number,
     name: string,
     mimeType: string
 }
 
-export const FileBox = ({name, mimeType}: FileBoxProps) => {
-    const handleClick = async (e: React.MouseEvent<HTMLElement>) =>{
+export const FileBox = ({id, name, mimeType}: FileBoxProps) => {
+    const queryClient = useQueryClient();
+
+    const handleClick = async () => {
         const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}`);
         const blob = await res.blob();
 
@@ -21,10 +25,23 @@ export const FileBox = ({name, mimeType}: FileBoxProps) => {
         URL.revokeObjectURL(url);
     }
 
+    const handleDelete = async () => {
+        await fetch ("/api/files/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: id
+            }),
+        });
+
+        queryClient.invalidateQueries("files");
+    }
+
     return (
-        <div className="flex space-x-1 outline-2 outline-black items-center hover:bg-gray-600 cursor-pointer" onClick={handleClick}>
+        <div className="flex space-x-1 outline-2 outline-black items-cente">
             <Image src={file} alt="fileIcon" width={20}  height={20}/>
-            <div>{name}</div>
+            <div onClick={handleClick} className="hover:bg-gray-600 cursor-pointer">{name}</div>
+            <button className="outline-2 outline-black hover:bg-gray-600 cursor-pointer" onClick={handleDelete}>Delete</button>
         </div>
     )
 }

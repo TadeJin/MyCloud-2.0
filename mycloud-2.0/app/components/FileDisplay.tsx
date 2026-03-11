@@ -26,7 +26,7 @@ export const FileDisplay = () => {
     return (
         <>
         {data.map((file: DBFile) => (
-            <FileBox key = {file.name} name={file.name} mimeType={file.type}/>
+            <FileBox key = {file.name} id={file.id} name={file.name} mimeType={file.type}/>
         ))}
         </>
     )
