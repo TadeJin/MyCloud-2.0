@@ -65,7 +65,7 @@ export const FileBox = ({id, name, mimeType}: FileBoxProps) => {
     }
 
     return (
-        <div className="flex space-x-1 outline-2 outline-black items-cente">
+        <div className="flex space-x-1 outline-2 outline-black items-center w-fit">
             <Image src={file} alt="fileIcon" width={20}  height={20}/>
             <input ref={nameRef} readOnly={isReadonly}  value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
             <button className="outline-2 outline-black hover:bg-gray-600 cursor-pointer" onClick={handleDownload}>Download</button>
