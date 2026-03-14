@@ -1,5 +1,5 @@
-import { CreateFolderButton } from "./CreateFolderButton"
-import { UploadButton } from "./UploadButton"
+import { CreateFolderButton, UploadButton } from "."
+
 
 export const SideBar = () => {
     return (

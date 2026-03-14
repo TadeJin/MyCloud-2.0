@@ -1,7 +1,7 @@
 "use client";
 
 import { redirect, useSearchParams } from "next/navigation";
-import { ResetForm } from "../components/ResetForm";
+import { ResetForm } from "../components";
 
 export default function ResetPageExe() {
     const searchParams = useSearchParams();

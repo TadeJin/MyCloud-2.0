@@ -1,6 +1,8 @@
+"use client";
+
 import { Dispatch, SetStateAction, useState } from "react";
 import { useQueryClient } from "react-query";
-import { useFolders } from "./FolderProvider";
+import { useFolders } from ".";
 
 interface FileNameInputProps {
     variant: "folder" | "file",

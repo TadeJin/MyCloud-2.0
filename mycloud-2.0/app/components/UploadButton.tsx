@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { useQueryClient } from "react-query";
-import { useFolders } from "./FolderProvider";
+import { useFolders } from ".";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");

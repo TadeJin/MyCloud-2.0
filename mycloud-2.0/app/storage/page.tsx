@@ -1,12 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { FileDisplay } from "../components/FileDisplay";
 import { authOptions } from "../api/auth/[...nextauth]/route";
-import { QueryProvider } from "../components/QueryProvider";
-import { NavBar } from "../components/NavBar";
-import { SideBar } from "../components/SideBar";
-import { FolderProvider } from "../components/FolderProvider";
-import { FolderTrace } from "../components/FolderTrace";
+import { QueryProvider, FolderProvider, NavBar, SideBar, FileDisplay } from "../components";
 
 export default async function StoragePage() {
     const session = await getServerSession(authOptions);
@@ -16,11 +11,12 @@ export default async function StoragePage() {
     return (
         <QueryProvider>
             <FolderProvider>
-                <div className="flex flex-col">
+                <div className="flex flex-col relative w-screen h-screen">
                     <NavBar session= {session} />
-                    <FolderTrace />
-                    <FileDisplay className="ml-[20%] mt-[2%]"/>
-                    <SideBar />
+                    <div className="flex flex-row h-[calc(100vh-48px)] w-screen">
+                        <SideBar />
+                        <FileDisplay className="pl-10 pt-5"/>
+                    </div>
                 </div>
             </FolderProvider>
         </QueryProvider>

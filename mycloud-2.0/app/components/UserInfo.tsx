@@ -2,7 +2,7 @@
 
 import { Session } from "next-auth";
 import { useState } from "react";
-import { UserStats } from "./UserStats";
+import { UserStats } from ".";
 
 interface UserInfoProps {
     session: Session

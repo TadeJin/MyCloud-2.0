@@ -1,5 +1,5 @@
 import { Session } from "next-auth";
-import { LogOutButton } from "./LogOutButton";
+import { LogOutButton } from ".";
 import { Dispatch, SetStateAction } from "react";
 
 interface UserStatsProps {

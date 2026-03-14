@@ -3,8 +3,7 @@
 import Image from "next/image";
 import { useQueryClient } from "react-query";
 import { useState } from "react";
-import { FileNameInput } from "./FileNameInput";
-import { useFolders } from "./FolderProvider";
+import { FileDropDown, FileNameInput, useFolders } from ".";
 
 interface FileBoxProps {
     variant: "file" | "folder",
@@ -19,6 +18,7 @@ export const FileBox = ({variant, id, name, mimeType, userId}: FileBoxProps) => 
     const [isVisible, setVisible] = useState(false);
     const isFile = variant === "file";
     const {addFolder} = useFolders();
+    const [dropDownVisible, setDropDownVisible] = useState(false);
 
     const handleDownload = async () => {
         const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}&userId=${userId}`);
@@ -78,13 +78,14 @@ export const FileBox = ({variant, id, name, mimeType, userId}: FileBoxProps) => 
     }
 
     return (
-        <div className="flex space-x-1 outline-2 outline-black items-center w-fit">
-            <Image src={isFile ? "/file.svg" : "/folder.svg"} alt="fileIcon" width={20}  height={20}/>
-            <div onClick={!isFile ? openFolder : () => {}}>{name}</div>
-            <button className="outline-2 outline-black hover:bg-gray-600 cursor-pointer" onClick={isFile ? handleDownload : handleDownloadFolder}>Download</button>
-            <button className="outline-2 outline-black hover:bg-gray-600 cursor-pointer" onClick={isFile ? handleDelete : handleDeleteFolder}>Delete</button>
-            <button className="outline-2 outline-black hover:bg-gray-600 cursor-pointer" onClick={() => setVisible(true)}>Rename</button>
-            {isVisible && <FileNameInput variant={variant} id={id} oldName={name} setVisible={setVisible}/>}
-        </div>
+        <>
+            <div className="flex space-x-1 outline-2 outline-black items-center w-40 bg-gray-300 rounded-sm h-10 relative">
+                <Image src={isFile ? "/file.svg" : "/folder.svg"} alt="fileIcon" width={20}  height={20}/>
+                <div onClick={!isFile ? openFolder : () => {}} className={`${isFile ? "cursor-default" : "cursor-pointer"} truncate w-[70%]`}>{name}</div>
+                <div className="flex items-center justify-center mr-1 w-6 h-6 hover:bg-gray-500 rounded-full cursor-pointer" onClick={() => setDropDownVisible(!dropDownVisible)}><Image src="/dots-vertical.svg" alt="file-dropdown" width={16} height={16}/></div>
+                {dropDownVisible && <FileDropDown handleDownload={isFile ? handleDownload : handleDownloadFolder} handleDelete={isFile ? handleDelete : handleDeleteFolder} setVisible={setVisible} setDropDownVisible={setDropDownVisible} />}
+            </div>
+            {isVisible && <FileNameInput variant={variant} id={id} oldName={name} setVisible={setVisible} />}
+        </>
     )
 }

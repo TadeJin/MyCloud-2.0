@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileNameInput } from "./FileNameInput";
+import { FileNameInput } from ".";
 
 export const CreateFolderButton = () => {
     const [visible, setVisible] = useState(false);
