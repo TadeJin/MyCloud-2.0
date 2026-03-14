@@ -1,9 +1,11 @@
+import { CreateFolderButton } from "./CreateFolderButton"
 import { UploadButton } from "./UploadButton"
 
 export const SideBar = () => {
     return (
-        <div>
+        <div className="flex flex-col w-[18%] items-center">
             <UploadButton />
+            <CreateFolderButton />
         </div>
     )
 }

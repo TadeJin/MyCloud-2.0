@@ -8,6 +8,7 @@ export const GET = async (req: NextRequest ) => {
     const session = await getServerSession(authOptions);
     const name = req.nextUrl.searchParams.get('name');
     const type = req.nextUrl.searchParams.get('type');
+    const userId = req.nextUrl.searchParams.get('userId');
   
     if (!name || !type) {
         return NextResponse.json(
@@ -19,6 +20,13 @@ export const GET = async (req: NextRequest ) => {
     if (!session) {
       return NextResponse.json(
         { error: "No session set" },
+        { status: 401 }
+        );
+    }
+
+    if (session.user.id !== Number(userId)) {
+        return NextResponse.json(
+        { error: "Invalid user ID" },
         { status: 401 }
         );
     }

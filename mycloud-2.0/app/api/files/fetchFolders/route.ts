@@ -14,12 +14,12 @@ export const GET = async (req: NextRequest) => {
         );
     }
 
-    const files = await prisma.file.findMany({
+    const folders = await prisma.folder.findMany({
         where: {
-            userId: session.user.id,
+            userId: session?.user.id,
             folderId: folderId ? Number(folderId) : null
         },
     });
 
-    return NextResponse.json(files);
+    return NextResponse.json(folders);
 }

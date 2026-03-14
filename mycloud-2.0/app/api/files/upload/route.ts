@@ -17,6 +17,7 @@ export const POST = async (req: Request) => {
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
+    const folderId = formData.get("folderId");
 
     if (!file) {
         return NextResponse.json(
@@ -38,7 +39,8 @@ export const POST = async (req: Request) => {
             userId: session.user.id,
             type: file.type,
             size: file.size,
-            uploadedAt: new Date()
+            uploadedAt: new Date(),
+            folderId: folderId ? Number(folderId) : null
         },
     });
 

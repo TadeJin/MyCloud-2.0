@@ -1,8 +1,6 @@
 import prisma from "@/app/lib/prisma";
-import { rename } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
 export const PATCH = async (req: NextRequest) => {
@@ -15,33 +13,24 @@ export const PATCH = async (req: NextRequest) => {
         {status: 401})
     }
 
-    if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json(
-        { error: "Storage path not set" },
-        { status: 400 }
-        );
-    }
 
-    const {id, oldName, newName} = await req.json();
+    const {id, newName} = await req.json();
 
-    const file = await prisma.file.findUnique({
+    const folder = await prisma.folder.findUnique({
         where: {id: id}
     });
 
-    if (session.user.id !== file?.userId) {
+    if (session.user.id !== folder?.userId) {
         return NextResponse.json(
         { error: "Invalid user ID" },
         { status: 401 }
         );
     }
 
-    await prisma.file.update({
+    await prisma.folder.update({
         where: {id: id},
         data: {name: newName}
     });
 
-    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-    await rename(path.join(filePath, oldName), path.join(filePath, newName));
-
-    return NextResponse.json({message: "File name changed"});
+    return NextResponse.json({message: "Folder name changed"});
 }
