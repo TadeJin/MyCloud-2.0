@@ -38,6 +38,9 @@ export const LoginForm = () => {
                 <div>
                     <p>Don&apos;t have an account? <Link href="/register" className="text-blue-800 underline font-bold">Register here</Link></p>
                 </div>
+                <div>
+                    <button>Forgot your password? <Link href="reset-password-form" className="text-blue-800 underline font-bold">Reset it here</Link></button>
+                </div>
             </div>
         </div>
     );
