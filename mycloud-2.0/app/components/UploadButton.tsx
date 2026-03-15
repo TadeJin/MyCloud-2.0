@@ -23,6 +23,7 @@ export const UploadButton = () => {
             await uploadFile(file);
         }
         queryClient.invalidateQueries("files");
+        e.target.value = "";
     }
 
     const uploadFile = async (file: File) => {

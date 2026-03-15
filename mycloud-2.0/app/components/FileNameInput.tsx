@@ -3,9 +3,10 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useFolders } from ".";
+import { FileNameInputVariants } from "../types";
 
 interface FileNameInputProps {
-    variant: "folder" | "file",
+    variant: FileNameInputVariants,
     id: number | null,
     oldName?: string,
     setVisible: Dispatch<SetStateAction<boolean>>

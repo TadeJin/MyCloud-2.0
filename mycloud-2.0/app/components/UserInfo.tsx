@@ -1,7 +1,7 @@
 "use client";
 
 import { Session } from "next-auth";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UserStats } from ".";
 
 interface UserInfoProps {
@@ -11,6 +11,20 @@ interface UserInfoProps {
 export const UserInfo = (props: UserInfoProps) => {
     const {session} = props;
     const [visible, setVisible] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!visible) return;
+
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setVisible(false);
+        }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [visible, setVisible]);
     
 
     return (
@@ -21,7 +35,7 @@ export const UserInfo = (props: UserInfoProps) => {
                 <path d="M12 6c-2.28 0-4 1.72-4 4s1.72 4 4 4 4-1.72 4-4-1.72-4-4-4m0 6c-1.18 0-2-.82-2-2s.82-2 2-2 2 .82 2 2-.82 2-2 2"></path><path d="M12 2C6.49 2 2 6.49 2 12c0 3.26 1.58 6.16 4 7.98V20h.03c1.67 1.25 3.73 2 5.97 2s4.31-.75 5.97-2H18v-.02c2.42-1.83 4-4.72 4-7.98 0-5.51-4.49-10-10-10M8.18 19.02C8.59 17.85 9.69 17 11 17h2c1.31 0 2.42.85 2.82 2.02-1.14.62-2.44.98-3.82.98s-2.69-.35-3.82-.98m9.3-1.21c-.81-1.66-2.51-2.82-4.48-2.82h-2c-1.97 0-3.66 1.16-4.48 2.82A7.96 7.96 0 0 1 4 11.99c0-4.41 3.59-8 8-8s8 3.59 8 8c0 2.29-.97 4.36-2.52 5.82"></path>
                 </svg>
             </div>
-            {visible && <UserStats session = {session} hide={setVisible} />}
+            {visible && <UserStats ref={dropdownRef} session = {session} hide={setVisible} />}
         </div>
     )
 };

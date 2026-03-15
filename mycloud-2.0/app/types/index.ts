@@ -8,3 +8,4 @@ export interface DBFile {
     size: number,
     uploadedAt: DateTime
 }
+export type FileNameInputVariants = "file" | "folder";

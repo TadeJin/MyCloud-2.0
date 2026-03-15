@@ -3,7 +3,7 @@
 import { useQuery } from "react-query";
 import { FileBox } from "./FileBox";
 import { DBFile } from "../types";
-import { FolderTrace, useFolders } from ".";
+import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
 
 interface FileDisplayProps {
     className?: string
@@ -17,6 +17,7 @@ interface DBFolder {
 
 export const FileDisplay = (props: FileDisplayProps) => {
     const {getOpenedFolderID} = useFolders();
+    const {setDropDownVisible} = useFiles();
     const {className} = props;
 
     const fetchFiles = async (folderId: number | null) => {
@@ -34,7 +35,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
     const { data: files, status: statusFiles } = useQuery(["files", currentId], () => fetchFiles(currentId));
     const { data: folders, status: statusFolders } = useQuery(["folders", currentId], () => fetchFolders(currentId));
 
-    const style = "flex flex-col rounded-md w-full rounded-lg bg-white " + className
+    const style = "flex flex-col rounded-md w-full rounded-lg bg-white pr-30 " + className
 
     return (
         <div className={style}>
@@ -58,10 +59,11 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 {statusFiles === "loading" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
 
                 files.map((file: DBFile) => (
-                    <FileBox key = {file.id} id={file.id} name={file.name} userId={file.userId} variant="file"/>
+                    <FileBox key = {file.id} id={file.id} name={file.name} userId={file.userId} variant="file" mimeType={file.type} />
                 ))}
                 </div>
             }
+            <FileDropDown setDropDownVisible={setDropDownVisible}/>
         </div>
     )
 };

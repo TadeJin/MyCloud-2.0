@@ -1,17 +1,18 @@
 import { Session } from "next-auth";
 import { LogOutButton } from ".";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, Ref, SetStateAction} from "react";
 
 interface UserStatsProps {
     session: Session,
-    hide: Dispatch<SetStateAction<boolean>>
+    hide: Dispatch<SetStateAction<boolean>>,
+    ref: Ref<HTMLDivElement>
 }
 
 export const UserStats = (props: UserStatsProps) => {
-    const {session, hide} = props;
+    const {session, hide, ref} = props;
 
     return (
-        <div className="flex flex-col outline-4 outline-black rounded-md w-full absolute right-0 top-full mt-5">
+        <div ref = {ref} className="flex flex-col outline-4 outline-black rounded-md w-full absolute right-0 top-full mt-5">
             <div className = "flex justify-center items-center right-0.5 top-0.5 hover: cursor-pointer hover:bg-gray-500 rounded-full w-[24] h-[24] absolute" onClick={() => hide(false)}>
                 <svg  xmlns="http://www.w3.org/2000/svg" width="22" height="22"  
                     fill="currentColor" viewBox="0 0 24 24" >
