@@ -10,8 +10,7 @@ interface StoragePageUIProps {
 export const StoragePageUI = (props: StoragePageUIProps) => {
     const {session} = props;
 
-    const {activeFile, nameInputVisible, setNameInputVisible} = useFiles();
-    const {id, name, variant} = activeFile;
+    const {nameInputVisible} = useFiles();
 
     return (
         <div className="flex flex-col relative w-screen h-screen">
@@ -20,7 +19,7 @@ export const StoragePageUI = (props: StoragePageUIProps) => {
                 <SideBar />
                 <FileDisplay className="pl-10 pt-5"/>
             </div>
-            {nameInputVisible && <FileNameInput variant={variant} id={id} oldName={name} setVisible={setNameInputVisible} />}
+            {nameInputVisible && <FileNameInput />}
         </div>
     )
 }

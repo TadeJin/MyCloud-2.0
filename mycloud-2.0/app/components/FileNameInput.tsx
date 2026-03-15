@@ -1,20 +1,14 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useQueryClient } from "react-query";
-import { useFolders } from ".";
-import { FileNameInputVariants } from "../types";
+import { useFiles, useFolders } from ".";
 
-interface FileNameInputProps {
-    variant: FileNameInputVariants,
-    id: number | null,
-    oldName?: string,
-    setVisible: Dispatch<SetStateAction<boolean>>
-}
 
-export const FileNameInput = (props: FileNameInputProps) => {
-    const {variant, id, oldName, setVisible} = props;
+export const FileNameInput = () => {
     const [name, setName] = useState("");
+    const {activeFile, setNameInputVisible} = useFiles();
+    const {id, name: oldName, variant} = activeFile;
     const queryClient = useQueryClient();
     const {getOpenedFolderID} = useFolders();
 
@@ -31,14 +25,14 @@ export const FileNameInput = (props: FileNameInputProps) => {
             }),
         });
 
-        setVisible(false);
+        setNameInputVisible(false);
         queryClient.invalidateQueries("files");
     }
 
     const handleFolder = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
-        if (!id) {
+        if (id === -1) {
             await fetch("/api/files/create-folder", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -57,7 +51,7 @@ export const FileNameInput = (props: FileNameInputProps) => {
                 }),
             });
         }
-        setVisible(false);
+        setNameInputVisible(false);
         queryClient.invalidateQueries("folders");
     };
 
@@ -68,7 +62,7 @@ export const FileNameInput = (props: FileNameInputProps) => {
                     <h2 className="text-center font-bold">Enter {variant} name:</h2>
                     <input type="text" name="name" className="block p-1 outline-1 outline-black mx-auto" onChange={(e) => setName(e.target.value)}/>
                     <div className="flex w-full">
-                        <button className="mr-auto p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" type="button" onClick={() => setVisible(false)}>Back</button>
+                        <button className="mr-auto p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" type="button" onClick={() => setNameInputVisible(false)}>Back</button>
                         <button className="ml-auto p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" type="submit">Submit</button>
                     </div>
                 </form>

@@ -2,13 +2,15 @@
 
 import { useRef, useState } from "react"
 import { useQueryClient } from "react-query";
-import { useFolders } from ".";
+import { ProgressBar, useFolders } from ".";
+import Image from "next/image";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");
     const queryClient = useQueryClient();
     const inputRef = useRef<HTMLInputElement>(null);
     const {getOpenedFolderID} = useFolders();
+    const uploadPercentage = 50;
 
     const handleClick = () => {
         inputRef.current?.click();
@@ -43,10 +45,13 @@ export const UploadButton = () => {
     }
 
     return (
-        <div className="flex flex-col gap-5">
-            <button className = "p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" onClick={handleClick}>Upload</button>
+        <div className="flex flex-col w-[80%]">
+            <button className = "p-2 rounded-full hover:bg-blue-200 cursor-pointer" onClick={handleClick}><div className="flex"><Image src="/file-plus.svg" alt="uploadIcon" width={24} height={24}/><p>Upload File</p></div></button>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
-            <p>{status}</p>
+            {status && <div className="flex flex-col">
+                <p className="ml-2">{status}</p>
+                <ProgressBar percentage={uploadPercentage} />
+            </div>}
         </div>
     )
 }
