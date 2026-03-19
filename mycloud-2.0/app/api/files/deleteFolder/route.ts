@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/prisma";;
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import path from "path";
@@ -31,16 +31,22 @@ export const DELETE = async (req: NextRequest) => {
     }
 
     const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-    await deleteFolder(folderId, basePath);
+    await deleteFolder(folderId, basePath, session);
     
 
     return NextResponse.json({ message: "Folder removed" });
 }
 
 
-const deleteFolder = async (folderId: number, basePath: string) => {
+const deleteFolder = async (folderId: number, basePath: string, session: Session) => {
     const files = await prisma.file.findMany({
         where: {folderId: folderId}
+    });
+
+    let totalFileSize = 0;
+
+    files.forEach((file) => {
+        totalFileSize += file.size;
     });
 
     await Promise.all(files.map(file => unlink(path.join(basePath, file.name))));
@@ -49,11 +55,16 @@ const deleteFolder = async (folderId: number, basePath: string) => {
         where: {folderId: folderId}
     });
 
+    await prisma.user.update({
+        where: {id: session.user.id},
+        data: {takenSpace: {decrement: totalFileSize}}
+    })
+
     const subFolders = await prisma.folder.findMany({
         where: {folderId: folderId}
     });
 
-    await Promise.all(subFolders.map(folder => deleteFolder(folder.id, basePath)));
+    await Promise.all(subFolders.map(folder => deleteFolder(folder.id, basePath, session)));
 
     await prisma.folder.delete({
         where: {id: folderId}

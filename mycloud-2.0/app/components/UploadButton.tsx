@@ -23,6 +23,7 @@ export const UploadButton = () => {
 
         for (const file of files) {
             await uploadFile(file);
+            queryClient.invalidateQueries("capacity");
         }
         queryClient.invalidateQueries("files");
         e.target.value = "";
@@ -46,7 +47,7 @@ export const UploadButton = () => {
 
     return (
         <div className="flex flex-col w-[80%]">
-            <button className = "p-2 rounded-full hover:bg-blue-200 cursor-pointer" onClick={handleClick}><div className="flex"><Image src="/file-plus.svg" alt="uploadIcon" width={24} height={24}/><p>Upload File</p></div></button>
+            <button className = "p-2 rounded-full hover:bg-blue-200 cursor-pointer" onClick={handleClick}><div className="flex"><Image src="/file-plus.svg" alt="uploadIcon" width={24} height={24}/><p>Upload Files</p></div></button>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
             {status && <div className="flex flex-col">
                 <p className="ml-2">{status}</p>

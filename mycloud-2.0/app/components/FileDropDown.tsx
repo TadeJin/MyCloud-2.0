@@ -58,6 +58,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         });
 
         queryClient.invalidateQueries("files");
+        queryClient.invalidateQueries("capacity");
         setDropDownVisible(false);
     }
 
@@ -74,7 +75,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
     }
 
     const handleDeleteFolder = async () => {
-        await fetch("/api/files/delete-folder", {
+        await fetch("/api/files/deleteFolder", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -85,6 +86,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
         queryClient.invalidateQueries("folders");
         queryClient.invalidateQueries("files");
+        queryClient.invalidateQueries("capacity");
         setDropDownVisible(false);
     }
 

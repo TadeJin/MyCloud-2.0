@@ -33,7 +33,7 @@ export const FileNameInput = () => {
         e.preventDefault();
 
         if (id === -1) {
-            await fetch("/api/files/create-folder", {
+            await fetch("/api/files/createFolder", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -42,7 +42,7 @@ export const FileNameInput = () => {
                 }),
             });
         } else {
-            await fetch("/api/files/rename-folder", {
+            await fetch("/api/files/renameFolder", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
