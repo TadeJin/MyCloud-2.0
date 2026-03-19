@@ -13,9 +13,9 @@ export const CapacityDisplay = () => {
         const gbSize = 1024 * 1024 * 1024;
         const mbSize = 1024 * 1024;
 
-        if (byteCapacity >= gbSize) return `${Math.floor(byteCapacity / gbSize)} GB`;
+        if (byteCapacity >= gbSize) return `${(byteCapacity / gbSize).toFixed(2)} GB`;
 
-        return `${Math.floor(byteCapacity / mbSize)} MB`
+        return `${(byteCapacity / mbSize).toFixed(2)} MB`
     };
 
     const { data: capacity, status: statusCapacity } = useQuery(["capacity"], fetchCapacity);
@@ -28,7 +28,7 @@ export const CapacityDisplay = () => {
         text = "Error occured while getting capacity";
     } else {
         text = `You have used ${convertToText(capacity.taken)} from ${convertToText(capacity.maxCapacity)} capacity`;
-        percentage = Math.floor((capacity.taken * 100) / capacity.maxCapacity);
+        percentage = (capacity.taken * 100) / capacity.maxCapacity;
     }
 
     return (

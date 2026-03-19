@@ -43,7 +43,7 @@ const deleteFolder = async (folderId: number, basePath: string, session: Session
         where: {folderId: folderId}
     });
 
-    let totalFileSize = 0;
+    let totalFileSize = BigInt(0);
 
     files.forEach((file) => {
         totalFileSize += file.size;

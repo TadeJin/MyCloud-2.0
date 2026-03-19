@@ -1,8 +1,9 @@
-import { readFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { authOptions } from "../../auth/[...nextauth]/route";
+import { createReadStream, statSync } from "fs";
+import { Readable } from "stream";
 
 export const GET = async (req: NextRequest ) => {
     const session = await getServerSession(authOptions);
@@ -39,12 +40,14 @@ export const GET = async (req: NextRequest ) => {
     }
 
     const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), name);
-    const fileBuffer = await readFile(filePath);
+    const stream = createReadStream(filePath);
+    const { size } = statSync(filePath);
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(Readable.toWeb(stream) as ReadableStream, {
     headers: {
       'Content-Disposition': `attachment; filename="${name}"`,
-      'Content-Type': type,
+      'Content-Type': "application/octet-stream",
+      'Content-Length': `${size}`
     }
   });
 }

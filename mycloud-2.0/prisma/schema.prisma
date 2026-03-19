@@ -17,8 +17,8 @@ model User {
     id       Int    @id @default(autoincrement())
     email    String @unique
     password String
-    maxStorage  Int //In bytes
-    takenSpace  Int @default(0) //In bytes
+    maxStorage  BigInt //In bytes
+    takenSpace  BigInt @default(0) //In bytes
     files   File[]
     folders Folder[]
     tokens ResetTokens[]
@@ -30,7 +30,7 @@ model File {
     user    User @relation(fields: [userId], references: [id])
     userId  Int
     type    String
-    size    Int //In bytes
+    size    BigInt //In bytes
     uploadedAt    DateTime
     folder Folder? @relation( fields: [folderId], references: [id])
     folderId Int?

@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/prisma";
-import { writeFile } from "fs/promises";
+import { appendFile } from "fs/promises";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import path from "path";
@@ -16,10 +16,10 @@ export const POST = async (req: Request) => {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    const folderId = formData.get("folderId");
+    const chunk = formData.get("chunk") as Blob;
+    const fileName = formData.get("fileName") as string;
 
-    if (!file) {
+    if (!chunk) {
         return NextResponse.json(
         { error: "No file provided" },
         { status: 400 }
@@ -32,29 +32,19 @@ export const POST = async (req: Request) => {
         { status: 400 }
         );
     }
-
-    await prisma.file.create({
-        data: {
-            name: file.name,
-            userId: session.user.id,
-            type: file.type,
-            size: file.size,
-            uploadedAt: new Date(),
-            folderId: folderId ? Number(folderId) : null
-        },
-    });
+    
 
     await prisma.user.update({
         where: {id: session.user.id},
         data: {
-            takenSpace: {increment: file.size}
+            takenSpace: {increment: chunk.size}
         }
     });
 
-    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), file.name);
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), fileName);
+    const buffer = Buffer.from(await chunk.arrayBuffer());
 
-    await writeFile(filePath, buffer);
+    await appendFile(filePath, buffer);
 
-    return NextResponse.json({ message: "File uploaded successfully" }, {status: 201});
+    return NextResponse.json({ message: "Chunk uploaded successfully" });
 }
