@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { useQueryClient } from "react-query";
-import { ProgressBar, useFolders } from ".";
+import { ProgressBar, useErrors, useFolders } from ".";
 import Image from "next/image";
 
 export const UploadButton = () => {
@@ -11,6 +11,7 @@ export const UploadButton = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const {getOpenedFolderID} = useFolders();
     const [uploadPercentage, setUploadPercentage] = useState(0);
+    const {setErrorMessage} = useErrors();
 
     const handleClick = () => {
         inputRef.current?.click();
@@ -27,11 +28,35 @@ export const UploadButton = () => {
         for (const file of files) {
             setStatus("Uploading: " + file.name);
             setUploadPercentage(0);
-            createFileRecord(file.name, file.type, file.size, folderId);
+            const fileRecordRes = await createFileRecord(file.name, file.type, file.size, folderId);
+            
+            if(!fileRecordRes.ok) {
+                const fileRecord = await fileRecordRes.json();
+                setErrorMessage(fileRecord.errMessage);
+                setStatus("");
+                e.target.value = ""
+                return;
+            }
+
+            const fileRecord = await fileRecordRes.json();
             const chunkPercentage = (chunkSize * 100) / file.size;
 
             for (let start = 0; start < file.size; start += chunkSize) {
-                await uploadChunk(file.slice(start, start + chunkSize), file.name, folderId);
+                const res = await uploadChunk(file.slice(start, start + chunkSize), file.name, folderId);
+                if (!res.ok) {
+                    await fetch ("/api/files/handleFailedUpload", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            fileId: fileRecord.id
+                        }),
+                    });
+                    setErrorMessage(`Upload of file: ${file.name} failed`);
+                    setStatus("");
+                    e.target.value = ""
+                    return;
+                }
+
                 setUploadPercentage(prev => prev + chunkPercentage);
             }
 
@@ -50,15 +75,18 @@ export const UploadButton = () => {
         formData.append("folderId", folderId ? folderId.toString() : "");
         
 
-        await fetch("/api/files/uploadChunk", {
+        const res = await fetch("/api/files/uploadChunk", {
             method: "POST",
             body: formData
-        })
+        });
+
+        return res;
     }
 
     const createFileRecord = async (fileName: string, fileType: string, fileSize: number, folderId: number | null) => {
-        await fetch("/api/files/createFileRecord", {
+        const res = await fetch("/api/files/createFileRecord", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 fileName: fileName,
                 fileType: fileType,
@@ -66,6 +94,8 @@ export const UploadButton = () => {
                 folderId: folderId
             })
         });
+
+        return res;
     }
 
     return (

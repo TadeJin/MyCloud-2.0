@@ -10,38 +10,47 @@ export const PATCH = async (req: NextRequest) => {
 
     if (!session) {
         return NextResponse.json({
-            error: "No session set"
+            errMessage: "Error renaming file"
         },
         {status: 401})
     }
 
     if (!process.env.FILE_STORAGE_PATH) {
         return NextResponse.json(
-        { error: "Storage path not set" },
-        { status: 400 }
+        { errMessage: "Error renaming file" },
+        { status: 500 }
         );
     }
 
     const {id, oldName, newName} = await req.json();
+    const invalidFileName = /[<>:"/\\|?*\x00-\x1F]/;
 
-    const file = await prisma.file.findUnique({
-        where: {id: id}
-    });
-
-    if (session.user.id !== file?.userId) {
+    if(invalidFileName.test(newName)) {
         return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 401 }
+        { errMessage: "Error renaming file" },
+        { status: 500 }
         );
     }
 
-    await prisma.file.update({
-        where: {id: id},
-        data: {name: newName}
+    const file = await prisma.file.findUnique({
+        where: {id: id, userId: session.user.id}
     });
 
-    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-    await rename(path.join(filePath, oldName), path.join(filePath, newName));
+    if (!file) {
+        return NextResponse.json({ errMessage: "File not found" }, {status: 404});
+    }
+
+    try {
+        await prisma.file.update({
+            where: {id: id},
+            data: {name: newName}
+        });
+
+        const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
+        await rename(path.join(filePath, oldName), path.join(filePath, newName));
+    } catch(err) {
+        return NextResponse.json({ errMessage: "Error renaming file" }, {status: 500});
+    }
 
     return NextResponse.json({message: "File name changed"});
 }

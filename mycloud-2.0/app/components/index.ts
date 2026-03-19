@@ -2,6 +2,8 @@ export * from "./ActiveFileProvider";
 export * from "./AuthProvider";
 export * from "./CapacityDisplay";
 export * from "./CreateFolderButton";
+export * from "./ErrorDisplay";
+export * from "./ErrorProvider";
 export * from "./FileBox";
 export * from "./FileDisplay";
 export * from "./FileDropDown";
@@ -12,6 +14,7 @@ export * from "./FolderTrace";
 export * from "./LoginForm";
 export * from "./LogOutButton";
 export * from "./NavBar";
+export * from "./ProgressBar"
 export * from "./QueryProvider";
 export * from "./RegisterForm";
 export * from "./ResetForm";
@@ -20,4 +23,3 @@ export * from "./StoragePageUI";
 export * from "./UploadButton";
 export * from "./UserInfo";
 export * from "./UserStats";
-export * from "./ProgressBar"

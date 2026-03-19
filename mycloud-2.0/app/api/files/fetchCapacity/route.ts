@@ -13,11 +13,15 @@ export const GET = async () => {
         );
     }
 
-    const user = await prisma.user.findUnique(
-        {where: {
-            id: session.user.id
-        }}
-    );
+    try {
+        const user = await prisma.user.findUnique(
+            {where: {
+                id: session.user.id
+            }}
+        );
 
-    return NextResponse.json({taken: user?.takenSpace, maxCapacity: user?.maxStorage});
+        return NextResponse.json({taken: user?.takenSpace, maxCapacity: user?.maxStorage});
+    } catch (err) {
+        return NextResponse.json({ errMessage: "Error fetching capacity" }, {status: 500});
+    }
 }

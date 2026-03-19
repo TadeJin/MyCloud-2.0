@@ -14,12 +14,16 @@ export const GET = async (req: NextRequest) => {
         );
     }
 
-    const folders = await prisma.folder.findMany({
-        where: {
-            userId: session?.user.id,
-            folderId: folderId ? Number(folderId) : null
-        },
-    });
+    try {
+        const folders = await prisma.folder.findMany({
+            where: {
+                userId: session?.user.id,
+                folderId: folderId ? Number(folderId) : null
+            },
+        });
 
-    return NextResponse.json(folders);
+        return NextResponse.json(folders);
+    } catch(err) {
+        return NextResponse.json({ errMessage: "Error fetching folders" }, {status: 500});
+    }
 }

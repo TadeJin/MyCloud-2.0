@@ -9,7 +9,7 @@ export const POST = async (req: NextRequest) => {
 
     if (!name) {
         return NextResponse.json(
-        { error: "Invalid input" },
+        { errMessage: "Error creating folder" },
         { status: 400 }
         );
     }
@@ -18,19 +18,23 @@ export const POST = async (req: NextRequest) => {
 
      if (!session) {
         return NextResponse.json(
-        { error: "Session not set" },
+        { errMessage: "Error creating folder" },
         { status: 401 }
         );
     }
 
-    await prisma.folder.create({
-        data: {
-            name: name,
-            createdAt: new Date(),
-            userId: session.user.id,
-            folderId: folderId
-        }
-    });
+    try {
+        await prisma.folder.create({
+            data: {
+                name: name,
+                createdAt: new Date(),
+                userId: session.user.id,
+                folderId: folderId
+            }
+        });
+    } catch (err) {
+        return NextResponse.json({errMessage: "Error creating folder"}, {status: 500});
+    }
 
     return NextResponse.json({message: "Folder created"});
 }

@@ -11,6 +11,7 @@ export const FileNameInput = () => {
     const {id, name: oldName, variant} = activeFile;
     const queryClient = useQueryClient();
     const {getOpenedFolderID} = useFolders();
+    const invalidFileName = /[<>:"/\\|?*\x00-\x1F]/;
 
     const handleFile = async (e: React.SubmitEvent) => {
         e.preventDefault();
@@ -61,9 +62,10 @@ export const FileNameInput = () => {
                 <form className="w-full" onSubmit={variant === "file" ? handleFile : handleFolder}>
                     <h2 className="text-center font-bold">Enter {variant} name:</h2>
                     <input type="text" name="name" className="block p-1 outline-1 outline-black mx-auto" onChange={(e) => setName(e.target.value)}/>
+                    {invalidFileName.test(name) && <p className="text-red-600 w-full text-center font-bold">Name contains forbidden characters!</p>}
                     <div className="flex w-full">
                         <button className="mr-auto p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" type="button" onClick={() => setNameInputVisible(false)}>Back</button>
-                        <button className="ml-auto p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" type="submit">Submit</button>
+                        <button className="ml-auto p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-600 disabled:opacity-40" type="submit" disabled= {invalidFileName.test(name)}>Submit</button>
                     </div>
                 </form>
             </div>

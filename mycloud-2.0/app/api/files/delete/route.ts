@@ -7,42 +7,52 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 
 export const DELETE = async (req: NextRequest) => {
     const session = await getServerSession(authOptions);
-    const {id, userId} = await req.json();
+    const {id} = await req.json();
 
     if (!session) {
         return NextResponse.json(
-        { error: "No session set" },
-        { status: 401 }
-        );
-    }
-
-    if (session.user.id !== userId) {
-        return NextResponse.json(
-        { error: "Invalid user ID" },
+        { message: "Error removing file"},
         { status: 401 }
         );
     }
 
     if (!process.env.FILE_STORAGE_PATH) {
         return NextResponse.json(
-        { error: "Storage path not set" },
-        { status: 400 }
+        { message: "Error removing file"},
+        { status: 500 }
         );
     }
 
-    const file = await prisma.file.delete({
-        where: {id: id}
-    });
+    const file = await prisma.file.findFirst({
+        where: {id: id, userId: session.user.id}
+    })
 
-    await prisma.user.update({
-        where: {id: session.user.id},
-        data: {
-            takenSpace: {decrement: file.size}
-        }
-    });
+    if (!file) {
+        return NextResponse.json({ message: "File not found"}, {status: 404});
+    }
 
-    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), file.name);
-    await unlink(filePath);
+    try {
+        const file = await prisma.$transaction(async (tx) => {
+            const file = await tx.file.delete({
+                where: {id: id}
+            });
+
+            await tx.user.update({
+                where: {id: session.user.id},
+                data: {
+                    takenSpace: {decrement: file.size}
+                }
+            });
+
+            return file;
+        });
+
+        const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), file.name);
+        await unlink(filePath);
+
+    } catch (err) {
+        return NextResponse.json({ message: "Error removing file"}, {status: 500});
+    }
 
     return NextResponse.json({ message: "File removed" });
 }

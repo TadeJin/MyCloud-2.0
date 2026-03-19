@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
-import { useFiles } from ".";
+import { useErrors, useFiles } from ".";
 import { useQueryClient } from "react-query";
 
 interface FileDropDownProps {
@@ -10,11 +10,12 @@ interface FileDropDownProps {
 
 export const FileDropDown = (props: FileDropDownProps) => {
     const queryClient = useQueryClient();
+    const {setErrorMessage} = useErrors();
 
     const {setDropDownVisible} = props;
 
     const {activeFile, setNameInputVisible, dropDownPosition, dropDownVisible} = useFiles();
-    const {id, name, mimeType, userId, variant} = activeFile;
+    const {id, name, mimeType, variant} = activeFile;
 
     const isFile = variant === "file";
 
@@ -34,7 +35,15 @@ export const FileDropDown = (props: FileDropDownProps) => {
     }, [dropDownVisible, setDropDownVisible]);
 
     const handleDownload = async () => {
-        const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}&userId=${userId}`);
+        setDropDownVisible(false);
+        const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}&id=${id}`);
+
+        if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
         const blob = await res.blob();
 
         const url = URL.createObjectURL(blob);
@@ -44,26 +53,38 @@ export const FileDropDown = (props: FileDropDownProps) => {
         a.click();
 
         URL.revokeObjectURL(url);
-        setDropDownVisible(false);
     }
 
     const handleDelete = async () => {
-        await fetch ("/api/files/delete", {
+        setDropDownVisible(false);
+        const res = await fetch ("/api/files/delete", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: id,
-                userId: userId
             }),
         });
 
+       if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
         queryClient.invalidateQueries("files");
         queryClient.invalidateQueries("capacity");
-        setDropDownVisible(false);
     }
 
     const handleDownloadFolder = async () => {
-        const res = await fetch(`/api/files/download-folder?folderId=${id}&folderName=${name}&userId=${userId}`);
+        setDropDownVisible(false);
+        const res = await fetch(`/api/files/downloadFolder?folderId=${id}&folderName=${name}`);
+
+        if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -71,23 +92,27 @@ export const FileDropDown = (props: FileDropDownProps) => {
         a.download = `${name}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        setDropDownVisible(false);
     }
 
     const handleDeleteFolder = async () => {
-        await fetch("/api/files/deleteFolder", {
+        setDropDownVisible(false);
+        const res = await fetch("/api/files/deleteFolder", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 folderId: id,
-                userId: userId
             })
         });
+
+        if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
 
         queryClient.invalidateQueries("folders");
         queryClient.invalidateQueries("files");
         queryClient.invalidateQueries("capacity");
-        setDropDownVisible(false);
     }
 
     return (

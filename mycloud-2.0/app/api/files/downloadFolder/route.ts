@@ -11,42 +11,45 @@ export const GET = async (req: NextRequest) => {
     const { searchParams } = new URL(req.url);
     const folderId = Number(searchParams.get("folderId"));
     const folderName = Number(searchParams.get("folderName"));
-    const userId = Number(searchParams.get("userId"));
     const session = await getServerSession(authOptions);
 
     if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json({
-            error: "Invalid path"
+        return NextResponse.json({ 
+            errMessage: "Error downloading folder"
         },
-        {status: 400});
+        {status: 500});
     }
 
     if (!session) {
-        return NextResponse.json({
-            error: "Session not set"
-        },
+        return NextResponse.json({ 
+        errMessage: "Error downloading folder" },
         {status: 401}); 
     }
 
-    if (session.user.id !== userId) {
-        return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 401 }
-        );
+    const folder = await prisma.folder.findFirst({
+        where: {id: folderId, userId: session.user.id}
+    });
+
+    if (!folder) {
+        return NextResponse.json({ error: "Folder not found" }, { status: 404 });
     }
 
-    const archive = archiver("zip");
-    const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-    await downloadFolder(folderId, basePath, archive);
-    archive.finalize();
+    try {
+        const archive = archiver("zip");
+        const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
+        await downloadFolder(folderId, basePath, archive);
+        archive.finalize();
 
-    const stream = Readable.from(archive);
-    return new NextResponse(stream as unknown as BodyInit, {
-        headers: {
-            "Content-Type": "application/zip",
-            "Content-Disposition": `attachment; filename="${folderName}.zip"`,
-        }
-    });
+        const stream = Readable.from(archive);
+        return new NextResponse(stream as unknown as BodyInit, {
+            headers: {
+                "Content-Type": "application/zip",
+                "Content-Disposition": `attachment; filename="${folderName}.zip"`,
+            }
+        });
+    } catch (err) {
+        return NextResponse.json({ errMessage: "Error downloading folder" }, {status: 500});
+    }
 }
 
 

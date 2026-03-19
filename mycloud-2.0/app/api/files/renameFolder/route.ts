@@ -8,7 +8,7 @@ export const PATCH = async (req: NextRequest) => {
 
     if (!session) {
         return NextResponse.json({
-            error: "No session set"
+           errMessage: "Error renaming folder"
         },
         {status: 401})
     }
@@ -17,20 +17,20 @@ export const PATCH = async (req: NextRequest) => {
     const {id, newName} = await req.json();
 
     const folder = await prisma.folder.findUnique({
-        where: {id: id}
+        where: {id: id, userId: session.user.id}
     });
 
-    if (session.user.id !== folder?.userId) {
-        return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 401 }
-        );
+    if (!folder) {
+        return NextResponse.json({ errMessage: "Folder not found" }, {status: 404});
     }
 
-    await prisma.folder.update({
-        where: {id: id},
-        data: {name: newName}
-    });
-
+    try {
+        await prisma.folder.update({
+            where: {id: id},
+            data: {name: newName}
+        });
+    } catch(err) {
+        return NextResponse.json({ errMessage: "Error renaming folder" }, {status: 500});
+    }
     return NextResponse.json({message: "Folder name changed"});
 }
