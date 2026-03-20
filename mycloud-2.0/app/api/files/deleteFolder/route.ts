@@ -57,7 +57,7 @@ const deleteFolder = async (folderId: number, basePath: string, session: Session
     await Promise.all(files.map(file => unlink(path.join(basePath, file.name))));
 
     await prisma.file.deleteMany({
-        where: {folderId: folderId}
+        where: {folderId: folderId, userId: session.user.id}
     });
 
     await prisma.user.update({
@@ -66,12 +66,12 @@ const deleteFolder = async (folderId: number, basePath: string, session: Session
     })
 
     const subFolders = await prisma.folder.findMany({
-        where: {folderId: folderId}
+        where: {folderId: folderId, userId: session.user.id}
     });
 
     await Promise.all(subFolders.map(folder => deleteFolder(folder.id, basePath, session)));
 
     await prisma.folder.delete({
-        where: {id: folderId}
+        where: {id: folderId, userId: session.user.id}
     });
 }
