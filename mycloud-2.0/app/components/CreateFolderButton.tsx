@@ -1,14 +1,40 @@
 "use client";
 
-import { useFiles } from ".";
+import { useQueryClient } from "react-query";
+import { useDialog, useErrors, useFiles, useFolders } from ".";
 import Image from "next/image";
 
 export const CreateFolderButton = () => {
-    const {setNameInputVisible, setActiveFile} = useFiles();
+    const queryClient = useQueryClient();
+    const {setActiveFile} = useFiles();
+    const {setDialogVisible, setDialogProps} = useDialog();
+    const {getOpenedFolderID} = useFolders();
+    const {setErrorMessage} = useErrors();
+
+    const createFolder = async (newName: string) => {
+        setDialogVisible(false);
+        const res = await fetch("/api/files/createFolder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: newName,
+                folderId: getOpenedFolderID()
+            }),
+        });
+
+        if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
+        queryClient.invalidateQueries("folders");
+    }
 
     const handleClick = () => {
-        setActiveFile({id: -1, mimeType: "", name: "", userId: -1, variant: "folder"});
-        setNameInputVisible(true);
+        setActiveFile({id: -1, mimeType: "", name: "", variant: "folder"});
+        setDialogProps({headerText: "Enter new folder name:", hasInput: true, onSubmit: createFolder})
+        setDialogVisible(true);
     }
 
     return (

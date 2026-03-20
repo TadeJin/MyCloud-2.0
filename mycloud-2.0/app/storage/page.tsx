@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "../api/auth/[...nextauth]/route";
-import { QueryProvider, FolderProvider, ActiveFileProvider, StoragePageUI, ErrorProvider } from "../components";
+import { QueryProvider, FolderProvider, ActiveFileProvider, StoragePageUI, ErrorProvider, DialogProvider } from "../components";
 
 export default async function StoragePage() {
     const session = await getServerSession(authOptions);
@@ -13,7 +13,9 @@ export default async function StoragePage() {
             <FolderProvider>
                 <ActiveFileProvider>
                     <ErrorProvider>
-                        <StoragePageUI session={session}/>
+                        <DialogProvider>
+                            <StoragePageUI session={session}/>
+                        </DialogProvider>
                     </ErrorProvider>
                 </ActiveFileProvider>
             </FolderProvider>

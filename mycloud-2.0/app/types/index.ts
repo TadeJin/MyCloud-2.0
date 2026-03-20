@@ -8,4 +8,10 @@ export interface DBFile {
     size: number,
     uploadedAt: DateTime
 }
-export type FileNameInputVariants = "file" | "folder";
+export type FileVariants = "file" | "folder";
+
+export interface ConfirmationDialogProps {
+    headerText: string,
+    hasInput: boolean,
+    onSubmit: ((newName: string) => void) | (() => void),
+}

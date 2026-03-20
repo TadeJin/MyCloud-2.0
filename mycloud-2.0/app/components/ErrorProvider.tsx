@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useState } from "react";
+import { ErrorDisplay } from ".";
 
 interface ErrorContextType {
     errorMessage: string,
@@ -22,6 +23,7 @@ export const ErrorProvider = ({ children }: { children: ReactNode }) => {
     return (
         <ErrorContext.Provider value={{ errorMessage, setErrorMessage }}>
             {children}
+            <ErrorDisplay />
         </ErrorContext.Provider>
     );
 }

@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { useQueryClient } from "react-query";
 import { useFiles, useFolders } from ".";
-import { FileNameInputVariants } from "../types";
+import { FileVariants } from "../types";
 
 interface FileBoxProps {
-    variant: FileNameInputVariants,
+    variant: FileVariants,
     id: number,
     name: string,
     mimeType?: string,

@@ -1,7 +1,7 @@
 "use client";
 
 import { Session } from "next-auth"
-import { ErrorDisplay, FileDisplay, FileNameInput, NavBar, SideBar, useFiles } from "."
+import { FileDisplay, NavBar, SideBar } from "."
 
 interface StoragePageUIProps {
     session: Session
@@ -10,8 +10,6 @@ interface StoragePageUIProps {
 export const StoragePageUI = (props: StoragePageUIProps) => {
     const {session} = props;
 
-    const {nameInputVisible} = useFiles();
-
     return (
         <div className="flex flex-col relative w-screen h-screen">
             <NavBar session= {session} />
@@ -19,8 +17,6 @@ export const StoragePageUI = (props: StoragePageUIProps) => {
                 <SideBar />
                 <FileDisplay className="pl-10 pt-5"/>
             </div>
-            {nameInputVisible && <FileNameInput />}
-            <ErrorDisplay />
         </div>
     )
 }

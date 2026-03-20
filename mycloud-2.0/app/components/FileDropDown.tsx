@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
-import { useErrors, useFiles } from ".";
+import { useDialog, useErrors, useFiles } from ".";
 import { useQueryClient } from "react-query";
 
 interface FileDropDownProps {
@@ -11,10 +11,9 @@ interface FileDropDownProps {
 export const FileDropDown = (props: FileDropDownProps) => {
     const queryClient = useQueryClient();
     const {setErrorMessage} = useErrors();
-
+    const {setDialogVisible, setDialogProps} = useDialog();
     const {setDropDownVisible} = props;
-
-    const {activeFile, setNameInputVisible, dropDownPosition, dropDownVisible} = useFiles();
+    const {activeFile, dropDownPosition, dropDownVisible} = useFiles();
     const {id, name, mimeType, variant} = activeFile;
 
     const isFile = variant === "file";
@@ -34,7 +33,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [dropDownVisible, setDropDownVisible]);
 
-    const handleDownload = async () => {
+    const handleFileDownload = async () => {
         setDropDownVisible(false);
         const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}&id=${id}`);
 
@@ -55,27 +54,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         URL.revokeObjectURL(url);
     }
 
-    const handleDelete = async () => {
-        setDropDownVisible(false);
-        const res = await fetch ("/api/files/delete", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id: id,
-            }),
-        });
-
-       if (!res.ok) {
-            const resJSON = await res.json();
-            setErrorMessage(resJSON.errMessage);
-            return;
-        }
-
-        queryClient.invalidateQueries("files");
-        queryClient.invalidateQueries("capacity");
-    }
-
-    const handleDownloadFolder = async () => {
+    const handleFolderDownload = async () => {
         setDropDownVisible(false);
         const res = await fetch(`/api/files/downloadFolder?folderId=${id}&folderName=${name}`);
 
@@ -94,8 +73,38 @@ export const FileDropDown = (props: FileDropDownProps) => {
         URL.revokeObjectURL(url);
     }
 
-    const handleDeleteFolder = async () => {
+    const handleDelete = () => {
         setDropDownVisible(false);
+        if (variant === "file") {
+            setDialogProps({headerText: `Are you sure you want to delete ${name}`, hasInput: false, onSubmit: handleFileDelete});
+        } else {
+            setDialogProps({headerText: `Are you sure you want to delete ${name}`, hasInput: false, onSubmit: handleFolderDelete});
+        }
+        setDialogVisible(true);
+    }
+
+    const handleFileDelete = async () => {
+        setDialogVisible(false);
+        const res = await fetch ("/api/files/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: id,
+            }),
+        });
+
+       if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
+        queryClient.invalidateQueries("files");
+        queryClient.invalidateQueries("capacity");
+    }
+
+    const handleFolderDelete = async () => {
+        setDialogVisible(false);
         const res = await fetch("/api/files/deleteFolder", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
@@ -115,12 +124,65 @@ export const FileDropDown = (props: FileDropDownProps) => {
         queryClient.invalidateQueries("capacity");
     }
 
+
+    const handleRename = () => {
+        setDropDownVisible(false);
+        if (variant === "file") {
+            setDialogProps({headerText: "Enter new file name:", hasInput: true, onSubmit: handleFileRename});
+        } else {
+            setDialogProps({headerText: "Enter new folder name:", hasInput: true, onSubmit: handleFolderRename});
+        }
+        setDialogVisible(true);
+    }
+
+    const handleFileRename = async (newName: string) => {
+        setDialogVisible(false);
+        const res = await fetch ("/api/files/rename", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: id,
+                oldName: name,
+                newName: newName
+            }),
+        });
+
+        if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
+        queryClient.invalidateQueries("files");
+    }
+
+    const handleFolderRename = async (newName: string) => {
+        setDialogVisible(false);
+
+        const res = await fetch("/api/files/renameFolder", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: id,
+                newName: newName
+            }),
+        });
+
+        if (!res.ok) {
+            const resJSON = await res.json();
+            setErrorMessage(resJSON.errMessage);
+            return;
+        }
+
+        queryClient.invalidateQueries("folders");
+    };
+
     return (
         <>
         {dropDownVisible && <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white outline-2 outline-black rounded-md w-30 z-10">
-            <button className="hover:bg-gray-600 cursor-pointer" onClick={isFile ? handleDownload : handleDownloadFolder}>Download</button>
-            <button className="hover:bg-gray-600 cursor-pointer" onClick={isFile ? handleDelete : handleDeleteFolder}>Delete</button>
-            <button className="hover:bg-gray-600 cursor-pointer" onClick={() => {setDropDownVisible(false); setNameInputVisible(true)}}>Rename</button> 
+            <button className="hover:bg-gray-600 cursor-pointer" onClick={isFile ? handleFileDownload : handleFolderDownload}>Download</button>
+            <button className="hover:bg-gray-600 cursor-pointer" onClick={handleRename}>Rename</button> 
+            <button className="hover:bg-gray-600 cursor-pointer" onClick={handleDelete}>Delete</button>
         </div>}
         </>
     )
