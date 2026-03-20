@@ -31,7 +31,7 @@ export const ResetForm = (props: ResetFormProps) => {
     const handleSubmitEmail = async (e: React.SubmitEvent) => {
         e.preventDefault()
 
-        await fetch("/api/auth/send-reset-email", {
+        await fetch("/api/auth/sendResetEmail", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -45,7 +45,7 @@ export const ResetForm = (props: ResetFormProps) => {
         e.preventDefault()
         if (!token) return;
 
-        await fetch("/api/auth/reset-password", {
+        await fetch("/api/auth/resetPassword", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
