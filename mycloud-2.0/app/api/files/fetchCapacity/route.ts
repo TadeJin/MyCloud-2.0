@@ -20,7 +20,11 @@ export const GET = async () => {
             }}
         );
 
-        return NextResponse.json({taken: user?.takenSpace, maxCapacity: user?.maxStorage});
+        if (!user) {
+            return NextResponse.json({ errMessage: "Error fetching capacity" }, {status: 500});
+        }
+
+        return NextResponse.json({taken: Number(user.takenSpace), maxCapacity: Number(user.maxStorage)});
     } catch (err) {
         return NextResponse.json({ errMessage: "Error fetching capacity" }, {status: 500});
     }

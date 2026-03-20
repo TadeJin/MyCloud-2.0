@@ -22,7 +22,9 @@ export const GET = async (req: NextRequest) => {
             },
         });
 
-        return NextResponse.json(files);
+        const convertedFiles = files.map((file) => ({...file, size: Number(file.size)}));
+
+        return NextResponse.json(convertedFiles);
     } catch (err) {
         return NextResponse.json({ errMessage: "Error fetching files" }, {status: 500});
     }

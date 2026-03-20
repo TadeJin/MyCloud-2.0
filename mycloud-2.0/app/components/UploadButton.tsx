@@ -17,10 +17,48 @@ export const UploadButton = () => {
         inputRef.current?.click();
     }
 
+    const setFailedUploadErr = (errMessage: string, fileInput: HTMLInputElement) => {
+        setErrorMessage(errMessage);
+        setStatus("");
+        fileInput.value = "";
+    }
+
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files ?? []);
 
         if (files?.length == 0) return;
+
+        const spaceRes = await fetch("/api/files/fetchFreeSpace");
+
+        if (!spaceRes.ok) {
+            setFailedUploadErr((await spaceRes.json()).errMessage, e.target);
+            return;
+        }
+
+        const duplicateCheck = await fetch("/api/files/checkDuplicates", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                fileNames: files.map(file => file.name)
+            })
+        });
+
+        if (!duplicateCheck.ok) {
+            setFailedUploadErr((await duplicateCheck.json()).errMessage, e.target);
+            return;
+        }
+
+        const availableSpaceInfo = await spaceRes.json();
+    
+        let totalSize = 0;
+        files.forEach(async (file) => {
+            totalSize += file.size;
+        });
+
+        if (totalSize > availableSpaceInfo.availableUserSpace || totalSize > availableSpaceInfo.availableDiskSpace) {
+            setFailedUploadErr("Not enough space", e.target);
+            return;
+        }
 
         const chunkSize = 20 * 1024 * 1024;
         const folderId = getOpenedFolderID();
@@ -32,9 +70,7 @@ export const UploadButton = () => {
             
             if(!fileRecordRes.ok) {
                 const fileRecord = await fileRecordRes.json();
-                setErrorMessage(fileRecord.errMessage);
-                setStatus("");
-                e.target.value = ""
+                setFailedUploadErr(fileRecord.errMessage, e.target);
                 return;
             }
 
@@ -51,9 +87,7 @@ export const UploadButton = () => {
                             fileId: fileRecord.id
                         }),
                     });
-                    setErrorMessage(`Upload of file: ${file.name} failed`);
-                    setStatus("");
-                    e.target.value = ""
+                    setFailedUploadErr(`Upload of file: ${file.name} failed`, e.target);
                     return;
                 }
 
