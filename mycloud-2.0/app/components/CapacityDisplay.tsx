@@ -4,38 +4,68 @@ import { useQuery } from "react-query";
 import { ProgressBar } from ".";
 
 export const CapacityDisplay = () => {
+    const GB_SIZE = 1024 * 1024 * 1024;
+    const MB_SIZE = 1024 * 1024;
+
     const fetchCapacity = async () => {
         const res = await fetch("/api/files/fetchCapacity");
         return res.json();
     };
 
-    const convertToText = (byteCapacity: number) => {
-        const gbSize = 1024 * 1024 * 1024;
-        const mbSize = 1024 * 1024;
+    const getUnit = (byteCapacity: number) => {
 
-        if (byteCapacity >= gbSize) return `${(byteCapacity / gbSize).toFixed(2)} GB`;
+        if (byteCapacity >= GB_SIZE) return "GB";
 
-        return `${(byteCapacity / mbSize).toFixed(2)} MB`
+        return "MB";
     };
 
+    const convertToUnit = (byteCapacity: number) => {
+
+        if (byteCapacity >= GB_SIZE) return (byteCapacity / GB_SIZE).toFixed(2);
+
+        return (byteCapacity / MB_SIZE).toFixed(2);
+    }
+
+    const getBarColor = (percentage: number) => {
+        if (percentage >= 90) return "bg-red-500";
+        if (percentage >= 75) return "bg-orange-500";
+
+        return "bg-blue-500";
+    }
+
     const { data: capacity, status: statusCapacity } = useQuery(["capacity"], fetchCapacity);
-    let text = "";
+    let takenStorage = 0;
+    let maxCapacity = 0;
     let percentage = 0;
+    let errText = "";
 
     if (statusCapacity === "loading") {
-        text = "Loading available storage"; 
+        errText = "Loading available storage"; 
     } else if (statusCapacity === "error" || !capacity) {
-        text = "Error occured while getting capacity";
+        errText = "Error occured while getting capacity";
     } else {
-        text = `You have used ${convertToText(capacity.taken)} from ${convertToText(capacity.maxCapacity)} capacity`;
+        takenStorage = capacity.taken;
+        maxCapacity = capacity.maxCapacity;
         percentage = (capacity.taken * 100) / capacity.maxCapacity;
     }
 
     return (
-        <div className="flex flex-col items-center">
-            <p className="font-bold">Storage capacity</p>
-            <ProgressBar percentage={percentage}/>
-            <p className="text-xs">{text}</p>
+        <div className="flex flex-col gap-2 border-t border-gray-400 pt-3">
+            <p className="text-sm uppercase font-bold text-gray-500">Storage capacity</p>
+            <div className="flex flex-col items-center bg-white p-3 rounded-md">
+                <div className="flex flex-row justify-between w-full">
+                    <div className="flex flex-row gap-1">
+                        <p className="font-bold">{convertToUnit(takenStorage)}</p>
+                        <p className="text-gray-400">{`${getUnit(takenStorage)}`}</p>
+                    </div>
+                    <div className="flex flex-row gap-1">
+                        <p className="font-bold">{convertToUnit(maxCapacity)}</p>
+                        <p className="text-gray-400">{`${getUnit(maxCapacity)}`}</p>
+                    </div>
+                </div>
+                <ProgressBar percentage={percentage} color={getBarColor(percentage)}/>
+                {errText && <p className="text-xs text-center">{errText}</p>}
+            </div>
         </div>
     )
 };

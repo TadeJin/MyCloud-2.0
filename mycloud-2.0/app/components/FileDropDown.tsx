@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
 import { useDialog, useErrors, useFiles } from ".";
 import { useQueryClient } from "react-query";
+import Image from "next/image";
 
 interface FileDropDownProps {
     setDropDownVisible: Dispatch<SetStateAction<boolean>>
@@ -179,11 +180,23 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     return (
         <>
-        {dropDownVisible && <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white outline-2 outline-black rounded-md w-30 z-10">
-            <button className="hover:bg-gray-600 cursor-pointer" onClick={isFile ? handleFileDownload : handleFolderDownload}>Download</button>
-            <button className="hover:bg-gray-600 cursor-pointer" onClick={handleRename}>Rename</button> 
-            <button className="hover:bg-gray-600 cursor-pointer" onClick={handleDelete}>Delete</button>
-        </div>}
+        {dropDownVisible && (
+            <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-36 z-10 p-1 border border-gray-100">
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-100" onClick={isFile ? handleFileDownload : handleFolderDownload}>
+                    <Image src="/download.svg" alt="" width={16} height={16}/>
+                    Download
+                </button>
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-100" onClick={handleRename}>
+                    <Image src="/rename.svg" alt="" width={16} height={16}/>
+                    Rename
+                </button>
+                <div className="h-px bg-gray-100 my-1"/>
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-red-50 text-red-500 cursor-pointer transition-colors duration-100" onClick={handleDelete}>
+                    <Image src="/trash.svg" alt="" width={16} height={16}/>
+                    Delete
+                </button>
+            </div>
+        )}
         </>
     )
 };

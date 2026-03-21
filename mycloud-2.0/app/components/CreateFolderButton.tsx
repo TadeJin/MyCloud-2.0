@@ -39,7 +39,7 @@ export const CreateFolderButton = () => {
 
     return (
         <div className="flex flex-col w-[80%]">
-            <button className = "p-2 rounded-full hover:bg-blue-200 cursor-pointer flex items-center" onClick={handleClick}><Image src="/folder-plus.svg" alt="uploadIcon" width={24} height={24}/><p>Create folder</p></button>
+            <button className = "bg-white rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.10)] hover:shadow-md transition-all p-2 h-10 hover:bg-blue-200 cursor-pointer flex items-center" onClick={handleClick}><Image src="/folder-plus.svg" alt="uploadIcon" width={24} height={24}/><p>Create folder</p></button>
         </div>
     )
 };
