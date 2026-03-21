@@ -10,14 +10,14 @@ export const NavBar = (props: NavBarProps) => {
     const {session} = props;
 
     return (
-        <div className="w-full h-12 px-6 flex items-center justify-between">
-            <div className="flex items-center">
+        <div className="w-full h-12 flex items-center">
+            <div className="flex items-center mr-auto">
                 <Image
                     src="/logo.svg"
                     alt="MyCloud logo"
-                    width={250}
-                    height={40}
-                    className="object-contain mt-10 mr-auto"
+                    width={300}
+                    height={150}
+                    className="object-contain mt-10"
                 />
             </div>
 
