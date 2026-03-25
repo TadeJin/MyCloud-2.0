@@ -1,4 +1,4 @@
-import prisma from "@/app/lib/prisma";;
+import prisma from "@/app/lib/prisma";
 import { getServerSession, Session } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
@@ -57,7 +57,7 @@ const deleteFolder = async (folderId: number, basePath: string, session: Session
     await Promise.all(files.map(file => unlink(path.join(basePath, file.name))));
 
     await prisma.file.deleteMany({
-        where: {folderId: folderId, userId: session.user.id}
+        where: {id: {in: files.map(file => file.id)}}
     });
 
     await prisma.user.update({
@@ -66,12 +66,12 @@ const deleteFolder = async (folderId: number, basePath: string, session: Session
     })
 
     const subFolders = await prisma.folder.findMany({
-        where: {folderId: folderId, userId: session.user.id}
+        where: {folderId: folderId}
     });
 
     await Promise.all(subFolders.map(folder => deleteFolder(folder.id, basePath, session)));
 
     await prisma.folder.delete({
-        where: {id: folderId, userId: session.user.id}
+        where: {id: folderId}
     });
 }
