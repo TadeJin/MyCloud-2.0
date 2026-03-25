@@ -9,7 +9,7 @@ export const ProgressBar = (props: ProgressBarProps) => {
     return (
         <div className="w-full bg-gray-400 rounded-full h-2">
             <div
-                className={`${color} h-2 rounded-full transition-all`}
+                className={`${color} h-2 rounded-full transition-all max-w-full`}
                 style={{ width: `${percentage}%` }}
             />
         </div>

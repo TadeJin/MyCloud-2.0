@@ -11,10 +11,10 @@ export const StoragePageUI = (props: StoragePageUIProps) => {
     const {session} = props;
 
     return (
-        <div className="flex flex-col relative w-screen h-screen">
-            <NavBar session= {session} />
-            <div className="flex flex-row h-[calc(100vh-48px)] w-screen">
-                <SideBar />
+        <div className="flex flex-row relative w-screen h-screen">
+            <SideBar />
+            <div className="flex flex-col h-screen w-screen">
+                <NavBar session= {session} />
                 <FileDisplay className="pl-10 pt-5"/>
             </div>
         </div>

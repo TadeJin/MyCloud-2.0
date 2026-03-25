@@ -38,7 +38,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
     const { data: files, status: statusFiles } = useQuery(["files", currentId], () => fetchFiles(currentId));
     const { data: folders, status: statusFolders } = useQuery(["folders", currentId], () => fetchFolders(currentId));
 
-    const style = "flex flex-col rounded-md w-full rounded-lg bg-white pr-30 overflow-y-scroll " + className
+    const style = "flex flex-col rounded-md w-full h-full rounded-lg bg-stone-50 pr-30 overflow-y-scroll " + className
 
     return (
         <div className={style}>

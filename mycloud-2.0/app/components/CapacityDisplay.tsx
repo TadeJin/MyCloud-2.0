@@ -52,7 +52,7 @@ export const CapacityDisplay = () => {
     return (
         <div className="flex flex-col gap-2 border-t border-gray-400 pt-3">
             <p className="text-sm uppercase font-bold text-gray-500">Storage capacity</p>
-            <div className="flex flex-col items-center bg-white p-3 rounded-md">
+            <div className="flex flex-col items-center bg-stone-50 p-3 rounded-md">
                 <div className="flex flex-row justify-between w-full">
                     <div className="flex flex-row gap-1">
                         <p className="font-bold">{convertToUnit(takenStorage)}</p>
