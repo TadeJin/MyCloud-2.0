@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 
 interface ResetFormProps {
     variant: "email" | "password",
@@ -56,15 +57,39 @@ export const ResetForm = (props: ResetFormProps) => {
         router.replace("/");
     }
 
-     return (
-        <div className="grid place-items-center h-screen">
-            <div className="flex flex-col items-center gap-3 outline-2 outline-black p-3">
-                <h1 className="font-bold">Reset Password</h1>
+    return (
+        <div className="grid place-items-center h-screen bg-stone-100">
+            <div className="flex flex-col gap-6 bg-white p-10 pt-3 rounded-2xl shadow-lg w-full max-w-sm">
+
+                <div className="flex justify-center">
+                    <Image src="/logo.svg" alt="mycloud-logo" width={180} height={130} />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold text-stone-800 tracking-tight">Reset password</h1>
+                    <p className="text-sm text-stone-400">{isEmail ? "Enter your email to receive a reset link" : "Enter your new password"}</p>
+                </div>
+
                 <form className="flex flex-col gap-3" onSubmit={isEmail ? handleSubmitEmail : handleSubmitPassword}>
-                    <input className = "p-1 outline-1 outline-black" type={type} name={type} placeholder={isEmail ? "Email" : "Password"} onChange={isEmail ? e => setEmail(e.target.value) : (e) => setPassword(e.target.value)}/>
-                    <button className = "p-1 outline-1 outline-black hover:bg-gray-400 cursor-pointer" type="submit">{submitText}</button>
+                    <input
+                        className="p-3 rounded-lg border border-stone-200 bg-stone-50 text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400 transition"
+                        type={type}
+                        name={type}
+                        placeholder={isEmail ? "Email" : "Password"}
+                        onChange={isEmail ? e => setEmail(e.target.value) : e => setPassword(e.target.value)}
+                    />
+
+                    <button
+                        className="mt-1 p-3 rounded-lg bg-stone-800 text-white font-semibold hover:bg-stone-700 transition cursor-pointer"
+                        type="submit"
+                    >
+                        {submitText}
+                    </button>
                 </form>
-                <div>{text}</div>
+
+                {text && (
+                    <p className="text-sm text-center font-medium">{text}</p>
+                )}
             </div>
         </div>
     );
