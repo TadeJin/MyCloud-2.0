@@ -22,6 +22,17 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
+    const duplicate_row = await prisma.user.findFirst({
+        where: {email: email}
+    });
+
+    if (duplicate_row) {
+        return NextResponse.json(
+            {errMessage: "Account with this email already exists"},
+            {status: 400}
+        );
+    }
+
     const user = await prisma.user.create({
         data: {
             email: email,
