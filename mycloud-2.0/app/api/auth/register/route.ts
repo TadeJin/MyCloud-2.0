@@ -4,6 +4,9 @@ import argon2 from "argon2";
 import { mkdir } from "fs/promises";
 import path from "path";
 import { DEFAULT_MAX_STORAGE } from "@/app/constants";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const POST = async (req: NextRequest) => {
     const {email, password} = await req.json();
@@ -33,16 +36,34 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    const user = await prisma.user.create({
-        data: {
-            email: email,
-            password: await argon2.hash(password),
-            maxStorage: DEFAULT_MAX_STORAGE
-        },
-    });
+    try {
 
-    const dirPath = path.join(process.env.FILE_STORAGE_PATH, user.id.toString());
-    await mkdir(dirPath);
+        const user = await prisma.user.create({
+            data: {
+                email: email,
+                password: await argon2.hash(password),
+                maxStorage: DEFAULT_MAX_STORAGE
+            },
+        });
 
-    return NextResponse.json({ message: "User created" }, { status: 201 });
+        const dirPath = path.join(process.env.FILE_STORAGE_PATH, user.id.toString());
+        await mkdir(dirPath);
+
+        await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: 'Welcome to MyCloud 2.0',
+        html: `<h1>Welcome to MyCloud 2.0!</h1>
+                <p>Your account has been created successfully.</p>
+                <p>You start with <strong>1GB of free storage</strong>. Upload files, organize them into folders, and access them from anywhere.</p>
+                    <br/>
+                <p>— The MyCloud 2.0 Team</p>`
+        });
+        return NextResponse.json({ message: "User created" }, { status: 201 });
+    } catch (err) {
+        return NextResponse.json(
+            {errMessage: "Error registering"},
+            {status: 500}
+        );
+    }
 }
