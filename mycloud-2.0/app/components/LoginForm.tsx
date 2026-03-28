@@ -21,6 +21,11 @@ export const LoginForm = () => {
             redirect: false
         })
 
+        if (res?.error) {
+            setErrorMessage(res.error);
+            return;
+        }
+
         if (res?.ok) {
             router.replace("storage");
         }  else {

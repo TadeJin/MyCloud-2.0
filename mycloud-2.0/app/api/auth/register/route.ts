@@ -5,6 +5,7 @@ import { mkdir } from "fs/promises";
 import path from "path";
 import { DEFAULT_MAX_STORAGE } from "@/app/constants";
 import { Resend } from "resend";
+import crypto from 'crypto';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -37,12 +38,17 @@ export const POST = async (req: NextRequest) => {
     }
 
     try {
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const resetLink = `${process.env.SITE_DOMAIN}/verify-email?token=${rawToken}`;
+        
+        const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
 
         const user = await prisma.user.create({
             data: {
                 email: email,
                 password: await argon2.hash(password),
-                maxStorage: DEFAULT_MAX_STORAGE
+                maxStorage: DEFAULT_MAX_STORAGE,
+                verifyToken: hashedToken
             },
         });
 
@@ -52,12 +58,10 @@ export const POST = async (req: NextRequest) => {
         await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: email,
-        subject: 'Welcome to MyCloud 2.0',
+        subject: 'MyCloud 2.0 email verification',
         html: `<h1>Welcome to MyCloud 2.0!</h1>
-                <p>Your account has been created successfully.</p>
-                <p>You start with <strong>1GB of free storage</strong>. Upload files, organize them into folders, and access them from anywhere.</p>
-                    <br/>
-                <p>— The MyCloud 2.0 Team</p>`
+                <p>In order to use MyCloud 2.0 please verify your email with the link below.</p>
+                <p>Verification link <a href="${resetLink}">${resetLink}</a></p>`
         });
         return NextResponse.json({ message: "User created" }, { status: 201 });
     } catch (err) {

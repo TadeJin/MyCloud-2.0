@@ -28,6 +28,10 @@ export const authOptions = {
                 return null;
             }
 
+            if (!user.emailVerified) {
+                throw new Error("Account is not verified")
+            }
+
             const passwordMatch = await argon2.verify(user.password, password);
 
             if (!passwordMatch) return null;

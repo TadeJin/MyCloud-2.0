@@ -22,6 +22,8 @@ model User {
     files   File[]
     folders Folder[]
     tokens ResetTokens[]
+    emailVerified     Boolean  @default(false)
+    verifyToken String @unique
 }
 
 model File {
