@@ -32,6 +32,20 @@ export const PATCH = async (req: NextRequest) => {
         );
     }
 
+    const duplicate = await prisma.file.findFirst({
+        where: {
+            name: newName,
+            userId: session.user.id
+        }
+    });
+
+    if (duplicate) {
+        return NextResponse.json(
+        { errMessage: `Cannot rename "${oldName}": a file named "${newName}" already exists` },
+        { status: 400 }
+        );
+    }
+
     const file = await prisma.file.findUnique({
         where: {id: id, userId: session.user.id}
     });
