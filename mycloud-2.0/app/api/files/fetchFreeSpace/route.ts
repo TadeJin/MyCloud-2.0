@@ -29,7 +29,7 @@ export const GET = async () => {
 
         const diskStats = await statfs(process.env.FILE_STORAGE_PATH);
 
-        return NextResponse.json({availableUserSpace: Number(user.maxStorage - user.takenSpace), availableDiskSpace: (diskStats.bavail * diskStats.bsize)});
+        return NextResponse.json({availableUserSpace: Number(user.maxStorage) === -1 ? -1 : Number(user.maxStorage - user.takenSpace), availableDiskSpace: (diskStats.bavail * diskStats.bsize)});
     } catch (err) {
        return NextResponse.json(
             {errMessage: "Failed to upload file"},

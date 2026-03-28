@@ -55,7 +55,7 @@ export const UploadButton = () => {
             totalSize += file.size;
         });
 
-        if (totalSize > availableSpaceInfo.availableUserSpace || totalSize > availableSpaceInfo.availableDiskSpace) {
+        if ((availableSpaceInfo.availableUserSpace !== -1 && totalSize > availableSpaceInfo.availableUserSpace) || totalSize > availableSpaceInfo.availableDiskSpace) {
             setFailedUploadErr("Not enough space", e.target);
             return;
         }
