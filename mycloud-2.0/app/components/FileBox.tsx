@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useQueryClient } from "react-query";
 import { useFiles, useFolders } from ".";
 import { FileVariants } from "../types";
+import { ChangeEvent } from "react";
 
 interface FileBoxProps {
     variant: FileVariants,
@@ -16,7 +17,7 @@ export const FileBox = ({variant, id, name, mimeType}: FileBoxProps) => {
     const isFile = variant === "file";
     const {addFolder} = useFolders();
     const queryClient = useQueryClient();
-    const {setActiveFile, setDropDownVisible, setDropDownPosition, setPreviewVisible} = useFiles();
+    const {setActiveFile, setDropDownVisible, setDropDownPosition, setPreviewVisible, selectActive, addSelectedFileId, removeSelectedFileId, selectedFilesIds} = useFiles();
     const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf");
 
     const openFolder = () => {
@@ -49,11 +50,20 @@ export const FileBox = ({variant, id, name, mimeType}: FileBoxProps) => {
         return "./file.svg";
     }
 
+    const selectOperation = (e: ChangeEvent<HTMLInputElement>) => {
+        e.stopPropagation();
+        if (e.target.checked) {
+            addSelectedFileId(id);
+        } else {
+            removeSelectedFileId(id);
+        }
+    }
+
     return (
         <>
            <div className="flex items-center gap-2 w-44 bg-gray-100 rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-md transition-all duration-150 group relative">
                 <div className="flex items-center justify-center w-7 h-7">
-                    <Image src={getIcon()} alt="fileIcon" width={16} height={16}/>
+                    {selectActive && isFile ? <input type="checkbox" checked={selectedFilesIds.includes(id)} onChange={(e) => selectOperation(e)}></input>: <Image src={getIcon()} alt="fileIcon" width={16} height={16}/>}
                 </div>
                 <div onClick={!isFile ? openFolder : (e) => openPreview(e)} title={isPreviewable ? "Preview available" : name} className={`${isPreviewable || !isFile ? "cursor-pointer" : "cursor-default"} truncate text-sm font-medium flex-1`}>
                     {name}

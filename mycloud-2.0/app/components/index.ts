@@ -14,12 +14,14 @@ export * from "./FolderProvider";
 export * from "./FolderTrace";
 export * from "./LoginForm";
 export * from "./LogOutButton";
+export * from "./MultipleFileOperations"
 export * from "./NavBar";
 export * from "./ProgressBar"
 export * from "./QueryProvider";
 export * from "./RegisterForm";
 export * from "./ResetForm";
 export * from "./SearchBar";
+export * from "./SelectOpButton";
 export * from "./SideBar";
 export * from "./StoragePageUI";
 export * from "./UploadButton";
