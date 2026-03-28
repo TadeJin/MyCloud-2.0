@@ -62,6 +62,12 @@ export const FilePreview = () => {
         return <div></div>
     }
 
+    const exitPreview = () => {
+        setSrcUrl("");
+        setSvgContent("");
+        setPreviewVisible(false);
+    }
+
     return (
         <>
         {previewVisible && (srcUrl || svgContent) &&
@@ -69,7 +75,7 @@ export const FilePreview = () => {
             <div className="flex flex-col items-center border border-stone-600 bg-white w-[90%] h-[90%] rounded-lg p-5 relative gap-2">
                 <div className="flex w-full justify-center">
                     <h2 className="text-sm font-medium text-stone-600 truncate max-w-[70%]">{name}</h2>
-                    <div className=" absolute right-5 p-1 rounded-full hover:bg-gray-200 cursor-pointer" onClick={() => setPreviewVisible(false)}><Image src="./x.svg" alt="close-preview-icon" width={24} height={24} /></div>
+                    <div className=" absolute right-5 p-1 rounded-full hover:bg-gray-200 cursor-pointer" onClick={exitPreview}><Image src="./x.svg" alt="close-preview-icon" width={24} height={24} /></div>
                 </div>
                 <div className="flex-1 flex justify-center items-center relative overflow-hidden w-full">
                 {renderPreview()}
