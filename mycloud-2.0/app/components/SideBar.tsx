@@ -5,7 +5,7 @@ import Image from "next/image";
 export const SideBar = () => {
     return (
         <div className="flex flex-col w-[18%] items-center gap-3">
-            <div className="flex items-center h-[10%] w-70 relative">
+            <div className="flex items-center h-[10%] w-70 relative -mt-4">
                 <Image
                     src="/logo.svg"
                     alt="MyCloud logo"

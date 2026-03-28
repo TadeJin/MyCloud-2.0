@@ -6,6 +6,7 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 export const GET = async (req: NextRequest) => {
     const session = await getServerSession(authOptions);
     const folderId = req.nextUrl.searchParams.get('folderId');
+    const searchString = req.nextUrl.searchParams.get('search');
 
     if (!session) {
         return NextResponse.json(
@@ -17,6 +18,7 @@ export const GET = async (req: NextRequest) => {
     try {
         const files = await prisma.file.findMany({
             where: {
+                name: {contains: searchString ? searchString : ""},
                 userId: session.user.id,
                 folderId: folderId ? Number(folderId) : null
             },

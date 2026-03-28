@@ -5,6 +5,7 @@ import { FileBox } from "./FileBox";
 import { DBFile } from "../types";
 import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
 import { useState } from "react";
+import Image from "next/image";
 
 interface FileDisplayProps {
     className?: string
@@ -18,25 +19,25 @@ interface DBFolder {
 
 export const FileDisplay = (props: FileDisplayProps) => {
     const {getOpenedFolderID} = useFolders();
-    const {setDropDownVisible} = useFiles();
+    const {setDropDownVisible, searchString} = useFiles();
     const {className} = props;
     const [filesOpen, setFilesOpen] = useState(true);
     const [foldersOpen, setFoldersOpen] = useState(true)
 
     const fetchFiles = async (folderId: number | null) => {
-        const res = await fetch(`/api/files/fetchFiles?folderId=${folderId}`);
+        const res = await fetch(`/api/files/fetchFiles?folderId=${folderId}&search=${searchString}`);
         return res.json();
     }
 
     const fetchFolders = async (folderId: number | null) => {
-        const res = await fetch(`/api/files/fetchFolders?folderId=${folderId}`);
+        const res = await fetch(`/api/files/fetchFolders?folderId=${folderId}&search=${searchString}`);
         return res.json();
     }
 
     const currentId = getOpenedFolderID();
 
-    const { data: files, status: statusFiles } = useQuery(["files", currentId], () => fetchFiles(currentId));
-    const { data: folders, status: statusFolders } = useQuery(["folders", currentId], () => fetchFolders(currentId));
+    const { data: files, status: statusFiles } = useQuery(["files", currentId, searchString], () => fetchFiles(currentId));
+    const { data: folders, status: statusFolders } = useQuery(["folders", currentId, searchString], () => fetchFolders(currentId));
 
     const style = "flex flex-col rounded-md w-full h-full rounded-lg bg-stone-50 pr-30 overflow-y-scroll " + className
 
@@ -55,7 +56,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                             <polyline points="6 9 12 15 18 9"/>
                         </svg>
                     </button>
-                    {foldersOpen && <div className="flex flex-wrap gap-3 mt-3">
+                    {foldersOpen && <div className="flex flex-wrap gap-3 mt-3 ml-3">
                         {statusFolders === "loading" ? <p>Loading folders...</p> : statusFolders === "error" ?<p>Error loading folders</p> :
 
                         folders.map((folder: DBFolder) => (
@@ -75,8 +76,8 @@ export const FileDisplay = (props: FileDisplayProps) => {
                     <polyline points="6 9 12 15 18 9"/>
                 </svg>
             </button>
-            {filesOpen && <div className="flex flex-wrap gap-3 mt-3 mb-[5%]">
-            {statusFiles !== "loading" && statusFiles !== "error" && files.length == 0 ? <p>No files uploaded</p> :
+            {filesOpen && <div className="flex flex-wrap gap-3 mt-3 mb-[5%] ml-3">
+            {statusFiles !== "loading" && statusFiles !== "error" && files.length == 0 ? <div className="flex justify-center w-full items-center mt-50"><Image src="./file-x.svg" alt="no-file-icon" width={40} height={40}/><p className="text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
                 <>
                 {statusFiles === "loading" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
 
