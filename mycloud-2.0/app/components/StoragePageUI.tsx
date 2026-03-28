@@ -1,7 +1,7 @@
 "use client";
 
 import { Session } from "next-auth"
-import { FileDisplay, NavBar, SideBar } from "."
+import { FileDisplay, FilePreview, NavBar, SideBar } from "."
 
 interface StoragePageUIProps {
     session: Session
@@ -17,6 +17,7 @@ export const StoragePageUI = (props: StoragePageUIProps) => {
                 <NavBar session= {session} />
                 <FileDisplay className="pl-10 pt-5"/>
             </div>
+            <FilePreview />
         </div>
     )
 }

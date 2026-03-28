@@ -14,10 +14,11 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const {setErrorMessage} = useErrors();
     const {setDialogVisible, setDialogProps} = useDialog();
     const {setDropDownVisible} = props;
-    const {activeFile, dropDownPosition, dropDownVisible} = useFiles();
+    const {activeFile, dropDownPosition, dropDownVisible, setPreviewVisible} = useFiles();
     const {id, name, mimeType, variant} = activeFile;
 
     const isFile = variant === "file";
+    const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf");
 
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -178,10 +179,21 @@ export const FileDropDown = (props: FileDropDownProps) => {
         queryClient.invalidateQueries("folders");
     };
 
+    const openPreview = () => {
+        if (!isPreviewable) return;
+        setDropDownVisible(false);
+        setPreviewVisible(true);
+    }
+
     return (
         <>
         {dropDownVisible && (
             <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-36 z-10 p-1 border border-gray-100">
+                {isPreviewable && 
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-100" onClick={openPreview}>
+                    <Image src="/fullscreen.svg" alt="" width={16} height={16}/>
+                    Preview
+                </button>}
                 <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-100" onClick={isFile ? handleFileDownload : handleFolderDownload}>
                     <Image src="/download.svg" alt="" width={16} height={16}/>
                     Download

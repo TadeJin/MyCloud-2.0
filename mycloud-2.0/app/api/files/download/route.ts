@@ -49,7 +49,7 @@ export const GET = async (req: NextRequest ) => {
       return new NextResponse(Readable.toWeb(stream) as ReadableStream, {
         headers: {
           'Content-Disposition': `attachment; filename="${name}"`,
-          'Content-Type': "application/octet-stream",
+          'Content-Type': type,
           'Content-Length': `${size}`
         }
       });

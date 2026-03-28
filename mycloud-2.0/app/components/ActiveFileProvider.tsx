@@ -24,7 +24,9 @@ interface FileContextType {
     dropDownPosition: DropdownPosition,
     setDropDownPosition: Dispatch<SetStateAction<DropdownPosition>>,
     searchString: string,
-    setSearchString: Dispatch<SetStateAction<string>>
+    setSearchString: Dispatch<SetStateAction<string>>,
+    previewVisible: boolean,
+    setPreviewVisible: Dispatch<SetStateAction<boolean>>,
 }
 
 const FileContext = createContext<FileContextType | null>(null);
@@ -34,10 +36,11 @@ export const ActiveFileProvider = ({ children }: { children: ReactNode }) => {
     const [searchString, setSearchString] = useState("");
     const [dropDownVisible, setDropDownVisible] = useState(false);
     const [dropDownPosition, setDropDownPosition] = useState({ top: 0, left: 0 });
+    const [previewVisible, setPreviewVisible] = useState(false);
    
 
     return (
-        <FileContext.Provider value={{  activeFile, setActiveFile, dropDownVisible, setDropDownVisible, dropDownPosition, setDropDownPosition, searchString, setSearchString }}>
+        <FileContext.Provider value={{  activeFile, setActiveFile, dropDownVisible, setDropDownVisible, dropDownPosition, setDropDownPosition, searchString, setSearchString, previewVisible, setPreviewVisible }}>
             {children}
         </FileContext.Provider>
     );

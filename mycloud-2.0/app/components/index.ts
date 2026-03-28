@@ -9,6 +9,7 @@ export * from "./ErrorProvider";
 export * from "./FileBox";
 export * from "./FileDisplay";
 export * from "./FileDropDown";
+export * from "./FilePreview";
 export * from "./FolderProvider";
 export * from "./FolderTrace";
 export * from "./LoginForm";

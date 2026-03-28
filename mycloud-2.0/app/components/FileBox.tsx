@@ -16,7 +16,8 @@ export const FileBox = ({variant, id, name, mimeType}: FileBoxProps) => {
     const isFile = variant === "file";
     const {addFolder} = useFolders();
     const queryClient = useQueryClient();
-    const {setActiveFile, setDropDownVisible, setDropDownPosition} = useFiles();
+    const {setActiveFile, setDropDownVisible, setDropDownPosition, setPreviewVisible} = useFiles();
+    const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf");
 
     const openFolder = () => {
         addFolder(id, name);
@@ -27,18 +28,34 @@ export const FileBox = ({variant, id, name, mimeType}: FileBoxProps) => {
     const openDropDown = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
-        setActiveFile({id: id, name: name, variant: variant, mimeType: mimeType ? mimeType : ""})
-        setDropDownPosition({top: rect.bottom, left: rect.left})
+        setActiveFile({id: id, name: name, variant: variant, mimeType: mimeType ? mimeType : ""});
+        setDropDownPosition({top: rect.bottom, left: rect.left});
         setDropDownVisible(true);
+    }
+
+    const openPreview = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!isPreviewable) return;
+        e.stopPropagation();
+        setActiveFile({id: id, name: name, variant: variant, mimeType: mimeType ? mimeType : ""});
+        setPreviewVisible(true);
+    }
+
+    const getIcon = () => {
+        if(!isFile) return "./folder.svg";
+        if (!mimeType) return "./file.svg";
+        if (mimeType?.startsWith("image/")) return "./image.svg";
+        if (mimeType?.startsWith("video/")) return "./video.svg";
+        if (mimeType === "application/x-zip-compressed") return "./archive.svg";
+        return "./file.svg";
     }
 
     return (
         <>
            <div className="flex items-center gap-2 w-44 bg-gray-100 rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-md transition-all duration-150 group relative">
                 <div className="flex items-center justify-center w-7 h-7">
-                    <Image src={isFile ? "/file.svg" : "/folder.svg"} alt="fileIcon" width={16} height={16}/>
+                    <Image src={getIcon()} alt="fileIcon" width={16} height={16}/>
                 </div>
-                <div onClick={!isFile ? openFolder : () => {}} className={`${isFile ? "cursor-default" : "cursor-pointer"} truncate text-sm font-medium flex-1`}>
+                <div onClick={!isFile ? openFolder : (e) => openPreview(e)} title={isPreviewable ? "Preview available" : name} className={`${isPreviewable || !isFile ? "cursor-pointer" : "cursor-default"} truncate text-sm font-medium flex-1`}>
                     {name}
                 </div>
                 <div className="flex items-center justify-center w-6 h-6 rounded-full cursor-pointer hover:bg-gray-200 shrink-0" onClick={(e) => openDropDown(e)}>
