@@ -16,12 +16,24 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
+        const user = await prisma.user.findFirst({
+            where: {id: session.user.id}
+        });
+
+        if (!user) {
+            return NextResponse.json(
+                { error: "No user found" },
+                { status: 404 }
+            );
+        }
+
         const folders = await prisma.folder.findMany({
             where: {
                 name: {contains: searchString ? searchString : ""},
                 userId: session?.user.id,
                 folderId: folderId ? Number(folderId) : null
             },
+            orderBy: {[user.sortPreference === "uploadedAt" ? "createdAt" : "name"]: "asc"}
         });
 
         return NextResponse.json(folders);

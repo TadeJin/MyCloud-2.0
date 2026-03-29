@@ -1,3 +1,4 @@
+import { UserSortPreference } from "@/generated/prisma/enums";
 import { DateTime } from "next-auth/providers/kakao";
 
 export interface DBFile {
@@ -15,3 +16,5 @@ export interface ConfirmationDialogProps {
     hasInput: boolean,
     onSubmit: ((newName: string) => void) | (() => void),
 }
+
+export type SortPreference = `${UserSortPreference}`;

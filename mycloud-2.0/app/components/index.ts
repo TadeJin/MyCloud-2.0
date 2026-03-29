@@ -23,6 +23,7 @@ export * from "./ResetForm";
 export * from "./SearchBar";
 export * from "./SelectOpButton";
 export * from "./SideBar";
+export * from "./SortPicker";
 export * from "./StoragePageUI";
 export * from "./UploadButton";
 export * from "./UserInfo";

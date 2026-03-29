@@ -1,4 +1,4 @@
-import { CapacityDisplay, CreateFolderButton, UploadButton } from "."
+import { CapacityDisplay, CreateFolderButton, SortPicker, UploadButton } from "."
 import Image from "next/image";
 
 
@@ -14,6 +14,7 @@ export const SideBar = () => {
             </div>
             <UploadButton />
             <CreateFolderButton />
+            <SortPicker />
             <div className="w-[90%] mt-auto mb-10">
                 <CapacityDisplay />
             </div>

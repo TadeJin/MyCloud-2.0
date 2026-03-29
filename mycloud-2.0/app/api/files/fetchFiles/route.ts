@@ -10,18 +10,30 @@ export const GET = async (req: NextRequest) => {
 
     if (!session) {
         return NextResponse.json(
-        { error: "No session set" },
-        { status: 401 }
+            { error: "No session set" },
+            { status: 401 }
         );
     }
 
     try {
+        const user = await prisma.user.findFirst({
+            where: {id: session.user.id}
+        });
+
+        if (!user) {
+            return NextResponse.json(
+                { error: "No user found" },
+                { status: 404 }
+            );
+        }
+
         const files = await prisma.file.findMany({
             where: {
                 name: {contains: searchString ? searchString : ""},
                 userId: session.user.id,
                 folderId: folderId ? Number(folderId) : null
             },
+            orderBy: {[user.sortPreference]: "asc"}
         });
 
         const convertedFiles = files.map((file) => ({...file, size: Number(file.size)}));

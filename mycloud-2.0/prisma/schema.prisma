@@ -13,6 +13,11 @@ datasource db {
     provider = "postgresql"
 }
 
+enum UserSortPreference {
+    name
+    uploadedAt
+}
+
 model User {
     id       Int    @id @default(autoincrement())
     email    String @unique
@@ -24,6 +29,7 @@ model User {
     tokens ResetTokens[]
     emailVerified     Boolean  @default(false)
     verifyToken String @unique
+    sortPreference UserSortPreference @default(uploadedAt)
 }
 
 model File {
