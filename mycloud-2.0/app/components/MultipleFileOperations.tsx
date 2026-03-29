@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "react-query";
-import { SelectOpButton, useErrors, useFolders } from ".";
+import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
 import { useFiles } from "./ActiveFileProvider";
 import { DBFile } from "../types";
 
@@ -10,6 +10,7 @@ export const MultipleFileOperations = () => {
     const {setErrorMessage} = useErrors();
     const queryClient = useQueryClient();
     const {getOpenedFolderID} = useFolders();
+    const {setDialogVisible, setDialogProps} = useDialog();
 
     const activateSelect = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
@@ -46,8 +47,13 @@ export const MultipleFileOperations = () => {
         URL.revokeObjectURL(url);
     }
 
-    const deleteSelected = async (e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation();
+    const openDeleteDialog = () => {
+        setDialogProps({headerText: `Are you sure you want to delete ${selectedFilesIds.length} selected files?`, hasInput: false, onSubmit: deleteSelected});
+        setDialogVisible(true);
+    }
+
+    const deleteSelected = async () => {
+        setDialogVisible(false);
         const res = await fetch("/api/files/deleteSelected", {
             method: "POST",
             headers:  {"Content-Type": "application/json"},
@@ -80,7 +86,7 @@ export const MultipleFileOperations = () => {
             <p>{selectedFilesIds.length} files selected</p>
             <SelectOpButton text ="Select all" imgSrc="./select-all.svg" onClick={selectAll}/>
             <SelectOpButton text ="Download selected" imgSrc="./archive-arrow-down.svg" onClick={downloadSelected}/>
-            <SelectOpButton text ="Delete selected" imgSrc="./trash-alt.svg" onClick={deleteSelected} styles="hover:bg-red-200"/>
+            <SelectOpButton text ="Delete selected" imgSrc="./trash-alt.svg" onClick={openDeleteDialog} styles="hover:bg-red-200"/>
             </>
             }
 
