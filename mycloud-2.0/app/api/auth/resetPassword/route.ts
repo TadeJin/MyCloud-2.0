@@ -8,7 +8,7 @@ export const PATCH = async (req: NextRequest) => {
 
     if (!password || !token) {
          return NextResponse.json(
-        { error: "Missing input data" },
+        { errMessage: "Error resetting password" },
         { status: 400 }
         );
     }
@@ -23,21 +23,28 @@ export const PATCH = async (req: NextRequest) => {
 
     if (!dbToken || dbToken.expires < new Date()) {
         return NextResponse.json(
-            { error: "Invalid token" },
+            { errMessage: "Reset token expired" },
             { status: 401 }
-        )
+        );
     }
 
-    await prisma.$transaction([
-        prisma.user.update({
-            where: {id: dbToken.userId},
-            data: {password: await argon2.hash(password)}
-        }),
+    try {
+        await prisma.$transaction([
+            prisma.user.update({
+                where: {id: dbToken.userId},
+                data: {password: await argon2.hash(password)}
+            }),
 
-        prisma.resetTokens.delete({
-            where: { id: dbToken.id }
-        }),
-    ]);
+            prisma.resetTokens.delete({
+                where: { id: dbToken.id }
+            }),
+        ]);
 
-    return NextResponse.json({message: "Password changed"})
+        return NextResponse.json({message: "Password changed"});
+    } catch(err) {
+         return NextResponse.json(
+            { errMessage: "Error resetting password"},
+            { status: 500 }
+        )
+    }
 }

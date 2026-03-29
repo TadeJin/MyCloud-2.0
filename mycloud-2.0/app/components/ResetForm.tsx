@@ -17,6 +17,7 @@ export const ResetForm = (props: ResetFormProps) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [text, setText] = useState(isEmail ? "Enter the email address linked to your account" : "");
+    const [errorMessage, setErrorMessage] = useState("");
 
     let type = "";
     let submitText = "";
@@ -32,13 +33,19 @@ export const ResetForm = (props: ResetFormProps) => {
     const handleSubmitEmail = async (e: React.SubmitEvent) => {
         e.preventDefault()
 
-        await fetch("/api/auth/sendResetEmail", {
+        const res = await fetch("/api/auth/sendResetEmail", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 email: email,
             }),
         })
+
+        if (!res.ok) {
+            setErrorMessage((await res.json()).errMessage);
+            return;
+        }
+
         setText(`Email sent to ${email}. Please check your inbox`);
     }
 
@@ -46,14 +53,20 @@ export const ResetForm = (props: ResetFormProps) => {
         e.preventDefault()
         if (!token) return;
 
-        await fetch("/api/auth/resetPassword", {
+        const res = await fetch("/api/auth/resetPassword", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 token: token,
                 password: password
             })
-        })
+        });
+
+        if (!res.ok) {
+            setErrorMessage((await res.json()).errMessage);
+            return;
+        }
+
         router.replace("/");
     }
 
@@ -78,6 +91,10 @@ export const ResetForm = (props: ResetFormProps) => {
                         placeholder={isEmail ? "Email" : "Password"}
                         onChange={isEmail ? e => setEmail(e.target.value) : e => setPassword(e.target.value)}
                     />
+
+                     {errorMessage && (
+                        <p className="text-red-500 text-sm font-bold">{errorMessage}</p>
+                    )}
 
                     <button
                         className="mt-1 p-3 rounded-lg bg-stone-800 text-white font-semibold hover:bg-stone-700 transition cursor-pointer"

@@ -44,7 +44,7 @@ export const POST = async (req: NextRequest) => {
                 </p>`
         });
     } catch {
-        return NextResponse.json({message: "Email sent"})
+        return NextResponse.json({errMessage: "Error sending email"}, {status: 500});
     }
 
     return NextResponse.json({message: "Email sent"});
