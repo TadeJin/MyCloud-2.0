@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "./components/AuthProvider";
+import { DialogProvider, QueryProvider } from "./components";
 
 export const metadata: Metadata = {
   title: "MyCloud 2.0",
@@ -15,7 +16,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <DialogProvider>
+            <AuthProvider>
+                {children}
+              </AuthProvider>
+            </DialogProvider>
+          </QueryProvider>
       </body>
     </html>
   );

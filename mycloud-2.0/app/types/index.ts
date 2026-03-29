@@ -18,3 +18,5 @@ export interface ConfirmationDialogProps {
 }
 
 export type SortPreference = `${UserSortPreference}`;
+
+export type SettingsContentVariants = "account" | "storage";

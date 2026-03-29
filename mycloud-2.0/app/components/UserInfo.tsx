@@ -1,16 +1,15 @@
 "use client";
 
-import { Session } from "next-auth";
 import { useEffect, useRef, useState } from "react";
 import { UserStats } from ".";
 import Image from "next/image";
 
 interface UserInfoProps {
-    session: Session
+    hasSettings?: boolean
 }
 
 export const UserInfo = (props: UserInfoProps) => {
-    const {session} = props;
+    const {hasSettings} = props;
     const [visible, setVisible] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +32,7 @@ export const UserInfo = (props: UserInfoProps) => {
             <div className = "ml-auto hover:cursor-pointer" onClick={() => setVisible(!visible)}>
                 <Image src="/user.svg" alt="userIcon" height={24} width={24} />
             </div>
-            {visible && <UserStats ref={dropdownRef} session = {session} hide={setVisible} />}
+            {visible && <UserStats hasSettings={hasSettings} ref={dropdownRef} hide={setVisible} />}
         </div>
     )
 };

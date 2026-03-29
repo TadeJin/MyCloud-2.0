@@ -3,7 +3,13 @@
 import { useQuery } from "react-query";
 import { ProgressBar } from ".";
 
-export const CapacityDisplay = () => {
+interface CapacityDisplayProps {
+    hasTopBorder?: boolean
+}
+
+export const CapacityDisplay = (props: CapacityDisplayProps) => {
+    const {hasTopBorder} = props;
+
     const GB_SIZE = 1024 * 1024 * 1024;
     const MB_SIZE = 1024 * 1024;
 
@@ -50,7 +56,7 @@ export const CapacityDisplay = () => {
     }
 
     return (
-        <div className="flex flex-col gap-2 border-t border-gray-400 pt-3">
+        <div className={`flex flex-col gap-2 ${hasTopBorder && "border-t border-gray-400 pt-3"}`}>
             <p className="text-sm uppercase font-bold text-gray-500">Storage capacity</p>
             <div className="flex flex-col items-center bg-stone-50 p-3 rounded-md">
                 <div className="flex flex-row justify-between w-full">

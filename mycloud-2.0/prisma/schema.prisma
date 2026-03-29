@@ -35,7 +35,7 @@ model User {
 model File {
     id      Int @id @default(autoincrement())
     name    String
-    user    User @relation(fields: [userId], references: [id])
+    user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId  Int
     type    String
     size    BigInt //In bytes
@@ -48,19 +48,19 @@ model ResetTokens {
     id Int @id @default(autoincrement())
     token String @unique
     expires DateTime
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId Int
 }
 
 model Folder {
     id Int @id @default(autoincrement())
     name String
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId  Int
     createdAt DateTime
 
     folderId  Int?
-    parent    Folder?  @relation("FolderChildren", fields: [folderId], references: [id])
+    parent    Folder?  @relation("FolderChildren", fields: [folderId], references: [id], onDelete: Cascade)
     children  Folder[] @relation("FolderChildren")
     files   File[]
 }

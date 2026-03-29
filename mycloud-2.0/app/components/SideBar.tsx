@@ -16,7 +16,7 @@ export const SideBar = () => {
             <CreateFolderButton />
             <SortPicker />
             <div className="w-[90%] mt-auto mb-10">
-                <CapacityDisplay />
+                <CapacityDisplay hasTopBorder/>
             </div>
         </div>
     )
