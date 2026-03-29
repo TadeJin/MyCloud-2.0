@@ -25,7 +25,7 @@ export const authOptions = {
             });
 
             if (!user) {
-                return null;
+                throw new Error("Wrong login credentials");
             }
 
             if (!user.emailVerified) {
