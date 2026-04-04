@@ -161,7 +161,7 @@ export const SettingsPageUI = () => {
                             className="border border-stone-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-stone-400"
                         />
                         {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-                        <button className={`self-start bg-stone-800 text-white text-sm px-4 py-2 rounded-lg hover:${passwordsMatching ? "bg-stone-700" : "bg-stone-600"} transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-stone-600`} disabled={!passwordsMatching} onClick={updatePassword}>
+                        <button className={`self-start bg-stone-800 text-white text-sm px-4 py-2 rounded-lg ${passwordsMatching ? "hover:bg-stone-700" : "hover:bg-stone-600"} transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-stone-600`} disabled={!passwordsMatching} onClick={updatePassword}>
                             Save password
                         </button>
                         </div>
@@ -203,7 +203,7 @@ export const SettingsPageUI = () => {
 
     return (
         <div className="flex w-screen h-screen">
-            <div className="flex flex-col w-16 md:w-[17%] h-full bg-white items-center justify-between gap-10 shrink-0">
+            <div className="flex flex-col w-16 md:w-[17%] h-full items-center justify-between gap-10 shrink-0">
                 <div className="w-15 h-15 relative block md:hidden">
                     <Image 
                         src="./mycloud-logo-small.svg" 
@@ -214,7 +214,7 @@ export const SettingsPageUI = () => {
                     />
                 </div>
 
-                <div className="w-60 h-12 relative hidden md:block">
+                <div className="w-80 h-18 relative hidden md:block">
                     <Image 
                         src="./logo.svg" 
                         alt="mycloud-logo" 
@@ -227,11 +227,11 @@ export const SettingsPageUI = () => {
             </div>
 
             <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex w-full bg-white h-16 items-center px-4">
+                <div className="flex w-full h-16 items-center px-4">
                     <UserInfo/>
                 </div>
 
-                <div className="w-full h-full bg-stone-100 p-4 md:p-10 overflow-y-auto">
+                <div className="w-full h-full bg-white p-4 md:p-10 overflow-y-auto">
                     {renderContent()}
                 </div>
             </div>

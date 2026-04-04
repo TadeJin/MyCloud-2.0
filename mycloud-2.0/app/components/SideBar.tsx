@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export const SideBar = () => {
     return (
-        <div className="flex flex-col lg:min-w-[18%] min-w-[30%] h-screen items-center gap-3 relative">
+        <div className="flex flex-col lg:w-[18%] w-[30%] h-screen items-center gap-3 relative">
             <div className="w-17 h-17 relative block md:hidden">
                 <Image 
                     src="./mycloud-logo-small.svg" 
@@ -16,7 +16,7 @@ export const SideBar = () => {
                 />
             </div>
 
-            <div className="items-center h-[8%] md:h-[10%] w-full relative -mt-4 hidden md:flex">
+            <div className="items-center h-[8%] md:h-[11%] w-full relative -mt-4 hidden md:flex">
                 <Image
                     src="/logo.svg"
                     alt="MyCloud logo"
@@ -28,7 +28,7 @@ export const SideBar = () => {
             <UploadButton />
             <CreateFolderButton />
             <SortPicker />
-            <div className="block md:hidden">
+            <div className="block xl:hidden mt-2">
                 <MultipleFileOperations column/>
             </div>
             <div className="w-[90%] mt-auto mb-10">

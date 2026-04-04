@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant xl (@media (width >= 1400px));
+
 body {
     @apply bg-gray-200;
     font-family: 'DM Sans', sans-serif;

@@ -133,19 +133,19 @@ export const UploadButton = () => {
     }
 
     return (
-        <div className="flex flex-col w-[80%]">
+        <div className="flex flex-col w-[80%] relative">
             <button className = "flex items-center gap-0.5 h-10 p-1 bg-stone-50 rounded-md hover:bg-blue-200 cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.10)] hover:shadow-md transition-all duration-200 md:gap-2" onClick={handleClick}>
                 <Image src="/file-plus.svg" alt="uploadIcon" width={24} height={24}/>
                 <p className="text-xs md:hidden">Upload</p>
                 <p className="hidden md:block">Upload Files</p>
             </button>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
-            <div className={`overflow-hidden transition-all duration-500 ease-out w-20 -ml-5 ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={`overflow-hidden transition-all duration-500 ease-out w-full ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="flex flex-col w-full gap-1 bg-white mt-3 p-2 rounded-md">
                     <p className="text-center font-bold text-xs truncate">{status}</p>
                     <ProgressBar percentage={uploadPercentage} color="bg-blue-500"/>
                 </div>
             </div>
         </div>
-    )
+    );
 }
