@@ -100,7 +100,7 @@ export const SettingsPageUI = () => {
                     <h1 className="text-2xl font-bold text-stone-800">Account settings</h1>
 
                     <div className="bg-white rounded-xl border border-stone-200 p-5 flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                         <p className="text-xs text-stone-400 uppercase font-semibold tracking-wide">Email</p>
                         <p className="text-stone-700 mt-0.5">{data ? data.email : "Error fetching email"}</p>
@@ -131,7 +131,7 @@ export const SettingsPageUI = () => {
                     </div>
 
                     <div className="bg-white rounded-xl border border-stone-200 p-5 flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                         <p className="text-xs text-stone-400 uppercase font-semibold tracking-wide">Password</p>
                         <p className="text-stone-700 mt-0.5">••••••••</p>
@@ -167,7 +167,7 @@ export const SettingsPageUI = () => {
                         </div>
                     )}
                     </div>
-                     <div className="bg-white rounded-xl border-2 border-red-200 p-5 flex items-center justify-between">
+                     <div className="bg-white rounded-xl border-2 border-red-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                             <p className="text-xs text-stone-400 uppercase font-semibold tracking-wide">Delete account</p>
                             <p className="text-stone-700 mt-0.5"><b>Permanently</b> delete your account and all data</p>
@@ -203,16 +203,35 @@ export const SettingsPageUI = () => {
 
     return (
         <div className="flex w-screen h-screen">
-            <div className="flex flex-col w-[17%] h-full bg-white items-center justify-between gap-10">
-                <Image src="./logo.svg" alt="mycloud-logo" width={240} height={50} onClick={() => redirect("/")} className="cursor-pointer"/>
+            <div className="flex flex-col w-16 md:w-[17%] h-full bg-white items-center justify-between gap-10 shrink-0">
+                <div className="w-15 h-15 relative block md:hidden">
+                    <Image 
+                        src="./mycloud-logo-small.svg" 
+                        alt="mycloud-logo" 
+                        fill
+                        onClick={() => redirect("/")} 
+                        className="cursor-pointer"
+                    />
+                </div>
+
+                <div className="w-60 h-12 relative hidden md:block">
+                    <Image 
+                        src="./logo.svg" 
+                        alt="mycloud-logo" 
+                        fill
+                        onClick={() => redirect("/")} 
+                        className="cursor-pointer"
+                    />
+                </div>
                 <SettingsMenu content={content} setContent={setContent}/>
             </div>
-            <div className="flex flex-col w-[83%]">
-                <div className="flex w-full bg-white h-16 items-center">
+
+            <div className="flex flex-col flex-1 min-w-0">
+                <div className="flex w-full bg-white h-16 items-center px-4">
                     <UserInfo/>
                 </div>
 
-                <div className="w-full h-full bg-stone-100 p-10">
+                <div className="w-full h-full bg-stone-100 p-4 md:p-10 overflow-y-auto">
                     {renderContent()}
                 </div>
             </div>

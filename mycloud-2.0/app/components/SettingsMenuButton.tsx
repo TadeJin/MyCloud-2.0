@@ -11,9 +11,9 @@ export const SettingsMenuButton = (props: SettingsMenuButtonProps) => {
     const {imageSrc, onClick, text, isSelected} = props
 
     return (
-        <div className={`flex items-center gap-1 justify-center cursor-pointer p-3 transition-colors rounded-lg w-full ${isSelected ? "bg-gray-300" : "hover:bg-gray-200"}`} onClick={onClick}>
+        <div className={`flex items-center gap-1 justify-center md:justify-start cursor-pointer p-3 transition-colors rounded-lg w-full ${isSelected ? "bg-gray-300" : "hover:bg-gray-200"}`} onClick={onClick}>
             <Image src={imageSrc} alt={`${text}-icon`} width={20} height={20}/>
-            <p>{text}</p>
+            <p className="hidden md:block">{text}</p>
         </div>
     )
 }
