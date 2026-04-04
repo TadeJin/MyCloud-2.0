@@ -31,8 +31,19 @@ export const FileBox = (props: FileBoxProps) => {
     const openDropDown = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
+
+        const dropdownWidth = 124;
+        const dropdownHeight = 160;
+
+        const left = rect.left + dropdownWidth > window.innerWidth
+            ? rect.left - dropdownWidth
+            : rect.left;
+
+        const top = rect.bottom + dropdownHeight > window.innerHeight
+            ? rect.top - dropdownHeight
+            : rect.bottom;
         setActiveFile({id: id, name: name, variant: variant, mimeType: mimeType ? mimeType : "", isCorrupted: isCorrupted});
-        setDropDownPosition({top: rect.bottom, left: rect.left});
+        setDropDownPosition({top: top, left: left});
         setDropDownVisible(true);
     }
 
@@ -63,7 +74,7 @@ export const FileBox = (props: FileBoxProps) => {
     }
 
     return (
-        <div className={`flex items-center gap-2 w-44 ${isCorrupted ? "bg-red-100 outline outline-red-400" : "bg-gray-100"} rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-md transition-all duration-150 group relative`}>
+        <div className={`flex items-center md:gap-2 w-28 md:w-44 ${isCorrupted ? "bg-red-100 outline outline-red-400" : "bg-gray-100"} rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-md transition-all duration-150 group relative`}>
             {isCorrupted && 
             <div className="absolute w-full flex flex-col items-center -top-7 cursor-default opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                 <span className="bg-red-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
@@ -73,10 +84,10 @@ export const FileBox = (props: FileBoxProps) => {
             </div>
             }
             <div className="flex items-center justify-center w-7 h-7">
-                {selectActive && isFile && !isCorrupted ? <input type="checkbox" checked={selectedFilesIds.includes(id)} onChange={(e) => selectOperation(e)}></input>: <Image src={getIcon()} alt="fileIcon" width={16} height={16}/>}
+                {selectActive && isFile && !isCorrupted ? <input type="checkbox" checked={selectedFilesIds.includes(id)} onChange={(e) => selectOperation(e)}></input>: <div className="w-3 h-3 md:w-4 md:h-4 relative"><Image src={getIcon()} alt="fileIcon" fill/></div>}
             </div>
             <div onClick={!isFile ? openFolder : (e) => openPreview(e)} title={isPreviewable ? "Preview available" : name} className={`${isPreviewable || !isFile ? "cursor-pointer" : "cursor-default"} truncate text-sm font-medium flex-1`}>
-                {name}
+                <p className="text-xs md:text-base">{name}</p>
             </div>
             <div className={`flex items-center justify-center w-6 h-6 rounded-full cursor-pointer ${!isCorrupted ? "hover:bg-gray-200" : "hover:bg-red-200"} shrink-0`} onClick={(e) => openDropDown(e)}>
                 <Image src="/dots-vertical.svg" alt="file-dropdown" width={14} height={14}/>

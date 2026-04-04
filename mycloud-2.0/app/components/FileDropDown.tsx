@@ -210,5 +210,5 @@ export const FileDropDown = (props: FileDropDownProps) => {
             </div>
         )}
         </>
-    )
+    );
 };

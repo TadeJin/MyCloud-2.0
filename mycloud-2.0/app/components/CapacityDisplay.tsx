@@ -57,14 +57,21 @@ export const CapacityDisplay = (props: CapacityDisplayProps) => {
 
     return (
         <div className={`flex flex-col gap-2 ${hasTopBorder && "border-t border-gray-400 pt-3"}`}>
-            <p className="text-sm uppercase font-bold text-gray-500">Storage capacity</p>
+            <p className=" uppercase font-bold text-gray-500 text-xs md:text-sm">Storage capacity</p>
             <div className="flex flex-col items-center bg-stone-50 p-3 rounded-md">
                 <div className="flex flex-row justify-between w-full">
-                    <div className="flex flex-row gap-1">
+                    <div className="flex flex-col items-center text-xs md:hidden w-full gap-0.5 mb-0.5">
+                        <p className="text-gray-400">Remaining</p>
+                        <div className="flex gap-1">
+                            <p>{convertToUnit(maxCapacity - takenStorage)}</p>
+                            <p className="text-gray-400">{getUnit(maxCapacity - takenStorage)}</p>
+                        </div>
+                    </div>
+                    <div className="hidden md:flex flex-row gap-1">
                         <p className="font-bold">{convertToUnit(takenStorage)}</p>
                         <p className="text-gray-400">{`${getUnit(takenStorage)}`}</p>
                     </div>
-                    <div className="flex flex-row gap-1">
+                    <div className="hidden md:flex flex-row gap-1">
                         <p className="font-bold">{convertToUnit(maxCapacity)}</p>
                         <p className="text-gray-400">{`${getUnit(maxCapacity)}`}</p>
                     </div>

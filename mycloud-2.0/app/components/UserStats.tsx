@@ -22,7 +22,7 @@ export const UserStats = (props: UserStatsProps) => {
     const {data} = useQuery(["userEmail"], () => fetchUserEmail());
 
     return (
-        <div ref = {ref} className="flex flex-col border border-gray-200 shadow-lg rounded-md w-64 absolute right-0 top-full mt-5 p-4 bg-white">
+        <div ref = {ref} className="flex flex-col border border-gray-200 shadow-lg rounded-md w-64 absolute right-0 top-full mt-5 p-4 bg-white z-10">
             <div className = "flex justify-center items-center right-0.5 top-0.5 cursor-pointer hover:bg-gray-200 rounded-full w-[24] h-[24] absolute transition" onClick={() => hide(false)}>
                 <Image src="x.svg" alt="userStatsClose" height={20} width={20} />
             </div>

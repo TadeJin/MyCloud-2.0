@@ -28,7 +28,7 @@ export const UserInfo = (props: UserInfoProps) => {
     
 
     return (
-        <div className="flex flex-col ml-auto w-40 relative mr-4">
+        <div className="flex flex-col absolute right-4">
             <div className = "ml-auto hover:cursor-pointer" onClick={() => setVisible(!visible)}>
                 <Image src="/user.svg" alt="userIcon" height={24} width={24} />
             </div>

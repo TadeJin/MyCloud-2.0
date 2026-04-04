@@ -1,11 +1,11 @@
-import { CapacityDisplay, CreateFolderButton, SortPicker, UploadButton } from "."
+import { CapacityDisplay, CreateFolderButton, MultipleFileOperations, SortPicker, UploadButton } from "."
 import Image from "next/image";
 
 
 export const SideBar = () => {
     return (
-        <div className="flex flex-col w-[18%] items-center gap-3">
-            <div className="flex items-center h-[10%] w-70 relative -mt-4">
+        <div className="flex flex-col lg:min-w-[18%] min-w-[30%] h-screen items-center gap-3 relative">
+            <div className="flex items-center h-[8%] md:h-[10%] w-full relative -mt-4">
                 <Image
                     src="/logo.svg"
                     alt="MyCloud logo"
@@ -15,6 +15,9 @@ export const SideBar = () => {
             <UploadButton />
             <CreateFolderButton />
             <SortPicker />
+            <div className="block md:hidden">
+                <MultipleFileOperations column/>
+            </div>
             <div className="w-[90%] mt-auto mb-10">
                 <CapacityDisplay hasTopBorder/>
             </div>

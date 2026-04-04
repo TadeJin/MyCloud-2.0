@@ -5,7 +5,12 @@ import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
 import { useFiles } from "./ActiveFileProvider";
 import { DBFile } from "../types";
 
-export const MultipleFileOperations = () => {
+interface MultipleFileOperationsProps {
+    column?: boolean
+}
+
+export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
+    const {column} = props;
     const {selectActive, setSelectActive, setSelectedFilesIds, selectedFilesIds, searchString, addSelectedFileId} = useFiles();
     const {setErrorMessage} = useErrors();
     const queryClient = useQueryClient();
@@ -80,10 +85,10 @@ export const MultipleFileOperations = () => {
     }
 
     return (
-        <div className="flex gap-3 ml-3 items-center">
+        <div className={`flex ${column ? "flex-col" : "ml-3"} gap-3  items-center`}>
             {selectActive &&
             <>
-            <p>{selectedFilesIds.length} files selected</p>
+            <p className="text-xs md:text-base">{selectedFilesIds.length} files selected</p>
             <SelectOpButton text ="Select all" imgSrc="./select-all.svg" onClick={selectAll}/>
             <SelectOpButton text ="Download selected" imgSrc="./archive-arrow-down.svg" onClick={downloadSelected}/>
             <SelectOpButton text ="Delete selected" imgSrc="./trash-alt.svg" onClick={openDeleteDialog} styles="hover:bg-red-200"/>
