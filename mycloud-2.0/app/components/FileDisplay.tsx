@@ -60,7 +60,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                         {statusFolders === "loading" ? <p>Loading folders...</p> : statusFolders === "error" ?<p>Error loading folders</p> :
 
                         folders.map((folder: DBFolder) => (
-                            <FileBox key = {folder.id} id={folder.id} name={folder.name} variant="folder"/>
+                            <FileBox key = {folder.id} id={folder.id} name={folder.name} isCorrupted={false} variant="folder"/>
                         ))}
                     </div>}
                 </>
@@ -82,7 +82,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 {statusFiles === "loading" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
 
                 files.map((file: DBFile) => (
-                    <FileBox key = {file.id} id={file.id} name={file.name} variant="file" mimeType={file.type} />
+                    <FileBox key={file.id} id={file.id} name={file.name} isCorrupted={file.isCorrupted} variant="file" mimeType={file.type} />
                 ))}
                 </>
             }

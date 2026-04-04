@@ -7,7 +7,8 @@ export interface DBFile {
     userId: number,
     type: string,
     size: number,
-    uploadedAt: DateTime
+    uploadedAt: DateTime,
+    isCorrupted: boolean
 }
 export type FileVariants = "file" | "folder";
 

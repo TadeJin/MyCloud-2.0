@@ -32,7 +32,7 @@ export const CreateFolderButton = () => {
     }
 
     const handleClick = () => {
-        setActiveFile({id: -1, mimeType: "", name: "", variant: "folder"});
+        setActiveFile({id: -1, mimeType: "", name: "", variant: "folder", isCorrupted: false});
         setDialogProps({headerText: "Enter new folder name:", hasInput: true, onSubmit: createFolder})
         setDialogVisible(true);
     }

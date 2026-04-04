@@ -2,6 +2,8 @@ import prisma from "@/app/lib/prisma";
 import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
+import path from "node:path";
+import { stat } from "node:fs/promises";
 
 export const GET = async (req: NextRequest) => {
     const session = await getServerSession(authOptions);
@@ -15,7 +17,16 @@ export const GET = async (req: NextRequest) => {
         );
     }
 
+    if (!process.env.FILE_STORAGE_PATH) {
+        return NextResponse.json(
+            { error: "File storage not set" },
+            { status: 500 }
+        );
+    }
+
     try {
+        const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString())
+
         const user = await prisma.user.findFirst({
             where: {id: session.user.id}
         });
@@ -36,7 +47,7 @@ export const GET = async (req: NextRequest) => {
             orderBy: {[user.sortPreference]: "asc"}
         });
 
-        const convertedFiles = files.map((file) => ({...file, size: Number(file.size)}));
+        const convertedFiles = await Promise.all(files.map(async (file) => ({...file, size: Number(file.size), isCorrupted: Number(file.size) !== (await stat(path.join(basePath, file.name))).size})));
 
         return NextResponse.json(convertedFiles);
     } catch (err) {

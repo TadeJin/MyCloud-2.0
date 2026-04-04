@@ -12,7 +12,8 @@ interface ActiveFile {
     id: number,
     name: string,
     variant: FileVariants,
-    mimeType: string
+    mimeType: string,
+    isCorrupted: boolean
 }
 
 interface FileContextType {
@@ -38,7 +39,7 @@ interface FileContextType {
 const FileContext = createContext<FileContextType | null>(null);
 
 export const ActiveFileProvider = ({ children }: { children: ReactNode }) => {
-    const [activeFile, setActiveFile] = useState<ActiveFile>({id: -1, name: "", mimeType: "", variant: "file"});
+    const [activeFile, setActiveFile] = useState<ActiveFile>({id: -1, name: "", mimeType: "", variant: "file", isCorrupted: false});
     const [searchString, setSearchString] = useState("");
     const [dropDownVisible, setDropDownVisible] = useState(false);
     const [dropDownPosition, setDropDownPosition] = useState({ top: 0, left: 0 });
