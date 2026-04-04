@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { CapacityDisplay, CreateFolderButton, MultipleFileOperations, SortPicker, UploadButton } from "."
 import Image from "next/image";
 
@@ -5,10 +6,22 @@ import Image from "next/image";
 export const SideBar = () => {
     return (
         <div className="flex flex-col lg:min-w-[18%] min-w-[30%] h-screen items-center gap-3 relative">
-            <div className="flex items-center h-[8%] md:h-[10%] w-full relative -mt-4">
+            <div className="w-17 h-17 relative block md:hidden">
+                <Image 
+                    src="./mycloud-logo-small.svg" 
+                    alt="mycloud-logo" 
+                    fill
+                    onClick={() => redirect("/")} 
+                    className="cursor-pointer"
+                />
+            </div>
+
+            <div className="items-center h-[8%] md:h-[10%] w-full relative -mt-4 hidden md:flex">
                 <Image
                     src="/logo.svg"
                     alt="MyCloud logo"
+                    onClick={() => redirect("/")}
+                    className="cursor-pointer"
                     fill
                 />
             </div>
