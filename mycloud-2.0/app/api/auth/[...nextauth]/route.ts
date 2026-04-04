@@ -34,7 +34,9 @@ export const authOptions = {
 
             const passwordMatch = await argon2.verify(user.password, password);
 
-            if (!passwordMatch) return null;
+            if (!passwordMatch) {
+                throw new Error("Wrong login credentials");
+            }
 
             return {
                 id: String(user.id),
