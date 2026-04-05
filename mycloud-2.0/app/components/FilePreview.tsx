@@ -3,6 +3,7 @@
 import { useFiles } from "./ActiveFileProvider";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { url } from "inspector";
 
 export const FilePreview = () => {
     const {activeFile, previewVisible, setPreviewVisible} = useFiles()
@@ -39,7 +40,7 @@ export const FilePreview = () => {
     }, [previewVisible, id, name, mimeType]);
 
     const renderPreview = () => {
-        if (loading) {
+        if (loading || (!srcUrl && !svgContent)) {
             return <div className="animate-spin rounded-full h-8 w-8 border-2 border-stone-600 border-t-transparent" />;
         }
 
@@ -70,7 +71,7 @@ export const FilePreview = () => {
 
     return (
         <>
-        {previewVisible && (srcUrl || svgContent) &&
+        {previewVisible &&
         <div className="absolute w-screen h-screen flex items-center justify-center backdrop-blur-sm">
             <div className="flex flex-col items-center border border-stone-600 bg-white w-[90%] h-[90%] rounded-lg p-5 relative gap-2">
                 <div className="flex w-full justify-center">
