@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { useQueryClient } from "react-query";
 import { ProgressBar, useErrors, useFolders } from ".";
 import Image from "next/image";
+import { FILE_CHUNK_SIZE } from "../constants";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");
@@ -60,7 +61,6 @@ export const UploadButton = () => {
             return;
         }
 
-        const chunkSize = 20 * 1024 * 1024;
         const folderId = getOpenedFolderID();
 
         for (const file of files) {
@@ -75,10 +75,10 @@ export const UploadButton = () => {
             }
 
             const fileRecord = await fileRecordRes.json();
-            const chunkPercentage = (chunkSize * 100) / file.size;
+            const chunkPercentage = (FILE_CHUNK_SIZE * 100) / file.size;
 
-            for (let start = 0; start < file.size; start += chunkSize) {
-                const res = await uploadChunk(file.slice(start, start + chunkSize), file.name, folderId);
+            for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
+                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name, folderId);
                 if (!res.ok) {
                     await fetch ("/api/files/handleFailedUpload", {
                         method: "DELETE",

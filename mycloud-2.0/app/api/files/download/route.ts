@@ -42,13 +42,14 @@ export const GET = async (req: NextRequest ) => {
     }
 
     try {
-      const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), name);
+      const sanitizedName = path.basename(name);
+      const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), sanitizedName);
       const stream = createReadStream(filePath);
       const { size } = statSync(filePath);
 
       return new NextResponse(Readable.toWeb(stream) as ReadableStream, {
         headers: {
-          'Content-Disposition': `attachment; filename="${name}"`,
+          'Content-Disposition': `attachment; filename="${sanitizedName}"`,
           'Content-Type': type,
           'Content-Length': `${size}`
         }

@@ -23,7 +23,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
-        const user = await prisma.user.findFirst({
+        const user = await prisma.user.findUnique({
             where: {id: session.user.id}
         });
 

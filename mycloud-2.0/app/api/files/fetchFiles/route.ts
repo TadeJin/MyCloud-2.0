@@ -27,7 +27,7 @@ export const GET = async (req: NextRequest) => {
     try {
         const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString())
 
-        const user = await prisma.user.findFirst({
+        const user = await prisma.user.findUnique({
             where: {id: session.user.id}
         });
 

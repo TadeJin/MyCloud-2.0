@@ -44,7 +44,7 @@ export const POST = async (req: NextRequest) => {
             });
         });
 
-        await Promise.all(files.map(file => unlink(path.join(basePath, file.name))));
+        await Promise.all(files.map(file => unlink(path.join(basePath, path.basename(file.name)))));
 
         return NextResponse.json({message: "Files deleted"});
     } catch (err) {

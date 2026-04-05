@@ -3,7 +3,7 @@
 import { useQueryClient } from "react-query";
 import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
 import { useFiles } from "./ActiveFileProvider";
-import { DBFile } from "../types";
+import { DisplayFile } from "../types";
 
 interface MultipleFileOperationsProps {
     column?: boolean
@@ -30,6 +30,11 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
 
     const downloadSelected = async (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
+        if (selectedFilesIds.length === 0) {
+            setErrorMessage("No files selected");
+            return;
+        }
+
         const res = await fetch("/api/files/downloadSelected",{
             method: "POST",
             headers:  {"Content-Type": "application/json"},
@@ -53,6 +58,11 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     }
 
     const openDeleteDialog = () => {
+        if (selectedFilesIds.length === 0) {
+            setErrorMessage("No files selected");
+            return;
+        }
+
         setDialogProps({headerText: `Are you sure you want to delete ${selectedFilesIds.length} selected files?`, hasInput: false, onSubmit: deleteSelected});
         setDialogVisible(true);
     }
@@ -74,7 +84,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     }
 
     const selectAll = () => {
-        const files = queryClient.getQueryData<DBFile[]>(["files", getOpenedFolderID(), searchString]);
+        const files = queryClient.getQueryData<DisplayFile[]>(["files", getOpenedFolderID(), searchString]);
         if (!files || files.length === 0) {
             return;
         }

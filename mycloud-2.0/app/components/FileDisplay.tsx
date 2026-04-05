@@ -2,7 +2,7 @@
 
 import { useQuery } from "react-query";
 import { FileBox } from "./FileBox";
-import { DBFile } from "../types";
+import { DisplayFile } from "../types";
 import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
 import { useState } from "react";
 import Image from "next/image";
@@ -81,7 +81,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 <>
                 {statusFiles === "loading" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
 
-                files.map((file: DBFile) => (
+                files.map((file: DisplayFile) => (
                     <FileBox key={file.id} id={file.id} name={file.name} isCorrupted={file.isCorrupted} variant="file" mimeType={file.type} />
                 ))}
                 </>

@@ -45,6 +45,6 @@ export const PATCH = async (req: NextRequest) => {
          return NextResponse.json(
             { errMessage: "Error resetting password"},
             { status: 500 }
-        )
+        );
     }
 }

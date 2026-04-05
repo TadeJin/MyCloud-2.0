@@ -31,7 +31,7 @@ export const POST = async (req: NextRequest) => {
         const files = await prisma.file.findMany({ where: { id: {in: ids}, userId: session.user.id } });
     
         files.forEach(file => {
-            archive.file(path.join(basePath, file.name), { name: file.name });
+            archive.file(path.join(basePath, path.basename(file.name)), { name: file.name });
         });
 
         archive.finalize();

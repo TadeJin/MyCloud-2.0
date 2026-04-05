@@ -5,7 +5,7 @@ import prisma from "@/app/lib/prisma";
 
 export const POST = async (req: NextRequest) => {
     const {name, folderId} = await req.json();
-
+    const session = await getServerSession(authOptions);
 
     if (!name) {
         return NextResponse.json(
@@ -13,8 +13,6 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
         );
     }
-
-    const session = await getServerSession(authOptions);
 
      if (!session) {
         return NextResponse.json(

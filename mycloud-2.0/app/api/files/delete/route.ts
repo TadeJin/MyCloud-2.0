@@ -34,7 +34,7 @@ export const DELETE = async (req: NextRequest) => {
     try {
         const file = await prisma.$transaction(async (tx) => {
             const file = await tx.file.delete({
-                where: {id: id}
+                where: {id: id, userId: session.user.id}
             });
 
             await tx.user.update({

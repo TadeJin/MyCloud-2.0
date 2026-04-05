@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
+import { statfs } from "fs/promises";
+import path from "path";
 
 export const POST = async (req: NextRequest) => {
     const session = await getServerSession(authOptions);
@@ -14,11 +16,32 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
+    if (!process.env.FILE_STORAGE_PATH) {
+        return NextResponse.json(
+        { errMessage: `Upload of file: ${fileName} failed`},
+        { status: 500 }
+        );
+    }
+
+    const sanitizedFileName = path.basename(fileName);
+
     try {
+        const diskStats = await statfs(process.env.FILE_STORAGE_PATH);
+        const user = await prisma.user.findUnique({
+            where: {id: session.user.id}
+        });
+
+        if (!user || (Number(fileSize) > (diskStats.bavail * diskStats.bsize)) || (Number(user.maxStorage) !== -1 && (Number(fileSize) + Number(user.takenSpace) > Number(user.maxStorage)))) {
+            return NextResponse.json(
+                { errMessage: `Upload of file: ${sanitizedFileName} failed`},
+                { status: 500 }
+            );
+        }
+
         const file = await prisma.$transaction(async (tx) => {
             const file = await tx.file.create({
                 data: {
-                    name: fileName,
+                    name: sanitizedFileName,
                     userId: session.user.id,
                     type: fileType,
                     size: fileSize,
@@ -37,6 +60,6 @@ export const POST = async (req: NextRequest) => {
 
         return NextResponse.json({ message: "Record created succesfully", id: file.id }, {status: 201});
     } catch (err) {
-        return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`}, {status: 500});
+        return NextResponse.json({ errMessage: `Upload of file: ${sanitizedFileName} failed`}, {status: 500});
     }
 }

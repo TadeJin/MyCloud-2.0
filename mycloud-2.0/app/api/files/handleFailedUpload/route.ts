@@ -22,17 +22,22 @@ export const DELETE = async (req: NextRequest) => {
         { status: 400 }
         );
     }
+    
+    const file = await prisma.$transaction(async (tx) => {
+        const file = await tx.file.delete({
+            where: {id: fileId, userId: session.user.id}
+        });
 
-    const file = await prisma.file.delete({
-        where: {id: fileId}
+        await tx.user.update({
+            where: {id: session.user.id},
+            data: {takenSpace: {decrement: file.size}}
+        });
+
+        return file;
     });
+    
 
-    await prisma.user.update({
-        where: {id: session.user.id},
-        data: {takenSpace: {decrement: file.size}}
-    });
-
-    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), file.name);
+    const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), path.basename(file.name));
     await unlink(filePath);
 
     return NextResponse.json({message: "Failed upload handled"});

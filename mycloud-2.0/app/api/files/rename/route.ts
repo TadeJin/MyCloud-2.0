@@ -28,7 +28,7 @@ export const PATCH = async (req: NextRequest) => {
     if(invalidFileName.test(newName)) {
         return NextResponse.json(
         { errMessage: "Error renaming file" },
-        { status: 500 }
+        { status: 400 }
         );
     }
 
@@ -41,12 +41,12 @@ export const PATCH = async (req: NextRequest) => {
 
     if (duplicate) {
         return NextResponse.json(
-        { errMessage: `Cannot rename "${oldName}": a file named "${newName}" already exists` },
-        { status: 400 }
+            { errMessage: `Cannot rename "${oldName}": a file named "${newName}" already exists` },
+            { status: 400 }
         );
     }
 
-    const file = await prisma.file.findUnique({
+    const file = await prisma.file.findFirst({
         where: {id: id, userId: session.user.id}
     });
 
@@ -56,12 +56,12 @@ export const PATCH = async (req: NextRequest) => {
 
     try {
         await prisma.file.update({
-            where: {id: id},
+            where: {id: id, userId: session.user.id},
             data: {name: newName}
         });
 
         const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-        await rename(path.join(filePath, oldName), path.join(filePath, newName));
+        await rename(path.join(filePath, path.basename(oldName)), path.join(filePath, path.basename(newName)));
     } catch(err) {
         return NextResponse.json({ errMessage: "Error renaming file" }, {status: 500});
     }

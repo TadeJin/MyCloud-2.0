@@ -9,7 +9,7 @@ export const GET = async () => {
 
     if (!session || !process.env.FILE_STORAGE_PATH) {
         return NextResponse.json(
-            {errMessage: "Failed to upload file"},
+            {errMessage: "Failed to fetch free space"},
             {status: 500}
         );
     }
@@ -22,8 +22,8 @@ export const GET = async () => {
 
         if (!user) {
             return NextResponse.json(
-            {errMessage: "Failed to upload file"},
-            {status: 401}
+            {errMessage: "Failed to fetch free space"},
+            {status: 404}
         );
         }
 
@@ -32,7 +32,7 @@ export const GET = async () => {
         return NextResponse.json({availableUserSpace: Number(user.maxStorage) === -1 ? -1 : Number(user.maxStorage - user.takenSpace), availableDiskSpace: (diskStats.bavail * diskStats.bsize)});
     } catch (err) {
        return NextResponse.json(
-            {errMessage: "Failed to upload file"},
+            {errMessage: "Failed to fetch free space"},
             {status: 500}
         );
     }

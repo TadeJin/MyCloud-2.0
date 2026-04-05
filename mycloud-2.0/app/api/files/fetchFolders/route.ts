@@ -16,7 +16,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
-        const user = await prisma.user.findFirst({
+        const user = await prisma.user.findUnique({
             where: {id: session.user.id}
         });
 
@@ -30,7 +30,7 @@ export const GET = async (req: NextRequest) => {
         const folders = await prisma.folder.findMany({
             where: {
                 name: {contains: searchString ? searchString : ""},
-                userId: session?.user.id,
+                userId: session.user.id,
                 folderId: folderId ? Number(folderId) : null
             },
             orderBy: {[user.sortPreference === "uploadedAt" ? "createdAt" : "name"]: "asc"}

@@ -16,7 +16,7 @@ export const PATCH = async (req: NextRequest) => {
 
     const {id, newName} = await req.json();
 
-    const folder = await prisma.folder.findUnique({
+    const folder = await prisma.folder.findFirst({
         where: {id: id, userId: session.user.id}
     });
 
@@ -26,7 +26,7 @@ export const PATCH = async (req: NextRequest) => {
 
     try {
         await prisma.folder.update({
-            where: {id: id},
+            where: {id: id, userId: session.user.id},
             data: {name: newName}
         });
     } catch(err) {

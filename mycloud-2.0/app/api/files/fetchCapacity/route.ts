@@ -22,7 +22,7 @@ export const GET = async () => {
         );
 
         if (!user) {
-            return NextResponse.json({ errMessage: "Error fetching capacity" }, {status: 500});
+            return NextResponse.json({ errMessage: "Error fetching capacity" }, {status: 404});
         }
 
         let maxStorage = Number(user.maxStorage);

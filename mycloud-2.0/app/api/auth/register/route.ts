@@ -26,7 +26,7 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    const duplicate_row = await prisma.user.findFirst({
+    const duplicate_row = await prisma.user.findUnique({
         where: {email: email}
     });
 
