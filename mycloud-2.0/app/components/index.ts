@@ -20,6 +20,7 @@ export * from "./ProgressBar"
 export * from "./QueryProvider";
 export * from "./RegisterForm";
 export * from "./ResetForm";
+export * from "./ResetPasswordContent";
 export * from "./SearchBar";
 export * from "./SelectOpButton";
 export * from "./SettingsMenu";
@@ -31,3 +32,4 @@ export * from "./StoragePageUI";
 export * from "./UploadButton";
 export * from "./UserInfo";
 export * from "./UserStats";
+export * from "./VerifyEmailContent";
