@@ -11,7 +11,7 @@ interface MultipleFileOperationsProps {
 
 export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     const {column} = props;
-    const {selectActive, setSelectActive, setSelectedFilesIds, selectedFilesIds, searchString, addSelectedFileId} = useFiles();
+    const {selectActive, setSelectActive, setSelectedFilesIds, selectedFilesIds, searchString, addSelectedFileId, filter} = useFiles();
     const {setErrorMessage} = useErrors();
     const queryClient = useQueryClient();
     const {getOpenedFolderID} = useFolders();
@@ -84,7 +84,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     }
 
     const selectAll = () => {
-        const files = queryClient.getQueryData<DisplayFile[]>(["files", getOpenedFolderID(), searchString]);
+        const files = queryClient.getQueryData<DisplayFile[]>(["files", getOpenedFolderID(), searchString, filter]);
         if (!files || files.length === 0) {
             return;
         }
