@@ -21,6 +21,7 @@ The app is self-hosted on a Raspberry Pi.
 - Email notifications via Resend
 - Settings page with account options (password/email change, account deletion)
 - Password reset via email
+- File preview — images, videos, and PDFs
 
 ## Getting started
 1. Create a `.env` file:
