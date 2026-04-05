@@ -56,7 +56,7 @@ export const POST = async (req: NextRequest) => {
         await mkdir(dirPath);
 
         await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'noreply@mycld.cz',
         to: email,
         subject: 'MyCloud 2.0 email verification',
         html: `<h1>Welcome to MyCloud 2.0!</h1>

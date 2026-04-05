@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest) => {
         })
 
         await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'noreply@mycld.cz',
         to: email,
         subject: 'MyCloud 2.0 Password Reset',
         html: `<p>The link for changing your password is here <a href="${resetLink}">${resetLink}</a> <br>

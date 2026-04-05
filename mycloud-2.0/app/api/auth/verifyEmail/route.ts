@@ -36,7 +36,7 @@ export const GET = async (req: NextRequest) => {
         });
 
         await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'noreply@mycld.cz',
         to: user.email,
         subject: 'Welcome to MyCloud 2.0',
         html: `<h1>Welcome to MyCloud 2.0!</h1>
