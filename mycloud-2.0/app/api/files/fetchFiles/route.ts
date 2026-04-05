@@ -5,10 +5,12 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import path from "node:path";
 import { stat } from "node:fs/promises";
 
+
 export const GET = async (req: NextRequest) => {
     const session = await getServerSession(authOptions);
     const folderId = req.nextUrl.searchParams.get('folderId');
     const searchString = req.nextUrl.searchParams.get('search');
+    const filter = req.nextUrl.searchParams.get('filter');
 
     if (!session) {
         return NextResponse.json(
@@ -23,6 +25,20 @@ export const GET = async (req: NextRequest) => {
             { status: 500 }
         );
     }
+
+    if (!filter) {
+        return NextResponse.json(
+            { error: "Filter not set" },
+            { status: 400 }
+        );
+    }
+
+    const typeMap: Record<string, string> = {
+        Pictures: "image",
+        Videos: "video",
+        Documents: "application",
+        Other: ""
+    };
 
     try {
         const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString())
@@ -42,7 +58,8 @@ export const GET = async (req: NextRequest) => {
             where: {
                 name: {contains: searchString ? searchString : ""},
                 userId: session.user.id,
-                folderId: folderId ? Number(folderId) : null
+                ...(!searchString && { folderId: folderId ? Number(folderId) : null }),
+                ...(filter && filter !== "All" && { type: {startsWith: typeMap[filter]} })
             },
             orderBy: {[user.sortPreference]: "asc"}
         });

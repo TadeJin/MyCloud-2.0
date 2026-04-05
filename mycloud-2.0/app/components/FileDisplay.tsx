@@ -19,13 +19,13 @@ interface DBFolder {
 
 export const FileDisplay = (props: FileDisplayProps) => {
     const {getOpenedFolderID} = useFolders();
-    const {setDropDownVisible, searchString} = useFiles();
+    const {setDropDownVisible, searchString, filter} = useFiles();
     const {className} = props;
     const [filesOpen, setFilesOpen] = useState(true);
     const [foldersOpen, setFoldersOpen] = useState(true)
 
     const fetchFiles = async (folderId: number | null) => {
-        const res = await fetch(`/api/files/fetchFiles?folderId=${folderId}&search=${searchString}`);
+        const res = await fetch(`/api/files/fetchFiles?folderId=${folderId}&search=${searchString}&filter=${filter}`);
         return res.json();
     }
 
@@ -36,7 +36,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
     const currentId = getOpenedFolderID();
 
-    const { data: files, status: statusFiles } = useQuery(["files", currentId, searchString], () => fetchFiles(currentId));
+    const { data: files, status: statusFiles } = useQuery(["files", currentId, searchString, filter], () => fetchFiles(currentId));
     const { data: folders, status: statusFolders } = useQuery(["folders", currentId, searchString], () => fetchFolders(currentId));
 
     const style = "flex flex-col rounded-md w-full h-full rounded-lg bg-stone-50 overflow-y-scroll " + className
