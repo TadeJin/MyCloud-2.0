@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import path from "path";
 import { unlink } from "fs/promises";
+import { DBFile, DBFolder } from "@/app/types";
 
 export const DELETE = async (req: NextRequest) => {
     const session = await getServerSession(authOptions);
@@ -33,45 +34,60 @@ export const DELETE = async (req: NextRequest) => {
 
     try {
         const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-        await deleteFolder(folderId, basePath, session);
+        const files: DBFile[] = [];
+        const folderIds: number[] = [folderId];
+        await getFilesPlusSubfolders(folderId, basePath, session, files, folderIds);
+
+        const fileIds: number[] = [];
+        let totalSize = 0;
+
+        files.forEach(file => {
+            fileIds.push(file.id);
+            totalSize += Number(file.size);
+        });
+
+        await prisma.$transaction(async (tx) => {
+            await tx.file.deleteMany({
+                where: {id: {in: fileIds}, userId: session.user.id}
+            });
+
+            await tx.folder.deleteMany({
+                where: {id: {in: folderIds}, userId: session.user.id}
+            });
+
+            await tx.user.update({
+                where: {id: session.user.id},
+                data: {takenSpace: {decrement: totalSize}}
+            })
+        });
+
+        await Promise.all(files.map(file =>
+            unlink(path.join(basePath, path.basename(file.name)))
+        ));
+
+        return NextResponse.json({ message: "Folder removed" });
     } catch (err) {
         return NextResponse.json({ errMessage: "Error removing folder" }, {status: 500});
     }
-    
-
-    return NextResponse.json({ message: "Folder removed" });
 }
 
 
-const deleteFolder = async (folderId: number, basePath: string, session: Session) => {
-    const files = await prisma.file.findMany({
-        where: {folderId: folderId}
+const getFilesPlusSubfolders = async (folderId: number, basePath: string, session: Session, files: DBFile[], folderIds: number[]) => {
+
+    const subFiles = await prisma.file.findMany({
+        where: {folderId: folderId, userId: session.user.id}
     });
-
-    let totalFileSize = 0;
-
-    files.forEach((file) => {
-        totalFileSize += Number(file.size);
-    });
-
-    await Promise.all(files.map(file => unlink(path.join(basePath, file.name))));
-
-    await prisma.file.deleteMany({
-        where: {id: {in: files.map(file => file.id)}}
-    });
-
-    await prisma.user.update({
-        where: {id: session.user.id},
-        data: {takenSpace: {decrement: totalFileSize}}
-    })
 
     const subFolders = await prisma.folder.findMany({
-        where: {folderId: folderId}
+        where: {folderId: folderId, userId: session.user.id}
     });
 
-    await Promise.all(subFolders.map(folder => deleteFolder(folder.id, basePath, session)));
-
-    await prisma.folder.delete({
-        where: {id: folderId}
+    subFiles.forEach((file: DBFile) => {
+        files.push(file);
     });
+
+    await Promise.all(subFolders.map(async (folder: DBFolder) => {
+        folderIds.push(folder.id);
+        await getFilesPlusSubfolders(folder.id, basePath, session, files, folderIds);
+    }));
 }
