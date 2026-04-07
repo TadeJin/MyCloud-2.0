@@ -10,7 +10,7 @@ export const GET = async (req: NextRequest) => {
 
     if (!session) {
         return NextResponse.json(
-        { error: "No session set" },
+        { errMessage: "No session set" },
         { status: 401 }
         );
     }
@@ -22,7 +22,7 @@ export const GET = async (req: NextRequest) => {
 
         if (!user) {
             return NextResponse.json(
-                { error: "No user found" },
+                { errMessage: "No user found" },
                 { status: 404 }
             );
         }

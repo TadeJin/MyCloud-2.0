@@ -16,8 +16,10 @@ export const UserStats = (props: UserStatsProps) => {
     const {hide, ref, hasSettings} = props;
 
     const fetchUserEmail = async () => {
-            return ((await fetch("/api/users/fetchUserData")).json());
-        }
+        const res = await fetch("/api/users/fetchUserData");
+        if (!res.ok) throw new Error("Failed to fetch user data");
+        return res.json();
+    }
     
     const {data} = useQuery(["userEmail"], () => fetchUserEmail());
 

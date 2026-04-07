@@ -15,13 +15,6 @@ export const PATCH = async (req: NextRequest) => {
         {status: 401})
     }
 
-    if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json(
-        { errMessage: "Error renaming file" },
-        { status: 500 }
-        );
-    }
-
     const {id, oldName, newName} = await req.json();
     const invalidFileName = /[<>:"/\\|?*\x00-\x1F]/;
 
@@ -60,7 +53,7 @@ export const PATCH = async (req: NextRequest) => {
             data: {name: newName}
         });
 
-        const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
+        const filePath = path.join(process.env.FILE_STORAGE_PATH!, session.user.id.toString());
         await rename(path.join(filePath, path.basename(oldName)), path.join(filePath, path.basename(newName)));
     } catch(err) {
         return NextResponse.json({ errMessage: "Error renaming file" }, {status: 500});

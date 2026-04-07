@@ -2,9 +2,10 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import archiver from "archiver";
-import path from "path";
 import prisma from "@/app/lib/prisma";
 import { Readable } from "stream";
+import { getFileFullPath } from "@/app/lib/fileHelpers";
+import { DBFile } from "@/app/types";
 
 export const POST = async (req: NextRequest) => {
     const {ids} = await req.json();
@@ -17,7 +18,7 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    if (!process.env.FILE_STORAGE_PATH || !session) {
+    if (!session) {
         return NextResponse.json(
             {errMessage: "Error downloading files"},
             {status: 500}
@@ -25,13 +26,24 @@ export const POST = async (req: NextRequest) => {
     }
 
     try {
-        const archive = archiver("zip");
-        const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
+         const [user, allFolders] = await Promise.all([
+            prisma.user.findUnique({ where: { id: session.user.id } }),
+            prisma.folder.findMany({ where: { userId: session.user.id } }),
+        ]);
 
-        const files = await prisma.file.findMany({ where: { id: {in: ids}, userId: session.user.id } });
+        if (!user) return NextResponse.json({ errMessage: "Error fetching files" }, {status: 404});
+
+        const files = await prisma.file.findMany({
+            where: {id: {in: ids}, userId: session.user.id}
+        });
+
+        const folderMap = new Map(allFolders.map(f => [f.id, f]));
+
+        const archive = archiver("zip");
+        archive.on("error", (err) => {});
     
-        files.forEach(file => {
-            archive.file(path.join(basePath, path.basename(file.name)), { name: file.name });
+        files.forEach((file: DBFile) => {
+            archive.file(getFileFullPath(folderMap, file, session.user.id), { name: file.name });
         });
 
         archive.finalize();

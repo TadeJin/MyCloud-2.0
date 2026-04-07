@@ -3,7 +3,7 @@
 import { useFiles } from "./ActiveFileProvider";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { url } from "inspector";
+import { useFolders } from "./FolderProvider";
 
 export const FilePreview = () => {
     const {activeFile, previewVisible, setPreviewVisible} = useFiles()
@@ -11,6 +11,8 @@ export const FilePreview = () => {
     const {name, mimeType, id} = activeFile;
     const [svgContent, setSvgContent] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+    const {folderStackIDs} = useFolders();
 
     useEffect(() => {
         if (!previewVisible) return;
@@ -19,8 +21,14 @@ export const FilePreview = () => {
 
         const load = async () => {
             setLoading(true);
-            const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}&id=${id}`);
-            setLoading(false);
+            const res = await fetch(`/api/files/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+            if (res.ok) {
+                setError(false);
+                setLoading(false);
+            } else {
+                setError(true);
+                return
+            }
 
             if (mimeType === "image/svg+xml") {
                 setSvgContent(await res.text());
@@ -37,9 +45,13 @@ export const FilePreview = () => {
         return () => {
             if (url) URL.revokeObjectURL(url);
         }
-    }, [previewVisible, id, name, mimeType]);
+    }, [folderStackIDs, id, mimeType, previewVisible]);
 
     const renderPreview = () => {
+        if (error) {
+            return <div className="text-red-500 font-bold">Error previewing file</div>;
+        }
+
         if (loading || (!srcUrl && !svgContent)) {
             return <div className="animate-spin rounded-full h-8 w-8 border-2 border-stone-600 border-t-transparent" />;
         }

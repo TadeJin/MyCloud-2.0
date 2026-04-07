@@ -7,7 +7,7 @@ import { statfs } from "fs/promises";
 export const GET = async () => {
     const session = await getServerSession(authOptions);
 
-    if (!session || !process.env.FILE_STORAGE_PATH) {
+    if (!session) {
         return NextResponse.json(
             {errMessage: "Failed to fetch free space"},
             {status: 500}
@@ -27,7 +27,7 @@ export const GET = async () => {
         );
         }
 
-        const diskStats = await statfs(process.env.FILE_STORAGE_PATH);
+        const diskStats = await statfs(process.env.FILE_STORAGE_PATH!);
 
         return NextResponse.json({availableUserSpace: Number(user.maxStorage) === -1 ? -1 : Number(user.maxStorage - user.takenSpace), availableDiskSpace: (diskStats.bavail * diskStats.bsize)});
     } catch (err) {

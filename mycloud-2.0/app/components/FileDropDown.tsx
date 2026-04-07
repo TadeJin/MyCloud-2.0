@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
-import { useDialog, useErrors, useFiles } from ".";
+import { useDialog, useErrors, useFiles, useFolders } from ".";
 import { useQueryClient } from "react-query";
 import Image from "next/image";
 
@@ -15,6 +15,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const {setDialogVisible, setDialogProps} = useDialog();
     const {setDropDownVisible} = props;
     const {activeFile, dropDownPosition, dropDownVisible, setPreviewVisible} = useFiles();
+    const {folderStackIDs} = useFolders();
     const {id, name, mimeType, variant, isCorrupted} = activeFile;
 
     const isFile = variant === "file";
@@ -37,7 +38,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDownload = async () => {
         setDropDownVisible(false);
-        const res = await fetch(`/api/files/download?name=${name}&type=${mimeType}&id=${id}`);
+        const res = await fetch(`/api/files/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
 
         if (!res.ok) {
             const resJSON = await res.json();
@@ -58,7 +59,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFolderDownload = async () => {
         setDropDownVisible(false);
-        const res = await fetch(`/api/files/downloadFolder?folderId=${id}&folderName=${name}`);
+        const res = await fetch(`/api/files/downloadFolder?folderId=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
 
         if (!res.ok) {
             const resJSON = await res.json();
@@ -92,6 +93,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 id: id,
+                folderStackIDs: folderStackIDs
             }),
         });
 
@@ -112,6 +114,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 folderId: id,
+                folderStackIDs: folderStackIDs
             })
         });
 

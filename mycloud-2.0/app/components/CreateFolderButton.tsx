@@ -8,17 +8,31 @@ export const CreateFolderButton = () => {
     const queryClient = useQueryClient();
     const {setActiveFile} = useFiles();
     const {setDialogVisible, setDialogProps} = useDialog();
-    const {getOpenedFolderID} = useFolders();
+    const {getOpenedFolderID, folderStackIDs} = useFolders();
     const {setErrorMessage} = useErrors();
 
     const createFolder = async (newName: string) => {
         setDialogVisible(false);
+        const duplicatesRes = await fetch("/api/files/checkDuplicates", {
+            method: "POST",
+            body: JSON.stringify({
+                fileNames: [newName],
+                folderId: getOpenedFolderID()
+            })
+        });
+
+        if (!duplicatesRes.ok) {
+            setErrorMessage((await duplicatesRes.json()).errMessage);
+            return;
+        }
+
         const res = await fetch("/api/files/createFolder", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 name: newName,
-                folderId: getOpenedFolderID()
+                folderId: getOpenedFolderID(),
+                folderStackIDs: folderStackIDs
             }),
         });
 

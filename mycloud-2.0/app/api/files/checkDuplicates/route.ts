@@ -13,7 +13,7 @@ export const  POST = async (req: NextRequest) => {
         );
     }
 
-    const fileNames = (await req.json()).fileNames;
+    const {fileNames, folderId} = await req.json();
 
     if (!fileNames) {
         return NextResponse.json(
@@ -23,18 +23,32 @@ export const  POST = async (req: NextRequest) => {
     }
 
     try {
+        const duplicateNames: string[] = [];
+        
         const files = await prisma.file.findMany({
-            where: {name: {in: fileNames}, userId: session.user.id}
+            where: {name: {in: fileNames}, userId: session.user.id, folderId: folderId}
         });
 
-        if (files.length === 0) {
+        files.forEach(file => {
+            duplicateNames.push(file.name);
+        });
+
+        const folderDuplicates = await prisma.folder.findMany({
+            where: {name: {in: fileNames}, userId: session.user.id, folderId: folderId}
+        });
+
+        folderDuplicates.forEach(folder => {
+            duplicateNames.push(folder.name);
+        });
+
+        if (duplicateNames.length === 0) {
             return NextResponse.json(
                 { message: "No duplicate" }
             );
         }
 
         return NextResponse.json(
-            { errMessage: `Files with names: ${(files.map(file => file.name).join(", "))} already exist` },
+            { errMessage: `Files/folders with names: ${(duplicateNames.join(", "))} already exist` },
             {status: 400}
         );
 

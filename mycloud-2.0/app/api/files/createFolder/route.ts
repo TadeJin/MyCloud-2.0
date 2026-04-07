@@ -2,9 +2,11 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import prisma from "@/app/lib/prisma";
+import { mkdir } from "fs/promises";
+import { getFilePath } from "@/app/lib/fileHelpers";
 
 export const POST = async (req: NextRequest) => {
-    const {name, folderId} = await req.json();
+    const {name, folderId, folderStackIDs} = await req.json();
     const session = await getServerSession(authOptions);
 
     if (!name) {
@@ -17,8 +19,18 @@ export const POST = async (req: NextRequest) => {
      if (!session) {
         return NextResponse.json(
         { errMessage: "Error creating folder" },
-        { status: 401 }
+    { status: 401 }
         );
+    }
+
+    try {
+        const folderPath = await getFilePath(folderStackIDs, name, session.user.id);
+
+        if (!folderPath) return NextResponse.json({errMessage: "Error creating folder"}, {status: 500});
+    
+        await mkdir(folderPath);
+    } catch (err) {
+        return NextResponse.json({errMessage: "Error creating folder"}, {status: 500});
     }
 
     try {

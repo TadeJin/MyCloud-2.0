@@ -2,8 +2,8 @@ import prisma from "@/app/lib/prisma";
 import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import path from "node:path";
 import { stat } from "node:fs/promises";
+import { getFileFullPath } from "@/app/lib/fileHelpers";
 
 
 export const GET = async (req: NextRequest) => {
@@ -14,21 +14,14 @@ export const GET = async (req: NextRequest) => {
 
     if (!session) {
         return NextResponse.json(
-            { error: "No session set" },
+            { errMessage: "No session set" },
             { status: 401 }
-        );
-    }
-
-    if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json(
-            { error: "File storage not set" },
-            { status: 500 }
         );
     }
 
     if (!filter) {
         return NextResponse.json(
-            { error: "Filter not set" },
+            { errMessage: "Filter not set" },
             { status: 400 }
         );
     }
@@ -41,30 +34,34 @@ export const GET = async (req: NextRequest) => {
     };
 
     try {
-        const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString())
+        const [user, allFolders] = await Promise.all([
+            prisma.user.findUnique({ where: { id: session.user.id } }),
+            prisma.folder.findMany({ where: { userId: session.user.id } }),
+        ]);
 
-        const user = await prisma.user.findUnique({
-            where: {id: session.user.id}
-        });
-
-        if (!user) {
-            return NextResponse.json(
-                { error: "No user found" },
-                { status: 404 }
-            );
-        }
+        if (!user) return NextResponse.json({ errMessage: "Error fetching files" }, {status: 404});
 
         const files = await prisma.file.findMany({
             where: {
-                name: {contains: searchString ? searchString : ""},
+                name: { contains: searchString ? searchString : "" },
                 userId: session.user.id,
                 ...(!searchString && { folderId: folderId ? Number(folderId) : null }),
-                ...(filter && filter !== "All" && { type: {startsWith: typeMap[filter]} })
+                ...(filter && filter !== "All" && { type: { startsWith: typeMap[filter] } }),
             },
             orderBy: {[user.sortPreference]: "asc"}
         });
 
-        const convertedFiles = await Promise.all(files.map(async (file) => ({...file, size: Number(file.size), isCorrupted: Number(file.size) !== (await stat(path.join(basePath, file.name))).size})));
+        const folderMap = new Map(allFolders.map(f => [f.id, f]));
+
+        const convertedFiles = await Promise.all(files.map(async (file) => {
+            const filePath = getFileFullPath(folderMap, file, session.user.id);
+            const fileStat = await stat(filePath).catch(() => null);
+            return {
+                ...file,
+                size: Number(file.size),
+                isCorrupted: fileStat === null || fileStat.size !== Number(file.size)
+            };
+        }));
 
         return NextResponse.json(convertedFiles);
     } catch (err) {

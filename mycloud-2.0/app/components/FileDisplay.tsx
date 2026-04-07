@@ -26,11 +26,13 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
     const fetchFiles = async (folderId: number | null) => {
         const res = await fetch(`/api/files/fetchFiles?folderId=${folderId}&search=${searchString}&filter=${filter}`);
+        if (!res.ok) throw new Error("Failed to fetch files");
         return res.json();
     }
 
     const fetchFolders = async (folderId: number | null) => {
         const res = await fetch(`/api/files/fetchFolders?folderId=${folderId}&search=${searchString}`);
+        if (!res.ok) throw new Error("Failed to fetch folders");
         return res.json();
     }
 

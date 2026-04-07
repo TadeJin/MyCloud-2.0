@@ -27,10 +27,7 @@ export const GET = async () => {
 
         let maxStorage = Number(user.maxStorage);
         if (maxStorage === -1) {
-            if (!process.env.FILE_STORAGE_PATH) {
-                return NextResponse.json({ errMessage: "Error fetching capacity" }, {status: 500});
-            }
-            const diskStats = await statfs(process.env.FILE_STORAGE_PATH);
+            const diskStats = await statfs(process.env.FILE_STORAGE_PATH!);
             maxStorage = diskStats.bavail * diskStats.bsize; 
         }
 

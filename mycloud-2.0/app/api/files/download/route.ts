@@ -1,35 +1,21 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { createReadStream, statSync } from "fs";
+import { createReadStream } from "fs";
+import { stat } from "fs/promises";
 import { Readable } from "stream";
 import prisma from "@/app/lib/prisma";
+import { getFilePath } from "@/app/lib/fileHelpers";
 
 export const GET = async (req: NextRequest ) => {
     const session = await getServerSession(authOptions);
-    const name = req.nextUrl.searchParams.get("name");
-    const type = req.nextUrl.searchParams.get("type");
     const id = Number(req.nextUrl.searchParams.get("id"));
-  
-    if (!name || !type) {
-        return NextResponse.json(
-        { errMessage: "Error downloading file" },
-        { status: 400 }
-        );
-    }
+    const folderStackIDs = JSON.parse(req.nextUrl.searchParams.get("folderStackIDs") as string);
 
     if (!session) {
       return NextResponse.json(
         { errMessage: "Error downloading file" },
         { status: 401 }
-        );
-    }
-
-    if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json(
-        { errMessage: "Error downloading file" },
-        { status: 500 }
         );
     }
 
@@ -42,20 +28,19 @@ export const GET = async (req: NextRequest ) => {
     }
 
     try {
-      const sanitizedName = path.basename(name);
-      const filePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString(), sanitizedName);
+      const filePath = await getFilePath(folderStackIDs, file.name, session.user.id);
+      if (!filePath) return NextResponse.json({ errMessage: "Error downloading file" }, {status: 500});
       const stream = createReadStream(filePath);
-      const { size } = statSync(filePath);
+      const { size } = await stat(filePath);
 
       return new NextResponse(Readable.toWeb(stream) as ReadableStream, {
         headers: {
-          'Content-Disposition': `attachment; filename="${sanitizedName}"`,
-          'Content-Type': type,
+          'Content-Disposition': `attachment; filename="${file.name}"`,
+          'Content-Type': file.type,
           'Content-Length': `${size}`
         }
       });
     } catch (err) {
       return NextResponse.json({ errMessage: "Error downloading file" }, {status: 500});
     }
-
 }

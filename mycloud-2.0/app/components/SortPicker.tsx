@@ -10,9 +10,7 @@ export const SortPicker = () => {
     const fetchSortPreference = async () => {
         const res = await fetch("/api/users/fetchSortPreference");
 
-        if (!res.ok) {
-            return;
-        }
+        if (!res.ok) throw new Error("Failed to fetch sort preference");
 
         return res.json();
     }

@@ -2,8 +2,10 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import prisma from "@/app/lib/prisma";
-import path from "path";
 import { unlink } from "fs/promises";
+import { DBFile } from "@/app/types";
+import { getFileFullPath } from "@/app/lib/fileHelpers";
+import { existsSync } from "fs";
 
 export const POST = async (req: NextRequest) => {
     const {ids} = await req.json();
@@ -16,41 +18,69 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    if (!process.env.FILE_STORAGE_PATH || !session) {
+    if (!session) {
         return NextResponse.json(
             {errMessage: "Error deleting files"},
             {status: 500}
         );
     }
 
+    let files: DBFile[] = [];
+    let successfulIds: number[] = [];
+    let deletedSize = 0;
+
     try {
-        const basePath = path.join(process.env.FILE_STORAGE_PATH, session.user.id.toString());
-        const files = await prisma.file.findMany({
+        const [user, allFolders] = await Promise.all([
+            prisma.user.findUnique({ where: { id: session.user.id } }),
+            prisma.folder.findMany({ where: { userId: session.user.id } }),
+        ]);
+
+        if (!user) return NextResponse.json({ errMessage: "Error fetching files" }, {status: 404});
+
+        files = await prisma.file.findMany({
             where: {id: {in: ids}, userId: session.user.id}
         });
 
-        const totalFileSize = files.reduce((acc, file) => acc + Number(file.size), 0);
+        const folderMap = new Map(allFolders.map(f => [f.id, f]));
+        
+        const results = await Promise.allSettled(
+            files.map((file: DBFile) => {
+                const filePath = getFileFullPath(folderMap, file, session.user.id);
+                if (existsSync(filePath))
+                    return unlink(filePath).then(() => file.id)
+                else
+                    return file.id
+            })
+        );
 
+        successfulIds = results
+            .filter(r => r.status === "fulfilled")
+            .map(r => r.value);
+
+        deletedSize = files
+            .filter(f => successfulIds.includes(f.id))
+            .reduce((acc, file) => acc + Number(file.size), 0);
+
+    } catch (err) {
+        return NextResponse.json({errMessage: "Error deleting files"},{status: 500});
+    }
+
+    try {
         await prisma.$transaction(async (tx) => {
-            await tx.file.deleteMany({
-                where: {id: {in: ids}, userId: session.user.id}
+           await tx.file.deleteMany({
+                where: {id: {in: successfulIds}, userId: session.user.id}
             });
 
             await tx.user.update({
                 where: {id: session.user.id},
                 data: {
-                    takenSpace: {decrement: totalFileSize}
+                    takenSpace: {decrement: deletedSize}
                 }
             });
         });
 
-        await Promise.all(files.map(file => unlink(path.join(basePath, path.basename(file.name)))));
-
         return NextResponse.json({message: "Files deleted"});
     } catch (err) {
-        return NextResponse.json(
-            {errMessage: "Error deleting files"},
-            {status: 500}
-        );
+        return NextResponse.json({errMessage: "Error deleting files"},{status: 500});
     }
 }

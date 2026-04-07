@@ -16,17 +16,10 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json(
-        { errMessage: `Upload of file: ${fileName} failed`},
-        { status: 500 }
-        );
-    }
-
     const sanitizedFileName = path.basename(fileName);
 
     try {
-        const diskStats = await statfs(process.env.FILE_STORAGE_PATH);
+        const diskStats = await statfs(process.env.FILE_STORAGE_PATH!);
         const user = await prisma.user.findUnique({
             where: {id: session.user.id}
         });

@@ -42,7 +42,7 @@ export const SettingsPageUI = () => {
 
         setShowEmailInput(false);
         setNewEmail("");
-        queryClient.invalidateQueries("userEmail");
+        queryClient.invalidateQueries("userData");
     }
 
     const updatePassword = async () => {

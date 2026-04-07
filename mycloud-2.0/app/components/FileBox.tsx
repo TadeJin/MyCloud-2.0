@@ -84,7 +84,7 @@ export const FileBox = (props: FileBoxProps) => {
             </div>
             }
             <div className="flex items-center justify-center w-7 h-7">
-                {selectActive && isFile && !isCorrupted ? <input type="checkbox" checked={selectedFilesIds.includes(id)} onChange={(e) => selectOperation(e)}></input>: <div className="w-3 h-3 md:w-4 md:h-4 relative"><Image src={getIcon()} alt="fileIcon" fill/></div>}
+                {selectActive && isFile ? <input type="checkbox" checked={selectedFilesIds.includes(id)} onChange={(e) => selectOperation(e)}></input>: <div className="w-3 h-3 md:w-4 md:h-4 relative"><Image src={getIcon()} alt="fileIcon" fill/></div>}
             </div>
             <div onClick={!isFile ? openFolder : (e) => openPreview(e)} title={isPreviewable ? "Preview available" : name} className={`${isPreviewable || !isFile ? "cursor-pointer" : "cursor-default"} truncate text-sm font-medium flex-1`}>
                 <p className="text-xs md:text-base">{name}</p>

@@ -19,13 +19,6 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    if (!process.env.FILE_STORAGE_PATH) {
-        return NextResponse.json(
-        { error: "Storage path not set" },
-        { status: 400 }
-        );
-    }
-
     const duplicate_row = await prisma.user.findUnique({
         where: {email: email}
     });
@@ -52,7 +45,7 @@ export const POST = async (req: NextRequest) => {
             },
         });
 
-        const dirPath = path.join(process.env.FILE_STORAGE_PATH, user.id.toString());
+        const dirPath = path.join(process.env.FILE_STORAGE_PATH!, user.id.toString());
         await mkdir(dirPath);
 
         await resend.emails.send({

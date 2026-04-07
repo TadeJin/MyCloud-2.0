@@ -12,6 +12,7 @@ export const UploadButton = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const {getOpenedFolderID} = useFolders();
     const [uploadPercentage, setUploadPercentage] = useState(0);
+    const {folderStackIDs} = useFolders();
     const {setErrorMessage} = useErrors();
 
     const handleClick = () => {
@@ -40,7 +41,8 @@ export const UploadButton = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                fileNames: files.map(file => file.name)
+                fileNames: files.map(file => file.name),
+                folderId: getOpenedFolderID(),
             })
         });
 
@@ -78,13 +80,14 @@ export const UploadButton = () => {
             const chunkPercentage = (FILE_CHUNK_SIZE * 100) / file.size;
 
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
-                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name, folderId);
+                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name);
                 if (!res.ok) {
                     await fetch ("/api/files/handleFailedUpload", {
                         method: "DELETE",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            fileId: fileRecord.id
+                            fileId: fileRecord.id,
+                            folderStackIDs: folderStackIDs
                         }),
                     });
                     setFailedUploadErr(`Upload of file: ${file.name} failed`, e.target);
@@ -101,12 +104,12 @@ export const UploadButton = () => {
         e.target.value = "";
     }
 
-    const uploadChunk = async (chunk: Blob, fileName: string, folderId: number | null) => {
+    const uploadChunk = async (chunk: Blob, fileName: string) => {
         const formData = new FormData();
 
         formData.append("fileName", fileName);
         formData.append("chunk", chunk);
-        formData.append("folderId", folderId ? folderId.toString() : "");
+        formData.append('folderStackIDs', JSON.stringify(folderStackIDs));
         
 
         const res = await fetch("/api/files/uploadChunk", {

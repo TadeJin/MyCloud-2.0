@@ -15,6 +15,7 @@ export const CapacityDisplay = (props: CapacityDisplayProps) => {
 
     const fetchCapacity = async () => {
         const res = await fetch("/api/files/fetchCapacity");
+        if (!res.ok) throw new Error("Failed to fetch capacity");
         return res.json();
     };
 

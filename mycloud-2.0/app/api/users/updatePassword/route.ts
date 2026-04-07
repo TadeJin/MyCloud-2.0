@@ -28,7 +28,7 @@ export const PATCH = async (req: NextRequest) => {
             data: {password: await argon2.hash(newPassword)}
        });
 
-       return NextResponse.json("Password changed");
+       return NextResponse.json({message: "Password changed"});
     } catch (err) {
         return NextResponse.json(
             {errMessage: "Error updating password"},
