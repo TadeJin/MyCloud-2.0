@@ -1,6 +1,6 @@
 # MyCloud 2.0
 
-This is an upgraded and redefined version of [MyCloud 1.0](https://github.com/TadeJin/MyCloud).
+This is an upgraded version of [MyCloud 1.0](https://github.com/TadeJin/MyCloud) using better coding practices and modern technologies.
 The app is self-hosted on a Raspberry Pi.
 
 ## Tech stack
@@ -28,8 +28,8 @@ The app is self-hosted on a Raspberry Pi.
 ```env
 DATABASE_URL=             # connection string to your database
 FILE_STORAGE_PATH=/storage  # can also be set in docker-compose.yml
-NEXTAUTH_SECRET=          # random secret — generate with: openssl rand -base64 32
-NEXTAUTH_URL=             # your app's base URL e.g. http://localhost:3000
+BETTER_AUTH_SECRET=          # random secret — generate with: openssl rand -base64 32
+BETTER_AUTH_URL=             # your app's base URL e.g. http://localhost:3000
 RESEND_API_KEY=           # from resend.com dashboard
 SITE_DOMAIN=              # base URL used in email links
 ```
