@@ -191,7 +191,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
     return (
         <>
         {dropDownVisible && (
-            <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-36 z-10 p-1 border border-gray-100">
+            <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-36 p-1 border border-gray-100">
                 {isPreviewable && 
                 <button className={`flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md ${isCorrupted ? "text-gray-400" : "cursor-pointer hover:bg-gray-100"} transition-colors duration-100`} onClick={!isCorrupted ? openPreview : () => {}}>
                     <Image src={`${!isCorrupted ? "./fullscreen.svg" : "./fullscreen-gray.svg"}`} alt="preview-icon" width={16} height={16}/>

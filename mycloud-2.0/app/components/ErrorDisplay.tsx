@@ -7,7 +7,7 @@ export const ErrorDisplay = () => {
     if (!errorMessage) return null;
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex justify-center items-center p-4 z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex justify-center items-center p-4 z-40">
             <div className="flex flex-col bg-white rounded-2xl shadow-2xl border border-stone-200 w-full max-w-sm overflow-hidden">
                 <div className="flex items-center gap-3 bg-red-50 border-b border-red-100 px-5 py-4">
                     <div className="flex items-center justify-center w-9 h-9 rounded-full bg-red-100 shrink-0">
@@ -18,7 +18,7 @@ export const ErrorDisplay = () => {
                         className="ml-auto cursor-pointer hover:bg-red-100 rounded-full p-1 transition-colors duration-150"
                         onClick={() => setErrorMessage("")}
                     >
-                        <Image src="/x.svg" alt="close-error" height={18} width={18} />
+
                     </button>
                 </div>
                 <div className="px-6 py-5">

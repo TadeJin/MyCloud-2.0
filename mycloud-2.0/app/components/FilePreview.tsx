@@ -84,7 +84,7 @@ export const FilePreview = () => {
     return (
         <>
         {previewVisible &&
-        <div className="absolute w-screen h-screen flex items-center justify-center backdrop-blur-sm">
+        <div className="absolute w-screen h-screen flex items-center justify-center backdrop-blur-sm z-20">
             <div className="flex flex-col items-center border border-stone-600 bg-white w-[90%] h-[90%] rounded-lg p-5 relative gap-2">
                 <div className="flex w-full justify-center">
                     <h2 className="text-sm font-medium text-stone-600 truncate max-w-[70%]">{name}</h2>

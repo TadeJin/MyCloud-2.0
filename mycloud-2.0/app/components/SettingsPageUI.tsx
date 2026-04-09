@@ -204,6 +204,7 @@ export const SettingsPageUI = () => {
     return (
         <div className="flex w-screen h-screen">
             <div className="flex flex-col w-16 md:w-[17%] h-full items-center justify-between gap-10 shrink-0 bg-stone-100 border-r border-stone-200">
+                {/* Mobile */}
                 <div className="w-15 h-15 relative block md:hidden">
                     <Image 
                         src="./mycloud-logo-small.svg" 
@@ -214,24 +215,25 @@ export const SettingsPageUI = () => {
                     />
                 </div>
 
-                <div className="w-80 h-18 relative hidden md:block">
-                    <Image 
-                        src="./logo.svg" 
-                        alt="mycloud-logo" 
+                {/* Viewport => md */}
+                <div className="relative w-[85%] h-14 hidden md:block mt-1">
+                    <Image
+                        src="./logo.svg"
+                        alt="mycloud-logo"
                         fill
-                        onClick={() => redirect("/")} 
-                        className="cursor-pointer"
+                        onClick={() => redirect("/")}
+                        className="cursor-pointer object-contain"
                     />
                 </div>
                 <SettingsMenu content={content} setContent={setContent}/>
             </div>
 
             <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex w-full h-16 items-center px-4 border-b border-stone-200 bg-white/70 backdrop-blur-sm relative">
+                <div className="flex w-full h-16 items-center px-4 border-b border-stone-200 bg-stone-100 backdrop-blur-sm relative">
                     <UserInfo/>
                 </div>
 
-                <div className="w-full h-full bg-stone-50/60 p-4 md:p-10 overflow-y-auto">
+                <div className="w-full h-full bg-stone-50 p-4 md:p-10 overflow-y-auto">
                     {renderContent()}
                 </div>
             </div>

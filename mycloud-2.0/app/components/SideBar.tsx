@@ -5,7 +5,8 @@ import Image from "next/image";
 
 export const SideBar = () => {
     return (
-        <div className="flex flex-col lg:w-[18%] w-[30%] h-screen items-center gap-3 relative bg-stone-100 border-r border-stone-200">
+        <div className="flex flex-col lg:w-[18%] w-[30%] h-screen items-center gap-3 relative bg-stone-100 border-r-2 border-stone-200 z-0">
+            {/* Mobile */}
             <div className="w-17 h-17 relative block md:hidden">
                 <Image 
                     src="./mycloud-logo-small.svg" 
@@ -16,12 +17,13 @@ export const SideBar = () => {
                 />
             </div>
 
-            <div className="items-center h-[8%] md:h-[11%] w-full relative -mt-4 hidden md:flex">
+            {/* Viewport => md */}
+            <div className="relative w-[85%] h-14 hidden md:block mt-1">
                 <Image
                     src="/logo.svg"
                     alt="MyCloud logo"
                     onClick={() => redirect("/")}
-                    className="cursor-pointer"
+                    className="cursor-pointer object-contain"
                     fill
                 />
             </div>

@@ -59,7 +59,7 @@ export const SearchBar = () => {
             </div>
 
             {filterVisible &&
-                <div className="flex flex-col absolute right-0 top-full bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-full md:w-[60%] z-50 p-3 gap-2" ref={filterRef}>
+                <div className="flex flex-col absolute right-0 top-full bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-full md:w-[60%] p-3 gap-2" ref={filterRef}>
                     <h2 className="font-semibold text-stone-700 text-sm uppercase tracking-wide">Filter by type</h2>
                     <div className="flex flex-col gap-1">
                         {(["All", "Pictures", "Videos", "Documents", "Other"] as FilterOptions[]).map(option => (

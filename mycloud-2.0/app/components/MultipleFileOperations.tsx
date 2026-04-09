@@ -24,13 +24,13 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
 
     const disableSelect = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
-        setSelectedFilesIds([]);
+        setSelectedFilesIds(new Set());
         setSelectActive(false);
     }
 
     const downloadSelected = async (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
-        if (selectedFilesIds.length === 0) {
+        if (selectedFilesIds.size === 0) {
             setErrorMessage("No files selected");
             return;
         }
@@ -38,7 +38,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         const res = await fetch("/api/files/downloadSelected",{
             method: "POST",
             headers:  {"Content-Type": "application/json"},
-            body: JSON.stringify({ids: selectedFilesIds})
+            body: JSON.stringify({ids: [...selectedFilesIds]})
         });
 
         if (!res.ok) {
@@ -58,12 +58,12 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     }
 
     const openDeleteDialog = () => {
-        if (selectedFilesIds.length === 0) {
+        if (selectedFilesIds.size === 0) {
             setErrorMessage("No files selected");
             return;
         }
 
-        setDialogProps({headerText: `Are you sure you want to delete ${selectedFilesIds.length} selected files?`, hasInput: false, onSubmit: deleteSelected});
+        setDialogProps({headerText: `Are you sure you want to delete ${selectedFilesIds.size} selected files?`, hasInput: false, onSubmit: deleteSelected});
         setDialogVisible(true);
     }
 
@@ -72,14 +72,14 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         const res = await fetch("/api/files/deleteSelected", {
             method: "POST",
             headers:  {"Content-Type": "application/json"},
-            body: JSON.stringify({ids: selectedFilesIds})
+            body: JSON.stringify({ids: [...selectedFilesIds]})
         });
 
         if (!res.ok) {
             setErrorMessage((await res.json()).errMessage);
             return;
         }
-        setSelectedFilesIds([]);
+        setSelectedFilesIds(new Set());
         queryClient.invalidateQueries("files");
     }
 
@@ -98,14 +98,14 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         <div className={`flex ${column ? "flex-col" : "ml-3"} gap-3  items-center`}>
             {selectActive &&
             <>
-            <p className="text-xs md:text-base">{selectedFilesIds.length} files selected</p>
-            <SelectOpButton text ="Select all" imgSrc="./select-all.svg" onClick={selectAll}/>
-            <SelectOpButton text ="Download selected" imgSrc="./archive-arrow-down.svg" onClick={downloadSelected}/>
+            <p className="text-xs md:text-base">{selectedFilesIds.size} files selected</p>
+            <SelectOpButton text ="Select all" imgSrc="./select-all.svg" onClick={selectAll} styles="hover:bg-stone-100 hover:border-stone-300"/>
+            <SelectOpButton text ="Download selected" imgSrc="./archive-arrow-down.svg" onClick={downloadSelected} styles="hover:bg-stone-100 hover:border-stone-300"/>
             <SelectOpButton text ="Delete selected" imgSrc="./trash-alt.svg" onClick={openDeleteDialog} styles="hover:bg-red-50 hover:border-red-200"/>
             </>
             }
 
-            <SelectOpButton text ={selectActive ? "Disable select" : "Select files"} imgSrc={selectActive ? "./select-none.svg" : "./select-many.svg"} onClick={!selectActive ? activateSelect : disableSelect}/>
+            <SelectOpButton text ={selectActive ? "Disable select" : "Select files"} imgSrc={selectActive ? "./select-none.svg" : "./select-many.svg"} onClick={!selectActive ? activateSelect : disableSelect} styles="hover:bg-stone-100 hover:border-stone-300"/>
         </div>
     );
 }

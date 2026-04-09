@@ -32,10 +32,10 @@ interface FileContextType {
     setPreviewVisible: Dispatch<SetStateAction<boolean>>,
     selectActive: boolean,
     setSelectActive: Dispatch<SetStateAction<boolean>>,
-    selectedFilesIds: number[],
+    selectedFilesIds: Set<number>,
     addSelectedFileId: (id: number) => void,
     removeSelectedFileId: (id: number) => void,
-    setSelectedFilesIds: Dispatch<SetStateAction<number[]>>
+    setSelectedFilesIds: Dispatch<SetStateAction<Set<number>>>
 }
 
 const FileContext = createContext<FileContextType | null>(null);
@@ -48,14 +48,18 @@ export const ActiveFileProvider = ({ children }: { children: ReactNode }) => {
     const [dropDownPosition, setDropDownPosition] = useState({ top: 0, left: 0 });
     const [previewVisible, setPreviewVisible] = useState(false);
     const [selectActive, setSelectActive] = useState(false);
-    const [selectedFilesIds, setSelectedFilesIds] = useState<number[]>([]);
+    const [selectedFilesIds, setSelectedFilesIds] = useState<Set<number>>(new Set());
 
     const addSelectedFileId = (id: number) => {
-        setSelectedFilesIds(prev => [...prev, id]);
+        setSelectedFilesIds(prev => new Set(prev).add(id));
     }
 
     const removeSelectedFileId = (id: number) => {
-        setSelectedFilesIds(prev => prev.filter(fileId => fileId !== id));
+        setSelectedFilesIds(prev => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+        });
     }
 
     return (

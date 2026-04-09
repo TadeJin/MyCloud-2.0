@@ -137,7 +137,7 @@ export const UploadButton = () => {
 
     return (
         <div className="flex flex-col w-[80%] relative">
-            <button className = "flex items-center gap-0.5 h-10 p-1 bg-stone-50 border border-stone-200 rounded-md hover:bg-stone-200 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 md:gap-2" onClick={handleClick}>
+            <button className="flex items-center gap-1 p-2 bg-stone-50 border border-stone-200 rounded-md hover:bg-stone-100 hover:border-stone-300 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200" onClick={handleClick}>
                 <Image src="/file-plus.svg" alt="uploadIcon" width={24} height={24}/>
                 <p className="text-xs md:hidden">Upload</p>
                 <p className="hidden md:block">Upload Files</p>
