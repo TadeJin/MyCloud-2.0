@@ -11,7 +11,7 @@ export const SettingsMenu = (props: SettingsMenuProps) => {
     const {content, setContent} = props;
 
     return (
-        <div className="flex-1 flex flex-col gap-1 w-full md:w-[70%]">
+        <div className="flex-1 flex flex-col gap-1 w-[80%] md:w-[70%]">
             <SettingsMenuButton isSelected={content === "account"} imageSrc="./user.svg" onClick={() => setContent("account")} text="Account settings"/>
             <SettingsMenuButton isSelected={content === "storage"} imageSrc="./cloud.svg" onClick={() => setContent("storage")} text="Storage settings"/>
         </div>
