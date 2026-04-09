@@ -26,7 +26,7 @@ export const SettingsPageUI = () => {
         return ((await fetch("/api/users/fetchUserData")).json());
     }
 
-    const {data} = useQuery({queryKey: ['userData'], queryFn: () => fetchUserData()});
+    const {data} = useQuery({queryKey: ['userData'], queryFn: fetchUserData});
 
     const updateEmail = async () => {
         const {error} = await authClient.changeEmail({

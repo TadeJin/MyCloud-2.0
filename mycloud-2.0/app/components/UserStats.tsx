@@ -36,5 +36,5 @@ export const UserStats = (props: UserStatsProps) => {
             </button>}
             <LogOutButton className="mt-2"/>
         </div>
-    )
+    );
 }

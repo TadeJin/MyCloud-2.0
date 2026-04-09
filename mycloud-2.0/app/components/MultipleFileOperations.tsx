@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
+import { SelectOpButton, useDialog, useErrors } from ".";
 import { useFiles } from "./ActiveFileProvider";
-import { DisplayFile } from "../types";
+import { DBFile } from "../types";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -13,10 +13,9 @@ interface MultipleFileOperationsProps {
 
 export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     const {column} = props;
-    const {selectActive, setSelectActive, clearSelectedFiles, selectedFilesIds, selectedFilesNames, searchString, addSelectedFileId, removeSelectedFileId, filter} = useFiles();
+    const {selectActive, setSelectActive, clearSelectedFiles, selectedFilesIds, selectedFilesNames, addSelectedFileId, removeSelectedFileId} = useFiles();
     const {setErrorMessage} = useErrors();
     const queryClient = useQueryClient();
-    const {getOpenedFolderID} = useFolders();
     const {setDialogVisible, setDialogProps} = useDialog();
     const [selectedOpen, setSelectedOpen] = useState(false);
     const selectedRef = useRef<HTMLDivElement>(null);
@@ -99,7 +98,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     }
 
     const selectAll = () => {
-        const files = queryClient.getQueryData<DisplayFile[]>(["files", getOpenedFolderID(), searchString, filter]);
+        const files: DBFile[] | undefined = queryClient.getQueryData(["files"]);
         if (!files || files.length === 0) {
             return;
         }

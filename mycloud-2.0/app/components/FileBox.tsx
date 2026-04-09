@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useFiles, useFolders } from ".";
 import { FileVariants } from "../types";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface FileBoxProps {
@@ -21,8 +21,9 @@ export const FileBox = (props: FileBoxProps) => {
     const queryClient = useQueryClient();
     const {setActiveFile, setDropDownVisible, setDropDownPosition, setPreviewVisible, selectActive, addSelectedFileId, removeSelectedFileId, selectedFilesIds} = useFiles();
     const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf") && !isCorrupted;
+    const checkboxRef = useRef<HTMLInputElement>(null);
 
-    const openFolder = () => {
+    const openFolder = async () => {
         addFolder(id, name);
         queryClient.invalidateQueries({ queryKey: ['folders'] });
         queryClient.invalidateQueries({ queryKey: ['files'] });
@@ -64,9 +65,9 @@ export const FileBox = (props: FileBoxProps) => {
         return "./file.svg";
     }
 
-    const selectOperation = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectOperation = (e: React.MouseEvent<HTMLDivElement> | ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
-        if (e.target.checked) {
+        if (!selectedFilesIds.has(id)) {
             addSelectedFileId(id, name);
         } else {
             removeSelectedFileId(id);
@@ -74,7 +75,7 @@ export const FileBox = (props: FileBoxProps) => {
     }
 
     return (
-        <div onClick={!isFile ? openFolder : (e) => openPreview(e)} title={isPreviewable ? "Preview available" : name} className={`flex items-center md:gap-2 w-28 md:w-44 ${isCorrupted ? "bg-red-100 outline outline-red-400 hover:bg-red-200" : "bg-stone-100 border border-stone-200 hover:bg-white"} 
+        <div onClick={!isFile ? openFolder : (e) => {if (!selectActive) openPreview(e); else selectOperation(e)}} title={isPreviewable ? "Preview available" : name} className={`flex items-center md:gap-2 w-28 md:w-44 ${isCorrupted ? "bg-red-100 outline outline-red-400 hover:bg-red-200" : "bg-stone-100 border border-stone-200 hover:bg-white"} 
                     rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_12px_rgba(0,0,0,0.10)] transition-all duration-150 group relative
                     ${isPreviewable || !isFile ? "cursor-pointer" : "cursor-default"}`}>
             {isCorrupted && 
@@ -86,7 +87,7 @@ export const FileBox = (props: FileBoxProps) => {
             </div>
             }
             <div className="flex items-center justify-center w-7 h-7">
-                {selectActive && isFile ? <input type="checkbox" checked={selectedFilesIds.has(id)} onChange={(e) => selectOperation(e)}></input>: <div className="w-3 h-3 md:w-4 md:h-4 relative"><Image src={getIcon()} alt="fileIcon" fill/></div>}
+                {selectActive && isFile ? <input type="checkbox" ref={checkboxRef} checked={selectedFilesIds.has(id)} onChange={(e) => selectOperation(e)}></input>: <div className="w-3 h-3 md:w-4 md:h-4 relative"><Image src={getIcon()} alt="fileIcon" fill/></div>}
             </div>
             <div className = "truncate text-sm font-medium flex-1">
                 <p className="text-xs md:text-base">{name}</p>
@@ -95,5 +96,5 @@ export const FileBox = (props: FileBoxProps) => {
                 <Image src="/dots-vertical.svg" alt="file-dropdown" width={14} height={14}/>
             </div>
         </div>
-    )
+    );
 }

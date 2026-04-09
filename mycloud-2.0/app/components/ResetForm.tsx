@@ -11,7 +11,12 @@ interface ResetFormProps {
 
 export const ResetForm = (props: ResetFormProps) => {
     const router = useRouter();
-    const {variant} = props;
+    let {variant} = props;
+    const token = new URLSearchParams(window.location.search).get("token");
+
+    if (token) {
+        variant = "password";
+    }
 
     const isEmail = variant === "email";
     const [email, setEmail] = useState("");
@@ -47,8 +52,6 @@ export const ResetForm = (props: ResetFormProps) => {
     }
 
     const handleSubmitPassword = async (e: React.SubmitEvent) => {
-        const token = new URLSearchParams(window.location.search).get("token");
-
         if (!token) {
             setErrorMessage("Invalid reset url");
             return;
@@ -71,7 +74,7 @@ export const ResetForm = (props: ResetFormProps) => {
         <div className="grid place-items-center h-screen bg-stone-100">
             <div className="flex flex-col gap-6 bg-white p-10 pt-3 rounded-2xl shadow-lg w-full max-w-sm">
 
-                <div className="flex justify-center">
+                <div className="flex justify-center cursor-pointer" onClick={() => router.replace("/")}>
                     <Image src="/logo.svg" alt="mycloud-logo" width={180} height={130} />
                 </div>
 
