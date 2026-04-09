@@ -203,7 +203,7 @@ export const SettingsPageUI = () => {
 
     return (
         <div className="flex w-screen h-screen">
-            <div className="flex flex-col w-16 md:w-[17%] h-full items-center justify-between gap-10 shrink-0">
+            <div className="flex flex-col w-16 md:w-[17%] h-full items-center justify-between gap-10 shrink-0 bg-stone-100 border-r border-stone-200">
                 <div className="w-15 h-15 relative block md:hidden">
                     <Image 
                         src="./mycloud-logo-small.svg" 
@@ -227,11 +227,11 @@ export const SettingsPageUI = () => {
             </div>
 
             <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex w-full h-16 items-center px-4">
+                <div className="flex w-full h-16 items-center px-4 border-b border-stone-200 bg-white/70 backdrop-blur-sm relative">
                     <UserInfo/>
                 </div>
 
-                <div className="w-full h-full bg-white p-4 md:p-10 overflow-y-auto">
+                <div className="w-full h-full bg-stone-50/60 p-4 md:p-10 overflow-y-auto">
                     {renderContent()}
                 </div>
             </div>

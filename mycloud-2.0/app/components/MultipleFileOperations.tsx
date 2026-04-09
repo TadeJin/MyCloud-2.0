@@ -101,7 +101,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             <p className="text-xs md:text-base">{selectedFilesIds.length} files selected</p>
             <SelectOpButton text ="Select all" imgSrc="./select-all.svg" onClick={selectAll}/>
             <SelectOpButton text ="Download selected" imgSrc="./archive-arrow-down.svg" onClick={downloadSelected}/>
-            <SelectOpButton text ="Delete selected" imgSrc="./trash-alt.svg" onClick={openDeleteDialog} styles="hover:bg-red-200"/>
+            <SelectOpButton text ="Delete selected" imgSrc="./trash-alt.svg" onClick={openDeleteDialog} styles="hover:bg-red-50 hover:border-red-200"/>
             </>
             }
 

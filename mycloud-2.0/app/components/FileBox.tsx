@@ -74,7 +74,7 @@ export const FileBox = (props: FileBoxProps) => {
     }
 
     return (
-        <div className={`flex items-center md:gap-2 w-28 md:w-44 ${isCorrupted ? "bg-red-100 outline outline-red-400" : "bg-gray-100"} rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-md transition-all duration-150 group relative`}>
+        <div className={`flex items-center md:gap-2 w-28 md:w-44 ${isCorrupted ? "bg-red-100 outline outline-red-400" : "bg-stone-100 border border-stone-200"} rounded-lg px-2 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_12px_rgba(0,0,0,0.10)] hover:bg-white transition-all duration-150 group relative z-10`}>
             {isCorrupted && 
             <div className="absolute w-full flex flex-col items-center -top-7 cursor-default opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                 <span className="bg-red-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
@@ -89,7 +89,7 @@ export const FileBox = (props: FileBoxProps) => {
             <div onClick={!isFile ? openFolder : (e) => openPreview(e)} title={isPreviewable ? "Preview available" : name} className={`${isPreviewable || !isFile ? "cursor-pointer" : "cursor-default"} truncate text-sm font-medium flex-1`}>
                 <p className="text-xs md:text-base">{name}</p>
             </div>
-            <div className={`flex items-center justify-center w-6 h-6 rounded-full cursor-pointer ${!isCorrupted ? "hover:bg-gray-200" : "hover:bg-red-200"} shrink-0`} onClick={(e) => openDropDown(e)}>
+            <div className={`flex items-center justify-center w-6 h-6 rounded-full cursor-pointer ${!isCorrupted ? "hover:bg-stone-200" : "hover:bg-red-200"} shrink-0`} onClick={(e) => openDropDown(e)}>
                 <Image src="/dots-vertical.svg" alt="file-dropdown" width={14} height={14}/>
             </div>
         </div>

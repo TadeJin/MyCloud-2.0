@@ -57,9 +57,9 @@ export const CapacityDisplay = (props: CapacityDisplayProps) => {
     }
 
     return (
-        <div className={`flex flex-col gap-2 ${hasTopBorder && "border-t border-gray-400 pt-3"}`}>
-            <p className=" uppercase font-bold text-gray-500 text-xs md:text-sm">Storage capacity</p>
-            <div className="flex flex-col items-center bg-stone-50 p-3 rounded-md">
+        <div className={`flex flex-col gap-2 ${hasTopBorder && "border-t border-stone-300 pt-3"}`}>
+            <p className="uppercase font-bold text-stone-500 text-xs md:text-sm">Storage capacity</p>
+            <div className="flex flex-col items-center bg-white p-3 rounded-md border border-stone-200">
                 <div className="flex flex-row justify-between w-full">
                     <div className="flex flex-col items-center text-xs md:hidden w-full gap-0.5 mb-0.5">
                         <p className="text-gray-400">Remaining</p>

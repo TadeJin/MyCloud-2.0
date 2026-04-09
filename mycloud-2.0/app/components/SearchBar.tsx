@@ -48,7 +48,7 @@ export const SearchBar = () => {
                 />
             </div>
             <input type="text" placeholder="Search files..." className="focus:outline-none w-full text-xs md:text-base" onChange={(e) => setSearch(e.target.value)} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}></input>
-            <div className="cursor-pointer hover:bg-gray-200 rounded-full p-1" onClick={() => setFilterVisible(!filterVisible)}>
+            <div className="cursor-pointer hover:bg-stone-100 rounded-full p-1 transition-colors duration-150" onClick={() => setFilterVisible(!filterVisible)}>
                 <div className="h-4 w-4 md:w-5 md:h-5 relative">
                     <Image 
                         src= "./slider.svg"
@@ -58,12 +58,12 @@ export const SearchBar = () => {
                 </div>
             </div>
 
-            {filterVisible && 
-                <div className="flex flex-col absolute right-0 top-full bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-full md:w-[60%] z-10 p-3 gap-2" ref={filterRef}>
+            {filterVisible &&
+                <div className="flex flex-col absolute right-0 top-full bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-full md:w-[60%] z-50 p-3 gap-2" ref={filterRef}>
                     <h2 className="font-semibold text-stone-700 text-sm uppercase tracking-wide">Filter by type</h2>
                     <div className="flex flex-col gap-1">
                         {(["All", "Pictures", "Videos", "Documents", "Other"] as FilterOptions[]).map(option => (
-                            <label key={option} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-stone-100 cursor-pointer transition-colors">
+                            <label key={option} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-stone-100 cursor-pointer transition-colors duration-150">
                                 <input 
                                     type="radio"
                                     name="fileType"

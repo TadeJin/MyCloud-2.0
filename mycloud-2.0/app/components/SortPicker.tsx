@@ -27,16 +27,16 @@ export const SortPicker = () => {
     const preference = data && data.sortPreference;
 
     return ( 
-        <div className="w-[90%] flex flex-col gap-2 border-t border-gray-400 pt-3">
-            <p className="text-xs uppercase font-bold text-gray-500 md:text-sm">SORT BY</p>
+        <div className="w-[90%] flex flex-col gap-2 border-t border-stone-300 pt-3">
+            <p className="text-xs uppercase font-bold text-stone-500 md:text-sm">SORT BY</p>
             <div className="flex h-6 md:h-8">
-                <div className={`flex items-center w-[50%] border border-stone-500 rounded-l-full p-0.5 md:p-2 md:gap-1 cursor-pointer ${preference === "uploadedAt" ? "bg-gray-400" : "hover:bg-blue-200"}`} onClick={() => setPreference("uploadedAt")}>
-                    <Image src="./calendar-down-arrow.svg" alt="calendar-down-arrow" width={16} height={16}/>
+                <div className={`flex items-center w-[50%] border border-stone-300 rounded-l-full p-0.5 md:p-2 md:gap-1 cursor-pointer transition-colors duration-150 ${preference === "uploadedAt" ? "bg-stone-800 text-white" : "hover:bg-stone-200"}`} onClick={() => setPreference("uploadedAt")}>
+                    <Image src="./calendar-down-arrow.svg" alt="calendar-down-arrow" width={16} height={16} className={preference === "uploadedAt" ? "invert" : ""}/>
                     <p className="text-xs md:text-base">Date</p>
                 </div>
 
-                <div className={`flex items-center w-[50%] border border-l-0 border-stone-500 rounded-r-full p-0.5 md:p-2 md:gap-1 cursor-pointer ${preference === "name" ? "bg-gray-400" : "hover:bg-blue-200"}`} onClick={() => setPreference("name")}>
-                    <Image src="./arrow-down-a-z.svg" alt="arrow-down-a-z.svg" width={16} height={16}/>
+                <div className={`flex items-center w-[50%] border border-l-0 border-stone-300 rounded-r-full p-0.5 md:p-2 md:gap-1 cursor-pointer transition-colors duration-150 ${preference === "name" ? "bg-stone-800 text-white" : "hover:bg-stone-200"}`} onClick={() => setPreference("name")}>
+                    <Image src="./arrow-down-a-z.svg" alt="arrow-down-a-z.svg" width={16} height={16} className={preference === "name" ? "invert" : ""}/>
                     <p className="text-xs md:text-base">Name</p>
                 </div>
             </div>

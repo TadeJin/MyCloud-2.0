@@ -41,7 +41,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
     const { data: files, status: statusFiles } = useQuery(["files", currentId, searchString, filter], () => fetchFiles(currentId));
     const { data: folders, status: statusFolders } = useQuery(["folders", currentId, searchString], () => fetchFolders(currentId));
 
-    const style = "flex flex-col rounded-md w-full h-full rounded-lg bg-stone-50 overflow-y-scroll " + className
+    const style = "flex flex-col rounded-md w-full h-full rounded-lg bg-stone-50/60 overflow-y-scroll " + className
 
     return (
         <div className={style}>
@@ -50,7 +50,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 <>
                     <button 
                         onClick={() => setFoldersOpen(!foldersOpen)}
-                        className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-gray-100 py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150">
+                        className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-stone-100 py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150">
                         Folders
                         <svg 
                             width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
@@ -70,7 +70,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
             <button 
                 onClick={() => setFilesOpen(!filesOpen)}
-                className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-gray-100 py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150">
+                className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-stone-100 py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150">
                 Files
                 <svg 
                     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
