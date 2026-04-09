@@ -67,7 +67,7 @@ export const FileBox = (props: FileBoxProps) => {
     const selectOperation = (e: ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
         if (e.target.checked) {
-            addSelectedFileId(id);
+            addSelectedFileId(id, name);
         } else {
             removeSelectedFileId(id);
         }

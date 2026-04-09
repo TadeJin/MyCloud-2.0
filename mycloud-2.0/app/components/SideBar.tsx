@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export const SideBar = () => {
     return (
-        <div className="flex flex-col lg:w-[18%] w-[30%] h-screen items-center gap-3 relative bg-stone-100 border-r-2 border-stone-200 z-0">
+        <div className="flex flex-col lg:w-[18%] w-[30%] h-screen items-center gap-3 relative bg-stone-100 border-r-2 border-stone-200 z-10">
             {/* Mobile */}
             <div className="w-17 h-17 relative block md:hidden">
                 <Image 

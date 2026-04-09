@@ -33,9 +33,11 @@ interface FileContextType {
     selectActive: boolean,
     setSelectActive: Dispatch<SetStateAction<boolean>>,
     selectedFilesIds: Set<number>,
-    addSelectedFileId: (id: number) => void,
+    selectedFilesNames: Map<number, string>,
+    addSelectedFileId: (id: number, name: string) => void,
     removeSelectedFileId: (id: number) => void,
-    setSelectedFilesIds: Dispatch<SetStateAction<Set<number>>>
+    setSelectedFilesIds: Dispatch<SetStateAction<Set<number>>>,
+    clearSelectedFiles: () => void
 }
 
 const FileContext = createContext<FileContextType | null>(null);
@@ -49,9 +51,11 @@ export const ActiveFileProvider = ({ children }: { children: ReactNode }) => {
     const [previewVisible, setPreviewVisible] = useState(false);
     const [selectActive, setSelectActive] = useState(false);
     const [selectedFilesIds, setSelectedFilesIds] = useState<Set<number>>(new Set());
+    const [selectedFilesNames, setSelectedFilesNames] = useState<Map<number, string>>(new Map());
 
-    const addSelectedFileId = (id: number) => {
+    const addSelectedFileId = (id: number, name: string) => {
         setSelectedFilesIds(prev => new Set(prev).add(id));
+        setSelectedFilesNames(prev => new Map(prev).set(id, name));
     }
 
     const removeSelectedFileId = (id: number) => {
@@ -60,6 +64,16 @@ export const ActiveFileProvider = ({ children }: { children: ReactNode }) => {
             next.delete(id);
             return next;
         });
+        setSelectedFilesNames(prev => {
+            const next = new Map(prev);
+            next.delete(id);
+            return next;
+        });
+    }
+
+    const clearSelectedFiles = () => {
+        setSelectedFilesIds(new Set());
+        setSelectedFilesNames(new Map());
     }
 
     return (
@@ -79,9 +93,11 @@ export const ActiveFileProvider = ({ children }: { children: ReactNode }) => {
             selectActive,
             setSelectActive,
             selectedFilesIds,
+            selectedFilesNames,
             addSelectedFileId,
             removeSelectedFileId,
-            setSelectedFilesIds}}>
+            setSelectedFilesIds,
+            clearSelectedFiles}}>
             {children}
         </FileContext.Provider>
     );
