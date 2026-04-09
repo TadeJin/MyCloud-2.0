@@ -8,7 +8,7 @@ The app is self-hosted on a Raspberry Pi.
 - **React** + **TypeScript** — frontend
 - **Tailwind CSS** — styling
 - **PostgreSQL** + **Prisma**  — database & ORM
-- **NextAuth** — authentication
+- **Better Auth** — authentication
 - **Resend** — email sending
 - **Docker** — containerized deployment
 
