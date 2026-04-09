@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     volumes:
-      - D:/test_storage:/storage
+      - C:/test_storage:/storage #Set your file storage path here
     depends_on:
       db:
         condition: service_healthy

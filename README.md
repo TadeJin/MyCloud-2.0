@@ -4,19 +4,19 @@ This is an upgraded and redefined version of [MyCloud 1.0](https://github.com/Ta
 The app is self-hosted on a Raspberry Pi.
 
 ## Tech stack
-- **Next.js** — server actions
+- **Next.js** — fullstack framework
 - **React** + **TypeScript** — frontend
 - **Tailwind CSS** — styling
 - **PostgreSQL** + **Prisma**  — database & ORM
 - **NextAuth** — authentication
-- **Resend** — transactional emails
+- **Resend** — email sending
 - **Docker** — containerized deployment
 
 ## Features
 - Upload and manage files from any device
 - Responsive design
 - File search, folder system, file type filter
-- 1GB free storage per user
+- 1GB free storage per user, unlimited storage for users with maxCapacity set as -1
 - Authentication & session management
 - Email notifications via Resend
 - Settings page with account options (password/email change, account deletion)
