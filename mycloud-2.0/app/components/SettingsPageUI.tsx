@@ -5,8 +5,8 @@ import Image from "next/image";
 import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
 import { redirect } from "next/navigation";
-import { useQuery, useQueryClient } from "react-query";
 import { signOut } from "next-auth/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const SettingsPageUI = () => {
     const [content, setContent] = useState<SettingsContentVariants>("account"); 
@@ -26,7 +26,7 @@ export const SettingsPageUI = () => {
         return ((await fetch("/api/users/fetchUserData")).json());
     }
 
-    const {data} = useQuery(["userData"], () => fetchUserData());
+    const {data} = useQuery({queryKey: ['userData'], queryFn: () => fetchUserData()});
 
     const updateEmail = async () => {
         const res = await fetch("/api/users/updateEmail",{
@@ -42,7 +42,7 @@ export const SettingsPageUI = () => {
 
         setShowEmailInput(false);
         setNewEmail("");
-        queryClient.invalidateQueries("userData");
+        queryClient.invalidateQueries({queryKey: ["userData"]});
     }
 
     const updatePassword = async () => {

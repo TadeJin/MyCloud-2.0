@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ProgressBar } from ".";
 
 interface CapacityDisplayProps {
@@ -40,13 +40,13 @@ export const CapacityDisplay = (props: CapacityDisplayProps) => {
         return "bg-blue-500";
     }
 
-    const { data: capacity, status: statusCapacity } = useQuery(["capacity"], fetchCapacity);
+    const { data: capacity, status: statusCapacity } = useQuery({queryKey: ["capacity"], queryFn: fetchCapacity});
     let takenStorage = 0;
     let maxCapacity = 0;
     let percentage = 0;
     let errText = "";
 
-    if (statusCapacity === "loading") {
+    if (statusCapacity === "pending") {
         errText = "Loading available storage"; 
     } else if (statusCapacity === "error" || !capacity) {
         errText = "Error occured while getting capacity";

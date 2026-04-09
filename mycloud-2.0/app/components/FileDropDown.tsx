@@ -2,8 +2,8 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
 import { useDialog, useErrors, useFiles, useFolders } from ".";
-import { useQueryClient } from "react-query";
 import Image from "next/image";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FileDropDownProps {
     setDropDownVisible: Dispatch<SetStateAction<boolean>>
@@ -103,8 +103,8 @@ export const FileDropDown = (props: FileDropDownProps) => {
             return;
         }
 
-        queryClient.invalidateQueries("files");
-        queryClient.invalidateQueries("capacity");
+        queryClient.invalidateQueries({queryKey: ["files"]});
+        queryClient.invalidateQueries({queryKey: ["capacity"]});
     }
 
     const handleFolderDelete = async () => {
@@ -124,9 +124,9 @@ export const FileDropDown = (props: FileDropDownProps) => {
             return;
         }
 
-        queryClient.invalidateQueries("folders");
-        queryClient.invalidateQueries("files");
-        queryClient.invalidateQueries("capacity");
+        queryClient.invalidateQueries({queryKey: ["folders"]});
+        queryClient.invalidateQueries({queryKey: ["files"]});
+        queryClient.invalidateQueries({queryKey: ["capacity"]});
     }
 
 
@@ -158,7 +158,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
             return;
         }
 
-        queryClient.invalidateQueries("files");
+        queryClient.invalidateQueries({queryKey: ["files"]});
     }
 
     const handleFolderRename = async (newName: string) => {
@@ -179,7 +179,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
             return;
         }
 
-        queryClient.invalidateQueries("folders");
+        queryClient.invalidateQueries({queryKey: ["folders"]});
     };
 
     const openPreview = () => {

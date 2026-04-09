@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useQuery, useQueryClient } from "react-query";
 import { SortPreference } from "../types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const SortPicker = () => {
     const queryClient = useQueryClient();
@@ -17,12 +17,12 @@ export const SortPicker = () => {
 
     const setPreference = async (preference: SortPreference) => {
         await fetch(`/api/users/setSortPreference?preference=${preference}`);
-        queryClient.invalidateQueries("sortPreference");
-        queryClient.invalidateQueries("files");
-        queryClient.invalidateQueries("folders");
+        queryClient.invalidateQueries({queryKey: ["sortPreference"]});
+        queryClient.invalidateQueries({queryKey: ["files"]});
+        queryClient.invalidateQueries({queryKey: ["folders"]});
     }
 
-    const {data} = useQuery(["sortPreference"], () => fetchSortPreference());
+    const {data} = useQuery({queryKey: ["sortPreference"], queryFn: () => fetchSortPreference()});
 
     const preference = data && data.sortPreference;
 

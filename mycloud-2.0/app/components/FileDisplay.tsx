@@ -1,11 +1,11 @@
 "use client";
 
-import { useQuery } from "react-query";
 import { FileBox } from "./FileBox";
 import { DisplayFile } from "../types";
 import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
 import { useState } from "react";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
 interface FileDisplayProps {
     className?: string
@@ -38,15 +38,15 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
     const currentId = getOpenedFolderID();
 
-    const { data: files, status: statusFiles } = useQuery(["files", currentId, searchString, filter], () => fetchFiles(currentId));
-    const { data: folders, status: statusFolders } = useQuery(["folders", currentId, searchString], () => fetchFolders(currentId));
+    const { data: files, status: statusFiles } = useQuery({queryKey: ["files"], queryFn: () => fetchFiles(currentId)});
+    const { data: folders, status: statusFolders } = useQuery({queryKey: ["folders"], queryFn: () => fetchFolders(currentId)});
 
     const style = "flex flex-col w-full h-full bg-stone-50 overflow-y-scroll " + className
 
     return (
         <div className={style}>
             <FolderTrace />
-            {statusFolders !== "loading" && statusFolders !== "error" && folders.length == 0 ? <></> :
+            {statusFolders !== "pending" && statusFolders !== "error" && folders.length == 0 ? <></> :
                 <>
                     <button 
                         onClick={() => setFoldersOpen(!foldersOpen)}
@@ -59,7 +59,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                         </svg>
                     </button>
                     {foldersOpen && <div className="flex flex-wrap gap-3 mt-3 ml-3">
-                        {statusFolders === "loading" ? <p>Loading folders...</p> : statusFolders === "error" ?<p>Error loading folders</p> :
+                        {statusFolders === "pending" ? <p>Loading folders...</p> : statusFolders === "error" ?<p>Error loading folders</p> :
 
                         folders.map((folder: DBFolder) => (
                             <FileBox key = {folder.id} id={folder.id} name={folder.name} isCorrupted={false} variant="folder"/>
@@ -79,9 +79,9 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 </svg>
             </button>
             {filesOpen && <div className="flex flex-row flex-wrap gap-3 mt-3 mb-[5%] ml-3">
-            {statusFiles !== "loading" && statusFiles !== "error" && files.length == 0 ? <div className="flex justify-center w-full items-center mt-50"><div className="relative w-6 h-6 md:w-10 md:h-10"><Image src="./file-x.svg" alt="no-file-icon" fill/></div><p className="text-sm md:text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
+            {statusFiles !== "pending" && statusFiles !== "error" && files.length == 0 ? <div className="flex justify-center w-full items-center mt-50"><div className="relative w-6 h-6 md:w-10 md:h-10"><Image src="./file-x.svg" alt="no-file-icon" fill/></div><p className="text-sm md:text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
                 <>
-                {statusFiles === "loading" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
+                {statusFiles === "pending" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
 
                 files.map((file: DisplayFile) => (
                     <FileBox key={file.id} id={file.id} name={file.name} isCorrupted={file.isCorrupted} variant="file" mimeType={file.type} />

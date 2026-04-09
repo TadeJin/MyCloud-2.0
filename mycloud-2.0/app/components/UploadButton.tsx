@@ -1,10 +1,10 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { useQueryClient } from "react-query";
 import { ProgressBar, useErrors, useFolders } from ".";
 import Image from "next/image";
 import { FILE_CHUNK_SIZE } from "../constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");
@@ -97,8 +97,8 @@ export const UploadButton = () => {
                 setUploadPercentage(prev => prev + chunkPercentage);
             }
 
-            queryClient.invalidateQueries("capacity");
-            await queryClient.invalidateQueries("files");
+            queryClient.invalidateQueries({queryKey: ["capacity"]});
+            queryClient.invalidateQueries({queryKey: ["files"]});
             setStatus("");
         }
         e.target.value = "";

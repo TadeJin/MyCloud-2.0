@@ -1,6 +1,5 @@
 "use client";
-
-import { useQueryClient } from "react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useDialog, useErrors, useFiles, useFolders } from ".";
 import Image from "next/image";
 
@@ -42,7 +41,7 @@ export const CreateFolderButton = () => {
             return;
         }
 
-        queryClient.invalidateQueries("folders");
+        queryClient.invalidateQueries({queryKey: ["folders"]});
     }
 
     const handleClick = () => {

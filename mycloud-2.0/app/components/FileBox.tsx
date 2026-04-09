@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useQueryClient } from "react-query";
 import { useFiles, useFolders } from ".";
 import { FileVariants } from "../types";
 import { ChangeEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FileBoxProps {
     variant: FileVariants,
@@ -24,8 +24,8 @@ export const FileBox = (props: FileBoxProps) => {
 
     const openFolder = () => {
         addFolder(id, name);
-        queryClient.invalidateQueries("folders");
-        queryClient.invalidateQueries("files");
+        queryClient.invalidateQueries({ queryKey: ['folders'] });
+        queryClient.invalidateQueries({ queryKey: ['files'] });
     }
 
     const openDropDown = (e: React.MouseEvent<HTMLDivElement>) => {

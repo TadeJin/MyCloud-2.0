@@ -3,8 +3,8 @@
 import { LogOutButton } from ".";
 import { Dispatch, Ref, SetStateAction} from "react";
 import Image from "next/image";
-import { useQuery } from "react-query";
 import { redirect } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserStatsProps {
     hide: Dispatch<SetStateAction<boolean>>,
@@ -21,7 +21,7 @@ export const UserStats = (props: UserStatsProps) => {
         return res.json();
     }
     
-    const {data} = useQuery(["userEmail"], () => fetchUserEmail());
+    const {data} = useQuery({queryKey: ["userEmail"], queryFn: () => fetchUserEmail()});
 
     return (
         <div ref = {ref} className="flex flex-col border border-stone-200 shadow-lg rounded-xl w-64 absolute right-0 top-full mt-5 p-4 bg-white">

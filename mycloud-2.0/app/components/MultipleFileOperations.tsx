@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useQueryClient } from "react-query";
 import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
 import { useFiles } from "./ActiveFileProvider";
 import { DisplayFile } from "../types";
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MultipleFileOperationsProps {
     column?: boolean
@@ -95,7 +95,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             return;
         }
         clearSelectedFiles();
-        queryClient.invalidateQueries("files");
+        queryClient.invalidateQueries({queryKey: ["files"]});
     }
 
     const selectAll = () => {
