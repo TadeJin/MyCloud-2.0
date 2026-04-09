@@ -1,36 +1,41 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { authClient } from "../lib/auth-client";
 
 export const LoginForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const res = await signIn("credentials", {
-            email,
-            password,
-            redirect: false
-        })
-
-        if (res?.error) {
-            setErrorMessage(res.error);
-            return;
-        }
-
-        if (res?.ok) {
-            router.replace("storage");
-        }  else {
-            setErrorMessage("Wrong login credentials");
-        }
+        await authClient.signIn.email({
+                /**
+                 * The user email
+                 */
+                email,
+                /**
+                 * The user password
+                 */
+                password,
+                /**
+                 * A URL to redirect to after the user verifies their email (optional)
+                 */
+                callbackURL: "/storage",
+                /**
+                 * remember the user session after the browser is closed. 
+                 * @default true
+                 */
+                rememberMe: true
+        }, {
+            onError: (ctx) => {
+                setErrorMessage(ctx.error.message);
+            }
+        });
     };
 
     return (

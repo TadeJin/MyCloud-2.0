@@ -1,13 +1,13 @@
 import prisma from "@/app/lib/prisma";
-import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import { stat } from "node:fs/promises";
 import { getFileFullPath } from "@/app/lib/fileHelpers";
 
 
 export const GET = async (req: NextRequest) => {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
     const folderId = req.nextUrl.searchParams.get('folderId');
     const searchString = req.nextUrl.searchParams.get('search');
     const filter = req.nextUrl.searchParams.get('filter');

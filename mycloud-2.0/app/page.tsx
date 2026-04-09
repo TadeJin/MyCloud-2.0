@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
 import { LoginForm } from "./components";
 import { redirect } from "next/navigation";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth } from "./lib/auth";
 
 export default async function Home() {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (session) redirect("/storage");
     

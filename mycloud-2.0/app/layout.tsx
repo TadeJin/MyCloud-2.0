@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "./components/AuthProvider";
 import { DialogProvider, QueryProvider } from "./components";
 
 export const metadata: Metadata = {
@@ -18,9 +17,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <DialogProvider>
-            <AuthProvider>
                 {children}
-              </AuthProvider>
             </DialogProvider>
           </QueryProvider>
       </body>

@@ -1,20 +1,19 @@
 import { UserSortPreference } from "@/generated/prisma/enums";
-import { DateTime } from "next-auth/providers/kakao";
 
 export interface DisplayFile {
     id: number,
     name: string,
-    userId: number,
+    userId: string,
     type: string,
     size: number,
-uploadedAt: DateTime,
+    uploadedAt: Date,
     isCorrupted: boolean
 }
 
 export interface DBFile {
     id: number,
     name: string,
-    userId: number,
+    userId: string,
     type: string,
     size: bigint,
     uploadedAt: Date,
@@ -24,7 +23,7 @@ export interface DBFile {
 export interface DBFolder {
     id: number,
     name: string,
-    userId: number,
+    userId: string,
     createdAt: Date,
     folderId: number | null
 }

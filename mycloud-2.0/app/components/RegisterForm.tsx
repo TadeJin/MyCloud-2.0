@@ -1,34 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { authClient } from "../lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export const RegisterForm = () => {
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const router = useRouter();
+    const name = "";
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
-        const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: email,
-            password: password,
-        }),
-        });
-
-        if (!res.ok) {
-            setErrorMessage((await res.json()).errMessage);
-            return
-        }
-
-        router.replace("/");
+        await authClient.signUp.email({
+            email, // user email address
+            password, // user password -> min 8 characters by default
+            name,
+            callbackURL: "/" // A URL to redirect to after the user verifies their email (optional)
+        }, {
+            onSuccess: async (ctx) => {
+                await fetch("/api/users/createRootFolder", {
+                    method: "POST"
+                });
+                router.push("/");
+            },
+            onError: (ctx) => {
+                setErrorMessage(ctx.error.message);
+        },})
     }
 
     return (
@@ -58,7 +60,7 @@ export const RegisterForm = () => {
                         type="password"
                         name="password"
                         placeholder="Password"
-                        onChange={e => {setPassword(e.target.value); setErrorMessage("");}}
+                        onChange={e => {setPassword(e.target.value); if (e.target.value.length < 8) setErrorMessage("Password minimal length is 8 characters"); else setErrorMessage("");}}
                     />
 
                     {errorMessage && (

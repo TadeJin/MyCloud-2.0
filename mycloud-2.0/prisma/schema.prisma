@@ -5,62 +5,108 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client"
-    output   = "../generated/prisma"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 enum UserSortPreference {
-    name
-    uploadedAt
+  name
+  uploadedAt
 }
 
 model User {
-    id       Int    @id @default(autoincrement())
-    email    String @unique
-    password String
-    maxStorage  BigInt //In bytes
-    takenSpace  BigInt @default(0) //In bytes
-    files   File[]
-    folders Folder[]
-    tokens ResetTokens[]
-    emailVerified     Boolean  @default(false)
-    verifyToken String @unique
-    sortPreference UserSortPreference @default(uploadedAt)
+  id             String             @id @default(cuid())
+  email          String             @unique
+  maxStorage     BigInt             @default(1073741824) // 1GB In bytes  
+  takenSpace     BigInt             @default(0) //In bytes
+  files          File[]
+  folders        Folder[]
+  sortPreference UserSortPreference @default(uploadedAt)
+  name           String?
+  image          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+
+  emailVerified Boolean @default(false)
+
+  @@map("user")
 }
 
 model File {
-    id      Int @id @default(autoincrement())
-    name    String
-    user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId  Int
-    type    String
-    size    BigInt //In bytes
-    uploadedAt    DateTime
-    folder Folder? @relation( fields: [folderId], references: [id])
-    folderId Int?
-}
-
-model ResetTokens {
-    id Int @id @default(autoincrement())
-    token String @unique
-    expires DateTime
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId Int
+  id         Int      @id @default(autoincrement())
+  name       String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  type       String
+  size       BigInt //In bytes
+  uploadedAt DateTime @default(now())
+  folder     Folder?  @relation(fields: [folderId], references: [id])
+  folderId   Int?
 }
 
 model Folder {
-    id Int @id @default(autoincrement())
-    name String
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId  Int
-    createdAt DateTime
+  id        Int      @id @default(autoincrement())
+  name      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
 
-    folderId  Int?
-    parent    Folder?  @relation("FolderChildren", fields: [folderId], references: [id], onDelete: Cascade)
-    children  Folder[] @relation("FolderChildren")
-    files   File[]
+  folderId Int?
+  parent   Folder?  @relation("FolderChildren", fields: [folderId], references: [id], onDelete: Cascade)
+  children Folder[] @relation("FolderChildren")
+  files    File[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }

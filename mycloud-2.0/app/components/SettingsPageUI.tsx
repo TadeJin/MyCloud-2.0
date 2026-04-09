@@ -1,12 +1,13 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
 import { redirect } from "next/navigation";
-import { signOut } from "next-auth/react";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { authClient } from "../lib/auth-client";
 
 export const SettingsPageUI = () => {
     const [content, setContent] = useState<SettingsContentVariants>("account"); 
@@ -14,11 +15,10 @@ export const SettingsPageUI = () => {
     const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [newEmail, setNewEmail] = useState("");
     const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [currentPassword, setCurrentPassword] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [accountDeleteError, setAccountDeleteError] = useState("")
-    const [passwordsMatching, setPasswordsMatching] = useState(false);
     const queryClient = useQueryClient();
     const {setDialogProps, setDialogVisible} = useDialog();
 
@@ -29,14 +29,12 @@ export const SettingsPageUI = () => {
     const {data} = useQuery({queryKey: ['userData'], queryFn: () => fetchUserData()});
 
     const updateEmail = async () => {
-        const res = await fetch("/api/users/updateEmail",{
-            method: "PATCH",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({newEmail: newEmail})
+        const {error} = await authClient.changeEmail({
+            newEmail: newEmail,
         });
 
-        if (!res.ok) {
-            setEmailError((await res.json()).errMessage);
+        if (error?.message) {
+            setEmailError(error.message);
             return;
         }
 
@@ -46,37 +44,25 @@ export const SettingsPageUI = () => {
     }
 
     const updatePassword = async () => {
-        if (!passwordsMatching) return;
-
-        const res = await fetch("/api/users/updatePassword", {
-            method: "PATCH",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({newPassword: newPassword})
+        const { error } = await authClient.changePassword({
+            newPassword: newPassword, // required
+            currentPassword: currentPassword, // required
+            revokeOtherSessions: true,
         });
 
-        if (!res.ok) {
-            setPasswordError((await res.json()).errMessage);
+        if (error?.message) {
+            setPasswordError(error.message);
             return;
         }
 
         setNewPassword("");
-        setConfirmPassword(""); 
+        setCurrentPassword(""); 
         setShowPasswordInput(false);
     }
 
-    const handlePasswordMatch = (e: ChangeEvent<HTMLInputElement>) => {
-        setConfirmPassword(e.target.value); 
-        const matching = newPassword === e.target.value;
-        setPasswordsMatching(matching);
-        if (!matching) {
-            setPasswordError("Passwords are not matching");
-        } else {
-            setPasswordError("");
-        }
-    }
-
     const deleteAccount = async () => {
-        const res = await fetch("/api/users/deleteAccount", {
+        setDialogVisible(false);
+        const res = await fetch("/api/users/deleteUserData", {
             method: "DELETE"
         });
 
@@ -85,7 +71,14 @@ export const SettingsPageUI = () => {
             return;
         }
 
-        await signOut({ callbackUrl: "/" });
+        const {error} = await authClient.deleteUser();
+
+        if (error?.message) {
+            setAccountDeleteError(error.message);
+            return;
+        }
+
+        redirect("/");
     }
 
     const handleAccountDelete = () => {
@@ -148,20 +141,20 @@ export const SettingsPageUI = () => {
                         <div className="flex flex-col gap-3 pt-2 border-t border-stone-100">
                         <input
                             type="password"
-                            placeholder="New password"
-                            value={newPassword}
-                            onChange={e => setNewPassword(e.target.value)}
+                            placeholder="Current password"
+                            value={currentPassword}
+                            onChange={e => setCurrentPassword(e.target.value)}
                             className="border border-stone-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-stone-400"
                         />
                         <input
                             type="password"
                             placeholder="Confirm new password"
-                            value={confirmPassword}
-                            onChange={e => handlePasswordMatch(e)}
+                            value={newPassword}
+                            onChange={e => {setNewPassword(e.target.value); if (e.target.value.length < 8) setPasswordError("New password length must be at least 8 characters"); else setPasswordError("");}}
                             className="border border-stone-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-stone-400"
                         />
                         {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-                        <button className={`self-start bg-stone-800 text-white text-sm px-4 py-2 rounded-lg ${passwordsMatching ? "hover:bg-stone-700" : "hover:bg-stone-600"} transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-stone-600`} disabled={!passwordsMatching} onClick={updatePassword}>
+                        <button className="self-start bg-stone-800 text-white text-sm px-4 py-2 rounded-lg hover:bg-stone-600} transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-stone-600" disabled={passwordError !== ""} onClick={updatePassword}>
                             Save password
                         </button>
                         </div>

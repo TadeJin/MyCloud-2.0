@@ -3,15 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { authClient } from "../lib/auth-client";
 
 interface ResetFormProps {
-    variant: "email" | "password",
-    token?: string | null
+    variant: "email" | "password"
 }
 
 export const ResetForm = (props: ResetFormProps) => {
     const router = useRouter();
-    const {variant, token} = props;
+    const {variant} = props;
 
     const isEmail = variant === "email";
     const [email, setEmail] = useState("");
@@ -33,37 +33,34 @@ export const ResetForm = (props: ResetFormProps) => {
     const handleSubmitEmail = async (e: React.SubmitEvent) => {
         e.preventDefault()
 
-        const res = await fetch("/api/auth/sendResetEmail", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: email,
-            }),
-        })
-
-        if (!res.ok) {
-            setErrorMessage((await res.json()).errMessage);
-            return;
-        }
-
-        setText(`Email sent to ${email}. Please check your inbox`);
+        await authClient.requestPasswordReset({
+            email,
+            redirectTo: "/reset-password-form",
+        }, {
+            onSuccess: () => {
+                setText("Check your email for a reset link");
+            },
+            onError: (ctx) => {
+                setErrorMessage(ctx.error.message);
+            },
+        });
     }
 
     const handleSubmitPassword = async (e: React.SubmitEvent) => {
-        e.preventDefault()
-        if (!token) return;
+        const token = new URLSearchParams(window.location.search).get("token");
 
-        const res = await fetch("/api/auth/resetPassword", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                token: token,
-                password: password
-            })
+        if (!token) {
+            setErrorMessage("Invalid reset url");
+            return;
+        }
+
+        const {error} = await authClient.resetPassword({
+            newPassword: password, // required
+            token, // required
         });
 
-        if (!res.ok) {
-            setErrorMessage((await res.json()).errMessage);
+        if (error?.message) {
+            setErrorMessage(error.message);
             return;
         }
 
@@ -89,7 +86,7 @@ export const ResetForm = (props: ResetFormProps) => {
                         type={type}
                         name={type}
                         placeholder={isEmail ? "Email" : "Password"}
-                        onChange={isEmail ? e => setEmail(e.target.value) : e => setPassword(e.target.value)}
+                        onChange={isEmail ? e => setEmail(e.target.value) : e => {setPassword(e.target.value); if (e.target.value.length < 8) setErrorMessage("Password too short"); else setErrorMessage("")}}
                     />
 
                      {errorMessage && (

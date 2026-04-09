@@ -1,12 +1,12 @@
 import prisma from "@/app/lib/prisma";
-import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server"
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import { SortPreference } from "@/app/types";
 
 export const GET = async (req: NextRequest) => {
     const preference = req.nextUrl.searchParams.get("preference") as SortPreference;
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
         return NextResponse.json(

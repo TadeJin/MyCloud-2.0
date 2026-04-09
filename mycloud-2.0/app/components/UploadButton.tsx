@@ -77,10 +77,12 @@ export const UploadButton = () => {
             }
 
             const fileRecord = await fileRecordRes.json();
+            const fileID = fileRecord.id;
+
             const chunkPercentage = (FILE_CHUNK_SIZE * 100) / file.size;
 
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
-                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name);
+                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), fileID, fileID);
                 if (!res.ok) {
                     await fetch ("/api/files/handleFailedUpload", {
                         method: "DELETE",
@@ -104,10 +106,11 @@ export const UploadButton = () => {
         e.target.value = "";
     }
 
-    const uploadChunk = async (chunk: Blob, fileName: string) => {
+    const uploadChunk = async (chunk: Blob, fileName: string, fileID: string) => {
         const formData = new FormData();
 
         formData.append("fileName", fileName);
+        formData.append("fileID", fileID);
         formData.append("chunk", chunk);
         formData.append('folderStackIDs', JSON.stringify(folderStackIDs));
         

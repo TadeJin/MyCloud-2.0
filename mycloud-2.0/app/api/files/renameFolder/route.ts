@@ -1,10 +1,12 @@
 import prisma from "@/app/lib/prisma";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 
 export const PATCH = async (req: NextRequest) => {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
 
     if (!session) {
         return NextResponse.json({
@@ -15,6 +17,15 @@ export const PATCH = async (req: NextRequest) => {
 
 
     const {id, newName} = await req.json();
+
+    const invalidFileName = /[<>:"/\\|?*\x00-\x1F]/;
+
+    if (invalidFileName.test(newName)) {
+        return NextResponse.json(
+        { errMessage: "Error renaming file" },
+        { status: 400 }
+        );
+    }
 
     const folder = await prisma.folder.findFirst({
         where: {id: id, userId: session.user.id}

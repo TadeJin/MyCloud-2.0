@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "../../auth/[...nextauth]/route"
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
 
 export const  POST = async (req: NextRequest) => {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
         return NextResponse.json(

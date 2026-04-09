@@ -1,6 +1,6 @@
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import { createReadStream } from "fs";
 import { stat } from "fs/promises";
 import { Readable } from "stream";
@@ -8,7 +8,7 @@ import prisma from "@/app/lib/prisma";
 import { getFilePath } from "@/app/lib/fileHelpers";
 
 export const GET = async (req: NextRequest ) => {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
     const id = Number(req.nextUrl.searchParams.get("id"));
     const folderStackIDs = JSON.parse(req.nextUrl.searchParams.get("folderStackIDs") as string);
 

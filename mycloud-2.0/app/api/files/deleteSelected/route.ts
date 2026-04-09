@@ -1,6 +1,6 @@
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
 import { unlink } from "fs/promises";
 import { DBFile } from "@/app/types";
@@ -9,7 +9,7 @@ import { existsSync } from "fs";
 
 export const POST = async (req: NextRequest) => {
     const {ids} = await req.json();
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!ids || ids.length === 0) {
         return NextResponse.json(

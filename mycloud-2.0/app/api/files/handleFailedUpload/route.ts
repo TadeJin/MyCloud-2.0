@@ -1,6 +1,6 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "../../auth/[...nextauth]/route"
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
 import { unlink } from "fs/promises";
 import { getFilePath } from "@/app/lib/fileHelpers";
@@ -9,7 +9,7 @@ import { existsSync } from "fs";
 
 export const DELETE = async (req: NextRequest) => {
     const { fileId, folderStackIDs } = await req.json();
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
         return NextResponse.json(

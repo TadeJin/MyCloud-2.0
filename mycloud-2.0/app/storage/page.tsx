@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import { FolderProvider, ActiveFileProvider, StoragePageUI, ErrorProvider } from "../components";
+import { auth } from "../lib/auth";
+import { headers } from "next/headers";
 
 export default async function StoragePage() {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({headers: await headers()})
 
     if (!session) redirect("/");
 

@@ -1,17 +1,22 @@
 import { appendFile, statfs } from "fs/promises";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import path from "path";
-import { authOptions } from "../../auth/[...nextauth]/route";
 import prisma from "@/app/lib/prisma";
 import { FILE_CHUNK_SIZE } from "@/app/constants";
 import { DBFolder } from "@/app/types";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
+import { getFilePath } from "@/app/lib/fileHelpers";
 
 export const POST = async (req: Request) => {
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({
+            headers: await headers()
+    });
+
     const formData = await req.formData();
     const chunk = formData.get("chunk") as Blob;
     const fileName = formData.get("fileName") as string;
+    const fileID = formData.get("fileID") as string;
     const folderStackIDs = JSON.parse(formData.get('folderStackIDs') as string);
 
     if (!session) {
@@ -21,14 +26,19 @@ export const POST = async (req: Request) => {
         );
     }
 
-    if (!chunk || chunk.size > FILE_CHUNK_SIZE || !folderStackIDs) {
-        return NextResponse.json(
-        { errMessage: `Upload of file: ${fileName} failed`},
-            { status: 400 }
-            );
+    if (!fileName || !fileID || !chunk || chunk.size > FILE_CHUNK_SIZE || !folderStackIDs) {
+        return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`},{ status: 400 });
     }
 
     try {
+        const file = await prisma.file.findFirst({
+            where:{id: Number(fileID), userId: session.user.id}
+        });
+
+        if (!file) {
+            return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`},{ status: 404 });
+        }
+
         const user = await prisma.user.findUnique({
             where: {id: session.user.id}
         });
@@ -42,14 +52,12 @@ export const POST = async (req: Request) => {
             );
         }
 
-        const folders = await prisma.folder.findMany({
-            where: {id : {in: folderStackIDs}, userId: session.user.id}
-        });
+        const filePath = await getFilePath(folderStackIDs, file.name, session.user.id);
 
-        if (folders.length !== folderStackIDs.length) return NextResponse.json({errMessage: "Error creating folder"}, {status: 500});
-        const orderedFolders = folderStackIDs.map((id: number) => folders.find(f => f.id === id)!);
+        if (!filePath) {
+            return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`},{ status: 500 });
+        }
 
-        const filePath = path.join(process.env.FILE_STORAGE_PATH!, session.user.id.toString(), orderedFolders.reduce((folderPath: string, folder: DBFolder) => path.join(folderPath, path.basename(folder.name)), ""), path.basename(fileName));
         const buffer = Buffer.from(await chunk.arrayBuffer());
 
         await appendFile(filePath, buffer);

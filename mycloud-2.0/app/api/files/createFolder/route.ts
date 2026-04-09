@@ -1,13 +1,13 @@
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { headers } from "next/headers";
+import { auth } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
 import { mkdir } from "fs/promises";
 import { getFilePath } from "@/app/lib/fileHelpers";
 
 export const POST = async (req: NextRequest) => {
     const {name, folderId, folderStackIDs} = await req.json();
-    const session = await getServerSession(authOptions);
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!name) {
         return NextResponse.json(
@@ -37,7 +37,6 @@ export const POST = async (req: NextRequest) => {
         await prisma.folder.create({
             data: {
                 name: name,
-                createdAt: new Date(),
                 userId: session.user.id,
                 folderId: folderId
             }
