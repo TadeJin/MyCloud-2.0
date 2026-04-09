@@ -1,5 +1,6 @@
 import { auth } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
+import { existsSync } from "fs";
 import { mkdir } from "fs/promises";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -24,6 +25,9 @@ export const POST = async (req: NextRequest) => {
         }
 
         const dirPath = path.join(process.env.FILE_STORAGE_PATH!, user.id.toString());
+
+        if (existsSync(dirPath)) return NextResponse.json({message: "Folder exists"}, {status: 200});
+
         await mkdir(dirPath);
         return NextResponse.json({message: "Folder created"}, {status: 201});
     } catch (err) {

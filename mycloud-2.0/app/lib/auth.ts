@@ -43,16 +43,16 @@ export const auth = betterAuth({
         sendVerificationEmail: async ({ user, url }) => {
             void sendEmail({
                 to: user.email,
-                subject: "MyCloud 2.0 email verification'",
-                    text: `<h1>MyCloud 2.0 email verification</h1>
-                    <p>Please verify your email here: <a href="${url}">${url}</a>.</p>`,
+                subject: "MyCloud 2.0 email verification",
+                    text: `<p>Please verify your email here: <a href="${url}">${url}</a>.</p>`,
                 });
             },
         sendOnSignIn: true
     },
     emailAndPassword: {    
         enabled: true,
-        autoSignIn: true,
+        autoSignIn: false,
+        requireEmailVerification: true,
         sendResetPassword: async ({user, url, token}, request) => {
             void sendEmail({
                 to: user.email,

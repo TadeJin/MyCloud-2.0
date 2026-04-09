@@ -23,9 +23,6 @@ export const RegisterForm = () => {
             callbackURL: "/" // A URL to redirect to after the user verifies their email (optional)
         }, {
             onSuccess: async (ctx) => {
-                await fetch("/api/users/createRootFolder", {
-                    method: "POST"
-                });
                 router.push("/");
             },
             onError: (ctx) => {

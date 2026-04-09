@@ -34,6 +34,12 @@ export const LoginForm = () => {
         }, {
             onError: (ctx) => {
                 setErrorMessage(ctx.error.message);
+            },
+
+            onSuccess: async () => {
+                await fetch("/api/users/createRootFolder", {
+                    method: "POST"
+                });
             }
         });
     };
