@@ -38,8 +38,8 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
     const currentId = getOpenedFolderID();
 
-    const { data: files, status: statusFiles } = useQuery({queryKey: ["files"], queryFn: () => fetchFiles(currentId)});
-    const { data: folders, status: statusFolders } = useQuery({queryKey: ["folders"], queryFn: () => fetchFolders(currentId)});
+    const { data: files, status: statusFiles } = useQuery({queryKey: ["files", currentId, searchString, filter], queryFn: () => fetchFiles(currentId)});
+    const { data: folders, status: statusFolders } = useQuery({queryKey: ["folders", currentId, searchString], queryFn: () => fetchFolders(currentId)});
 
     const style = "flex flex-col w-full h-full bg-stone-50 overflow-y-scroll " + className
 
