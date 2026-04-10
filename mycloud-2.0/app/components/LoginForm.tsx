@@ -9,6 +9,7 @@ export const LoginForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [rememberMe, setRememberMe] = useState(true);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +31,7 @@ export const LoginForm = () => {
                  * remember the user session after the browser is closed. 
                  * @default true
                  */
-                rememberMe: true
+                rememberMe: rememberMe
         }, {
             onError: (ctx) => {
                 setErrorMessage(ctx.error.message);
@@ -78,6 +79,15 @@ export const LoginForm = () => {
                         <p className="text-red-500 text-sm font-bold">{errorMessage}</p>
                     )}
 
+                    <div className="flex gap-2 ml-1 items-center text-sm text-stone-500 select-none group">
+                        <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={e => setRememberMe(e.target.checked)}
+                            className="w-4 h-4 rounded border-stone-300 accent-stone-800 cursor-pointer"
+                        />
+                        <span className="group-hover:text-stone-700 transition">Remember me</span>
+                    </div>
                     <button
                         className="mt-1 p-3 rounded-lg bg-stone-800 text-white font-semibold hover:bg-stone-700 transition cursor-pointer disabled:cursor-not-allowed disabled:bg-stone-600 disabled:text-gray-200"
                         disabled={errorMessage !== ""}
