@@ -53,7 +53,20 @@ export const FilePreview = () => {
         }
 
         if (loading || (!srcUrl && !svgContent)) {
-            return <div className="animate-spin rounded-full h-8 w-8 border-2 border-stone-600 border-t-transparent" />;
+            return (
+                <div className="flex flex-col w-full items-center justify-center py-14 gap-4">
+                <svg
+                    className="animate-spin w-8 h-8 text-stone-400"
+                    style={{ animationDuration: "0.6s" }}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                >
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" className="text-stone-200"/>
+                    <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-stone-400">Loading preview</p>
+            </div>
+            )
         }
 
         if (mimeType === "image/svg+xml") {

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
+import { SelectOpButton, useDialog, useErrors, useFolders, useSpinners } from ".";
 import { useFiles } from "./ActiveFileProvider";
 import { DBFile } from "../types";
 import { useEffect, useRef, useState } from "react";
@@ -22,8 +22,9 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     const [selectedOpen, setSelectedOpen] = useState(false);
     const selectedRef = useRef<HTMLDivElement>(null);
     const {getOpenedFolderID} = useFolders()
+    const {setSpinnerHeader} = useSpinners();
+    
     const trpc = useTRPC();
-
     const deleteSelectedMutation = useMutation(trpc.files.deleteSelected.mutationOptions());
 
     useEffect(() => {
@@ -56,7 +57,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             setErrorMessage("No files selected");
             return;
         }
-
+        setSpinnerHeader("Downloading files");
         const res = await fetch("/api/downloads/downloadSelected", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -75,6 +76,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         a.download = "selected_files.zip";
         a.click();
         URL.revokeObjectURL(url);
+        setSpinnerHeader("");
     }
 
     const openDeleteDialog = () => {
@@ -89,6 +91,8 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
 
     const deleteSelected = async () => {
         setDialogVisible(false);
+        setSpinnerHeader("Deleting files");
+
         try {
             await deleteSelectedMutation.mutateAsync({ids: [...selectedFilesIds]});
         } catch (err) {
@@ -97,6 +101,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
                 return;
             }
         }
+        setSpinnerHeader("");
         clearSelectedFiles();
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }

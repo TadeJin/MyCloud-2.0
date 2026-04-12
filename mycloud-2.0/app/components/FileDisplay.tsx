@@ -6,6 +6,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
+import { DisplayFile } from "../types";
 
 interface FileDisplayProps {
     className?: string
@@ -37,6 +38,23 @@ export const FileDisplay = (props: FileDisplayProps) => {
         })
     );
 
+    const renderSpinner = (text: string) => {
+        return (
+            <div className="flex flex-col w-full items-center justify-center py-14 gap-4">
+                <svg
+                    className="animate-spin w-8 h-8 text-stone-400"
+                    style={{ animationDuration: "0.6s" }}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                >
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" className="text-stone-200"/>
+                    <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-stone-400">{text}</p>
+            </div>
+        )
+    }
+
     const style = "flex flex-col w-full h-full bg-stone-50 overflow-y-scroll " + className
 
     return (
@@ -55,7 +73,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                         </svg>
                     </button>
                     {folders && foldersOpen && <div className="flex flex-wrap gap-3 mt-3 ml-3">
-                        {isLoadingFolders ? <p>Loading folders...</p> : errorFolders ?<p>Error loading folders</p> :
+                        {isLoadingFolders ? renderSpinner("Loading folders") : errorFolders ?<p>Error loading folders</p> :
 
                         folders.map((folder) => (
                             <FileBox key = {folder.id} id={folder.id} name={folder.name} isCorrupted={false} variant="folder"/>
@@ -77,9 +95,9 @@ export const FileDisplay = (props: FileDisplayProps) => {
             {filesOpen && <div className="flex flex-row flex-wrap gap-3 mt-3 mb-[5%] ml-3">
             {!isLoadingFiles && !errorFiles && (!files || files.length == 0) ? <div className="flex justify-center w-full items-center mt-50"><div className="relative w-6 h-6 md:w-10 md:h-10"><Image src="./file-x.svg" alt="no-file-icon" fill/></div><p className="text-sm md:text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
                 <>
-                {isLoadingFiles ? <p>Loading files...</p> : errorFiles ?<p>Error loading files</p> :
+                {isLoadingFiles ? renderSpinner("Loading files") : (errorFiles || !files) ?<p>Error loading files</p> :
 
-                files?.map((file) => (
+                (files as DisplayFile[]).map((file: DisplayFile) => (
                     <FileBox key={file.id} id={file.id} name={file.name} isCorrupted={file.isCorrupted} variant="file" mimeType={file.type} />
                 ))}
                 </>

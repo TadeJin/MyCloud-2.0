@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DialogProvider } from "./components";
+import { DialogProvider, SpinnerProvider } from "./components";
 import { TRPCReactProvider } from "./lib/trpc/client";
 
 export const metadata: Metadata = {
@@ -18,7 +18,9 @@ export default function RootLayout({
       <body>
         <DialogProvider>
           <TRPCReactProvider>
+            <SpinnerProvider>
               {children}
+            </SpinnerProvider>
             </TRPCReactProvider>
           </DialogProvider>
       </body>
