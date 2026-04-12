@@ -2,27 +2,35 @@
 
 import Image from "next/image";
 import { SortPreference } from "../types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
+import { TRPCClientError } from "@trpc/client";
+import { useErrors } from "./ErrorProvider";
 
 export const SortPicker = () => {
     const queryClient = useQueryClient();
+    const {setErrorMessage} = useErrors();
 
-    const fetchSortPreference = async () => {
-        const res = await fetch("/api/users/fetchSortPreference");
-
-        if (!res.ok) throw new Error("Failed to fetch sort preference");
-
-        return res.json();
-    }
+    const trpc = useTRPC();
+    const setPreferenceMutation = useMutation(trpc.users.setSortPreference.mutationOptions());
 
     const setPreference = async (preference: SortPreference) => {
-        await fetch(`/api/users/setSortPreference?preference=${preference}`);
-        queryClient.invalidateQueries({queryKey: ["sortPreference"]});
-        queryClient.invalidateQueries({queryKey: ["files"]});
-        queryClient.invalidateQueries({queryKey: ["folders"]});
+        try {
+            await setPreferenceMutation.mutateAsync({preference: preference});
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return;
+            }
+        }
+
+
+        queryClient.invalidateQueries(trpc.users.fetchSortPreference.queryFilter());
+        queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
+        queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
     }
 
-    const {data} = useQuery({queryKey: ["sortPreference"], queryFn: () => fetchSortPreference()});
+    const {data} = useQuery(trpc.users.fetchSortPreference.queryOptions());
 
     const preference = data && data.sortPreference;
 

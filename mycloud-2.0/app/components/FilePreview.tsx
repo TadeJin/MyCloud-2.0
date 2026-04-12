@@ -21,7 +21,7 @@ export const FilePreview = () => {
 
         const load = async () => {
             setLoading(true);
-            const res = await fetch(`/api/files/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+            const res = await fetch(`/api/downloads/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
             if (res.ok) {
                 setError(false);
                 setLoading(false);

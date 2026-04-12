@@ -6,8 +6,10 @@ import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
 import { redirect } from "next/navigation";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "../lib/auth-client";
+import { useTRPC } from "../lib/trpc/client";
+import { TRPCClientError } from "@trpc/client";
 
 export const SettingsPageUI = () => {
     const [content, setContent] = useState<SettingsContentVariants>("account"); 
@@ -22,11 +24,10 @@ export const SettingsPageUI = () => {
     const queryClient = useQueryClient();
     const {setDialogProps, setDialogVisible} = useDialog();
 
-    const fetchUserData = async () => {
-        return ((await fetch("/api/users/fetchUserData")).json());
-    }
+    const trpc = useTRPC();
+    const deleteAccountMutation = useMutation(trpc.users.deleteUserData.mutationOptions());
 
-    const {data} = useQuery({queryKey: ['userData'], queryFn: fetchUserData});
+    const {data, error} = useQuery(trpc.users.fetchUserData.queryOptions());
 
     const updateEmail = async () => {
         const {error} = await authClient.changeEmail({
@@ -40,7 +41,7 @@ export const SettingsPageUI = () => {
 
         setShowEmailInput(false);
         setNewEmail("");
-        queryClient.invalidateQueries({queryKey: ["userData"]});
+        queryClient.invalidateQueries(trpc.users.fetchUserData.queryFilter());
     }
 
     const updatePassword = async () => {
@@ -62,13 +63,14 @@ export const SettingsPageUI = () => {
 
     const deleteAccount = async () => {
         setDialogVisible(false);
-        const res = await fetch("/api/users/deleteUserData", {
-            method: "DELETE"
-        });
-
-        if (!res.ok) {
-            setAccountDeleteError((await res.json()).errMessage);
-            return;
+        
+        try {
+            await deleteAccountMutation.mutateAsync();
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setAccountDeleteError(err.message);
+                return;
+            }
         }
 
         const {error} = await authClient.deleteUser();
@@ -96,7 +98,7 @@ export const SettingsPageUI = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                         <p className="text-xs text-stone-400 uppercase font-semibold tracking-wide">Email</p>
-                        <p className="text-stone-700 mt-0.5">{data ? data.email : "Error fetching email"}</p>
+                        <p className="text-stone-700 mt-0.5">{error ? "Error fetching email" : data?.email}</p>
                         </div>
                         <button
                         onClick={() => { setShowEmailInput(v => !v); setShowPasswordInput(false); }}
@@ -186,7 +188,7 @@ export const SettingsPageUI = () => {
                 <div className="bg-white rounded-xl border border-stone-200 p-5 flex items-center justify-between">
                     <div>
                     <p className="text-xs text-stone-400 uppercase font-semibold tracking-wide">Files stored</p>
-                    <p className="text-stone-700 mt-0.5">You have <span className="font-semibold text-stone-900">{data.fileCount}</span> files stored</p>
+                    <p className="text-stone-700 mt-0.5">You have <span className="font-semibold text-stone-900">{data?.fileCount}</span> files stored</p>
                     </div>
                 </div>
                 </div>

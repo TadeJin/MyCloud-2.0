@@ -1,7 +1,9 @@
 "use client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDialog, useErrors, useFiles, useFolders } from ".";
 import Image from "next/image";
+import { useTRPC } from "../lib/trpc/client";
+import { TRPCClientError } from "@trpc/client";
 
 export const CreateFolderButton = () => {
     const queryClient = useQueryClient();
@@ -9,40 +11,35 @@ export const CreateFolderButton = () => {
     const {setDialogVisible, setDialogProps} = useDialog();
     const {getOpenedFolderID, folderStackIDs} = useFolders();
     const {setErrorMessage} = useErrors();
+    const trpc = useTRPC();
 
     const createFolder = async (newName: string) => {
         setDialogVisible(false);
-        const duplicatesRes = await fetch("/api/files/checkDuplicates", {
-            method: "POST",
-            body: JSON.stringify({
-                fileNames: [newName],
-                folderId: getOpenedFolderID()
-            })
-        });
 
-        if (!duplicatesRes.ok) {
-            setErrorMessage((await duplicatesRes.json()).errMessage);
-            return;
+        try {
+            await checkDuplicatesMutation.mutateAsync({fileNames: [newName], folderId: getOpenedFolderID()});
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return
+            }
         }
 
-        const res = await fetch("/api/files/createFolder", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: newName,
-                folderId: getOpenedFolderID(),
-                folderStackIDs: folderStackIDs
-            }),
-        });
-
-        if (!res.ok) {
-            const resJSON = await res.json();
-            setErrorMessage(resJSON.errMessage);
-            return;
+        try {
+            await createFolderMutation.mutateAsync({name: newName, folderId: getOpenedFolderID(), folderStackIDs: folderStackIDs});
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return
+            }
         }
 
-        queryClient.invalidateQueries({queryKey: ["folders"]});
+        queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
     }
+
+    const checkDuplicatesMutation = useMutation(trpc.files.checkDuplicates.mutationOptions());
+    const createFolderMutation = useMutation(trpc.files.createFolder.mutationOptions());
+
 
     const handleClick = () => {
         setActiveFile({id: -1, mimeType: "", name: "", variant: "folder", isCorrupted: false});

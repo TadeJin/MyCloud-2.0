@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ProgressBar } from ".";
+import { useTRPC } from "../lib/trpc/client";
 
 interface CapacityDisplayProps {
     hasTopBorder?: boolean
@@ -12,12 +13,6 @@ export const CapacityDisplay = (props: CapacityDisplayProps) => {
 
     const GB_SIZE = 1024 * 1024 * 1024;
     const MB_SIZE = 1024 * 1024;
-
-    const fetchCapacity = async () => {
-        const res = await fetch("/api/files/fetchCapacity");
-        if (!res.ok) throw new Error("Failed to fetch capacity");
-        return res.json();
-    };
 
     const getUnit = (byteCapacity: number) => {
 
@@ -40,15 +35,17 @@ export const CapacityDisplay = (props: CapacityDisplayProps) => {
         return "bg-blue-500";
     }
 
-    const { data: capacity, status: statusCapacity } = useQuery({queryKey: ["capacity"], queryFn: fetchCapacity});
+    const trpc = useTRPC();
+
+    const { data: capacity, isLoading, error } = useQuery(trpc.users.fetchCapacity.queryOptions());
     let takenStorage = 0;
     let maxCapacity = 0;
     let percentage = 0;
     let errText = "";
 
-    if (statusCapacity === "pending") {
+    if (isLoading) {
         errText = "Loading available storage"; 
-    } else if (statusCapacity === "error" || !capacity) {
+    } else if (error || !capacity) {
         errText = "Error occured while getting capacity";
     } else {
         takenStorage = capacity.taken;

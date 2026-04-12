@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DialogProvider, QueryProvider } from "./components";
+import { DialogProvider } from "./components";
+import { TRPCReactProvider } from "./lib/trpc/client";
 
 export const metadata: Metadata = {
   title: "MyCloud 2.0",
@@ -15,11 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <DialogProvider>
-                {children}
-            </DialogProvider>
-          </QueryProvider>
+        <DialogProvider>
+          <TRPCReactProvider>
+              {children}
+            </TRPCReactProvider>
+          </DialogProvider>
       </body>
     </html>
   );

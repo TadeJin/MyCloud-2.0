@@ -1,4 +1,6 @@
 import { UserSortPreference } from "@/generated/prisma/enums";
+import z from "zod";
+import { filterOptions } from "../lib/validators";
 
 export interface DisplayFile {
     id: number,
@@ -39,4 +41,4 @@ export interface ConfirmationDialogProps {
 export type SortPreference = `${UserSortPreference}`;
 
 export type SettingsContentVariants = "account" | "storage";
-export type FilterOptions = "All" | "Pictures" | "Videos" | "Documents" | "Other";
+export type FilterOptions = z.infer<typeof filterOptions>;

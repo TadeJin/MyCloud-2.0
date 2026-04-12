@@ -5,6 +5,7 @@ import { Dispatch, Ref, SetStateAction} from "react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
 
 interface UserStatsProps {
     hide: Dispatch<SetStateAction<boolean>>,
@@ -14,14 +15,8 @@ interface UserStatsProps {
 
 export const UserStats = (props: UserStatsProps) => {
     const {hide, ref, hasSettings} = props;
-
-    const fetchUserEmail = async () => {
-        const res = await fetch("/api/users/fetchUserData");
-        if (!res.ok) throw new Error("Failed to fetch user data");
-        return res.json();
-    }
-    
-    const {data} = useQuery({queryKey: ["userEmail"], queryFn: () => fetchUserEmail()});
+    const trpc = useTRPC();
+    const {data} = useQuery(trpc.users.fetchUserData.queryOptions());
 
     return (
         <div ref = {ref} className="flex flex-col border border-stone-200 shadow-lg rounded-xl w-64 absolute right-0 top-full mt-5 p-4 bg-white">

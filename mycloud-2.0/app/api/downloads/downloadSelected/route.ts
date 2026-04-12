@@ -21,7 +21,7 @@ export const POST = async (req: NextRequest) => {
     if (!session) {
         return NextResponse.json(
             {errMessage: "Error downloading files"},
-            {status: 500}
+            {status: 401}
         );
     }
 

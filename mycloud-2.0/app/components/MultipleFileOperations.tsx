@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { SelectOpButton, useDialog, useErrors } from ".";
+import { SelectOpButton, useDialog, useErrors, useFolders } from ".";
 import { useFiles } from "./ActiveFileProvider";
 import { DBFile } from "../types";
 import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
+import { TRPCClientError } from "@trpc/client";
 
 interface MultipleFileOperationsProps {
     column?: boolean
@@ -13,12 +15,16 @@ interface MultipleFileOperationsProps {
 
 export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     const {column} = props;
-    const {selectActive, setSelectActive, clearSelectedFiles, selectedFilesIds, selectedFilesNames, addSelectedFileId, removeSelectedFileId} = useFiles();
+    const {selectActive, setSelectActive, clearSelectedFiles, selectedFilesIds, selectedFilesNames, addSelectedFileId, removeSelectedFileId, filter, searchString} = useFiles();
     const {setErrorMessage} = useErrors();
     const queryClient = useQueryClient();
     const {setDialogVisible, setDialogProps} = useDialog();
     const [selectedOpen, setSelectedOpen] = useState(false);
     const selectedRef = useRef<HTMLDivElement>(null);
+    const {getOpenedFolderID} = useFolders()
+    const trpc = useTRPC();
+
+    const deleteSelectedMutation = useMutation(trpc.files.deleteSelected.mutationOptions());
 
     useEffect(() => {
         if (!selectedOpen) return;
@@ -51,7 +57,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             return;
         }
 
-        const res = await fetch("/api/files/downloadSelected", {
+        const res = await fetch("/api/downloads/downloadSelected", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ids: [...selectedFilesIds]})
@@ -83,22 +89,20 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
 
     const deleteSelected = async () => {
         setDialogVisible(false);
-        const res = await fetch("/api/files/deleteSelected", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ids: [...selectedFilesIds]})
-        });
-
-        if (!res.ok) {
-            setErrorMessage((await res.json()).errMessage);
-            return;
+        try {
+            await deleteSelectedMutation.mutateAsync({ids: [...selectedFilesIds]});
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return;
+            }
         }
         clearSelectedFiles();
-        queryClient.invalidateQueries({queryKey: ["files"]});
+        queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }
 
     const selectAll = () => {
-        const files: DBFile[] | undefined = queryClient.getQueryData(["files"]);
+        const files: DBFile[] | undefined = queryClient.getQueryData(trpc.files.fetchFiles.queryKey({filter: filter, folderId: getOpenedFolderID(), searchString}));
         if (!files || files.length === 0) {
             return;
         }

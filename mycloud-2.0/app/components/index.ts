@@ -16,7 +16,6 @@ export * from "./LogOutButton";
 export * from "./MultipleFileOperations"
 export * from "./NavBar";
 export * from "./ProgressBar"
-export * from "./QueryProvider";
 export * from "./RegisterForm";
 export * from "./ResetForm";
 export * from "./SearchBar";

@@ -1,21 +1,16 @@
 "use client";
 
 import { FileBox } from "./FileBox";
-import { DisplayFile } from "../types";
 import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
 import { useState } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
 
 interface FileDisplayProps {
     className?: string
 }
 
-interface DBFolder {
-    id: number,
-    name: string,
-    userId: number
-}
 
 export const FileDisplay = (props: FileDisplayProps) => {
     const {getOpenedFolderID} = useFolders();
@@ -24,29 +19,30 @@ export const FileDisplay = (props: FileDisplayProps) => {
     const [filesOpen, setFilesOpen] = useState(true);
     const [foldersOpen, setFoldersOpen] = useState(true)
 
-    const fetchFiles = async (folderId: number | null) => {
-        const res = await fetch(`/api/files/fetchFiles?folderId=${folderId}&search=${searchString}&filter=${filter}`);
-        if (!res.ok) throw new Error("Failed to fetch files");
-        return res.json();
-    }
-
-    const fetchFolders = async (folderId: number | null) => {
-        const res = await fetch(`/api/files/fetchFolders?folderId=${folderId}&search=${searchString}`);
-        if (!res.ok) throw new Error("Failed to fetch folders");
-        return res.json();
-    }
-
+    const trpc = useTRPC();
     const currentId = getOpenedFolderID();
 
-    const { data: files, status: statusFiles } = useQuery({queryKey: ["files", currentId, searchString, filter], queryFn: () => fetchFiles(currentId)});
-    const { data: folders, status: statusFolders } = useQuery({queryKey: ["folders", currentId, searchString], queryFn: () => fetchFolders(currentId)});
+    const { data: files, isLoading: isLoadingFiles, error: errorFiles } = useQuery(
+        trpc.files.fetchFiles.queryOptions({ 
+            folderId: currentId, 
+            searchString, 
+            filter 
+        })
+    );
+
+    const {data: folders, isLoading: isLoadingFolders, error: errorFolders} = useQuery(
+        trpc.files.fetchFolders.queryOptions({
+            folderId: currentId,
+            searchString: searchString
+        })
+    );
 
     const style = "flex flex-col w-full h-full bg-stone-50 overflow-y-scroll " + className
 
     return (
         <div className={style}>
             <FolderTrace />
-            {statusFolders !== "pending" && statusFolders !== "error" && folders.length == 0 ? <></> :
+            {!isLoadingFolders && !errorFolders && (!folders || folders.length == 0) ? <></> :
                 <>
                     <button 
                         onClick={() => setFoldersOpen(!foldersOpen)}
@@ -58,10 +54,10 @@ export const FileDisplay = (props: FileDisplayProps) => {
                             <polyline points="6 9 12 15 18 9"/>
                         </svg>
                     </button>
-                    {foldersOpen && <div className="flex flex-wrap gap-3 mt-3 ml-3">
-                        {statusFolders === "pending" ? <p>Loading folders...</p> : statusFolders === "error" ?<p>Error loading folders</p> :
+                    {folders && foldersOpen && <div className="flex flex-wrap gap-3 mt-3 ml-3">
+                        {isLoadingFolders ? <p>Loading folders...</p> : errorFolders ?<p>Error loading folders</p> :
 
-                        folders.map((folder: DBFolder) => (
+                        folders.map((folder) => (
                             <FileBox key = {folder.id} id={folder.id} name={folder.name} isCorrupted={false} variant="folder"/>
                         ))}
                     </div>}
@@ -79,11 +75,11 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 </svg>
             </button>
             {filesOpen && <div className="flex flex-row flex-wrap gap-3 mt-3 mb-[5%] ml-3">
-            {statusFiles !== "pending" && statusFiles !== "error" && files.length == 0 ? <div className="flex justify-center w-full items-center mt-50"><div className="relative w-6 h-6 md:w-10 md:h-10"><Image src="./file-x.svg" alt="no-file-icon" fill/></div><p className="text-sm md:text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
+            {!isLoadingFiles && !errorFiles && (!files || files.length == 0) ? <div className="flex justify-center w-full items-center mt-50"><div className="relative w-6 h-6 md:w-10 md:h-10"><Image src="./file-x.svg" alt="no-file-icon" fill/></div><p className="text-sm md:text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
                 <>
-                {statusFiles === "pending" ? <p>Loading files...</p> : statusFiles === "error" ?<p>Error loading files</p> :
+                {isLoadingFiles ? <p>Loading files...</p> : errorFiles ?<p>Error loading files</p> :
 
-                files.map((file: DisplayFile) => (
+                files?.map((file) => (
                     <FileBox key={file.id} id={file.id} name={file.name} isCorrupted={file.isCorrupted} variant="file" mimeType={file.type} />
                 ))}
                 </>

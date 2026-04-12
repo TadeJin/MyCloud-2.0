@@ -4,12 +4,17 @@ import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
 import { authClient } from "../lib/auth-client";
+import { useTRPC } from "../lib/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+import { TRPCClientError } from "@trpc/client";
 
 export const LoginForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [rememberMe, setRememberMe] = useState(true);
+    const trpc = useTRPC();
+    const createRootMutation = useMutation(trpc.users.createRootFolder.mutationOptions());
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,9 +43,13 @@ export const LoginForm = () => {
             },
 
             onSuccess: async () => {
-                await fetch("/api/users/createRootFolder", {
-                    method: "POST"
-                });
+                try {
+                    await createRootMutation.mutateAsync();
+                } catch (err) {
+                    if (err instanceof TRPCClientError) {
+                        setErrorMessage(err.message);
+                    }
+                }
             }
         });
     };

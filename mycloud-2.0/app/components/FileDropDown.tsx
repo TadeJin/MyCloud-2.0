@@ -3,7 +3,9 @@
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
 import { useDialog, useErrors, useFiles, useFolders } from ".";
 import Image from "next/image";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
+import { TRPCClientError } from "@trpc/client";
 
 interface FileDropDownProps {
     setDropDownVisible: Dispatch<SetStateAction<boolean>>
@@ -17,6 +19,12 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const {activeFile, dropDownPosition, dropDownVisible, setPreviewVisible} = useFiles();
     const {folderStackIDs} = useFolders();
     const {id, name, mimeType, variant, isCorrupted} = activeFile;
+
+    const trpc = useTRPC();
+    const deleteFileMutation = useMutation(trpc.files.delete.mutationOptions());
+    const deleteFolderMutation = useMutation(trpc.files.deleteFolder.mutationOptions());
+    const renameFileMutation = useMutation(trpc.files.rename.mutationOptions());
+    const renameFolderMutation = useMutation(trpc.files.renameFolder.mutationOptions());
 
     const isFile = variant === "file";
     const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf");
@@ -38,7 +46,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDownload = async () => {
         setDropDownVisible(false);
-        const res = await fetch(`/api/files/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+        const res = await fetch(`/api/downloads/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
 
         if (!res.ok) {
             const resJSON = await res.json();
@@ -59,7 +67,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFolderDownload = async () => {
         setDropDownVisible(false);
-        const res = await fetch(`/api/files/downloadFolder?folderId=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+        const res = await fetch(`/api/downloads/downloadFolder?folderId=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
 
         if (!res.ok) {
             const resJSON = await res.json();
@@ -88,45 +96,35 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDelete = async () => {
         setDialogVisible(false);
-        const res = await fetch ("/api/files/delete", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id: id,
-                folderStackIDs: folderStackIDs
-            }),
-        });
 
-       if (!res.ok) {
-            const resJSON = await res.json();
-            setErrorMessage(resJSON.errMessage);
-            return;
+        try {
+            await deleteFileMutation.mutateAsync({id: id, folderStackIDs: folderStackIDs});
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return
+            }
         }
 
-        queryClient.invalidateQueries({queryKey: ["files"]});
-        queryClient.invalidateQueries({queryKey: ["capacity"]});
+        queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
+        queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
     }
 
     const handleFolderDelete = async () => {
         setDialogVisible(false);
-        const res = await fetch("/api/files/deleteFolder", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                folderId: id,
-                folderStackIDs: folderStackIDs
-            })
-        });
-
-        if (!res.ok) {
-            const resJSON = await res.json();
-            setErrorMessage(resJSON.errMessage);
-            return;
+        
+        try {
+            await deleteFolderMutation.mutateAsync({id: id, folderStackIDs: folderStackIDs});
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return;
+            }
         }
 
-        queryClient.invalidateQueries({queryKey: ["folders"]});
-        queryClient.invalidateQueries({queryKey: ["files"]});
-        queryClient.invalidateQueries({queryKey: ["capacity"]});
+        queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
+        queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
+        queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
     }
 
 
@@ -142,44 +140,32 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileRename = async (newName: string) => {
         setDialogVisible(false);
-        const res = await fetch ("/api/files/rename", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id: id,
-                oldName: name,
-                newName: newName
-            }),
-        });
-
-        if (!res.ok) {
-            const resJSON = await res.json();
-            setErrorMessage(resJSON.errMessage);
-            return;
+        
+        try {
+            await renameFileMutation.mutateAsync({id: id, oldName: name, newName: newName, folderStackIDs: folderStackIDs});
+        } catch(err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return;
+            }
         }
 
-        queryClient.invalidateQueries({queryKey: ["files"]});
+        queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }
 
     const handleFolderRename = async (newName: string) => {
         setDialogVisible(false);
 
-        const res = await fetch("/api/files/renameFolder", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id: id,
-                newName: newName
-            }),
-        });
-
-        if (!res.ok) {
-            const resJSON = await res.json();
-            setErrorMessage(resJSON.errMessage);
-            return;
+        try {
+            await renameFolderMutation.mutateAsync({id: id, oldName: name, newName: newName, folderStackIDs: folderStackIDs});
+        } catch(err) {
+            if (err instanceof TRPCClientError) {
+                setErrorMessage(err.message);
+                return;
+            }
         }
 
-        queryClient.invalidateQueries({queryKey: ["folders"]});
+        queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
     };
 
     const openPreview = () => {

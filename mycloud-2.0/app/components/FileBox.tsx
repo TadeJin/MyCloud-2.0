@@ -5,6 +5,7 @@ import { useFiles, useFolders } from ".";
 import { FileVariants } from "../types";
 import { ChangeEvent, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
 
 interface FileBoxProps {
     variant: FileVariants,
@@ -22,11 +23,12 @@ export const FileBox = (props: FileBoxProps) => {
     const {setActiveFile, setDropDownVisible, setDropDownPosition, setPreviewVisible, selectActive, addSelectedFileId, removeSelectedFileId, selectedFilesIds} = useFiles();
     const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf") && !isCorrupted;
     const checkboxRef = useRef<HTMLInputElement>(null);
+    const trpc = useTRPC();
 
     const openFolder = async () => {
         addFolder(id, name);
-        queryClient.invalidateQueries({ queryKey: ['folders'] });
-        queryClient.invalidateQueries({ queryKey: ['files'] });
+        queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
+        queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }
 
     const openDropDown = (e: React.MouseEvent<HTMLDivElement>) => {

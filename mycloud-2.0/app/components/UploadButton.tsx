@@ -4,7 +4,9 @@ import { useRef, useState } from "react"
 import { ProgressBar, useErrors, useFolders } from ".";
 import Image from "next/image";
 import { FILE_CHUNK_SIZE } from "../constants";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "../lib/trpc/client";
+import { TRPCClientError } from "@trpc/client";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");
@@ -14,6 +16,12 @@ export const UploadButton = () => {
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const {folderStackIDs} = useFolders();
     const {setErrorMessage} = useErrors();
+    
+    const trpc = useTRPC();
+    const fetchDiskCapacityMutation = useMutation(trpc.fetchDiskCapacity.mutationOptions());
+    const duplicateCheckMutation = useMutation(trpc.files.checkDuplicates.mutationOptions());
+    const handleFailedUploadMutation = useMutation(trpc.files.handleFailedUpload.mutationOptions());
+    const createFileRecordMutation = useMutation(trpc.files.createFileRecord.mutationOptions());
 
     const handleClick = () => {
         inputRef.current?.click();
@@ -30,35 +38,39 @@ export const UploadButton = () => {
 
         if (files?.length == 0) return;
 
-        const spaceRes = await fetch("/api/files/fetchFreeSpace");
+        let availableDiskSpace;
+        let availableUserSpace;
+        try {
+           const {availableDiskSpace: a, availableUserSpace: b} =  await fetchDiskCapacityMutation.mutateAsync();
+           availableDiskSpace = a;
+           availableUserSpace = b;
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setFailedUploadErr(err.message, e.target);
+                return;
+            }
+        }
 
-        if (!spaceRes.ok) {
-            setFailedUploadErr((await spaceRes.json()).errMessage, e.target);
+        if (!availableDiskSpace || !availableUserSpace) {
+            setFailedUploadErr("Error fetching capacity", e.target);
             return;
         }
 
-        const duplicateCheck = await fetch("/api/files/checkDuplicates", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                fileNames: files.map(file => file.name),
-                folderId: getOpenedFolderID(),
-            })
-        });
-
-        if (!duplicateCheck.ok) {
-            setFailedUploadErr((await duplicateCheck.json()).errMessage, e.target);
-            return;
+        try {
+            await duplicateCheckMutation.mutateAsync({fileNames: files.map(file => file.name), folderId: getOpenedFolderID()})
+        } catch (err) {
+            if (err instanceof TRPCClientError) {
+                setFailedUploadErr(err.message, e.target);
+                return;
+            }
         }
-
-        const availableSpaceInfo = await spaceRes.json();
-    
+     
         let totalSize = 0;
         files.forEach(async (file) => {
             totalSize += file.size;
         });
 
-        if ((availableSpaceInfo.availableUserSpace !== -1 && totalSize > availableSpaceInfo.availableUserSpace) || totalSize > availableSpaceInfo.availableDiskSpace) {
+        if ((availableUserSpace !== -1 && totalSize > availableUserSpace) || totalSize > availableDiskSpace) {
             setFailedUploadErr("Not enough space", e.target);
             return;
         }
@@ -68,30 +80,21 @@ export const UploadButton = () => {
         for (const file of files) {
             setStatus("Uploading: " + file.name);
             setUploadPercentage(0);
-            const fileRecordRes = await createFileRecord(file.name, file.type, file.size, folderId);
+            const fileRecord = await createFileRecord(file.name, file.type, file.size, folderId);
             
-            if(!fileRecordRes.ok) {
-                const fileRecord = await fileRecordRes.json();
-                setFailedUploadErr(fileRecord.errMessage, e.target);
+            if(!fileRecord) {
+                setFailedUploadErr(`Error uploading file: ${file.name}`, e.target);
                 return;
             }
 
-            const fileRecord = await fileRecordRes.json();
-            const fileID = fileRecord.id;
+            const fileID = fileRecord.id.toString();
 
             const chunkPercentage = (FILE_CHUNK_SIZE * 100) / file.size;
 
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
-                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), fileID, fileID);
+                const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name, fileID);
                 if (!res.ok) {
-                    await fetch ("/api/files/handleFailedUpload", {
-                        method: "DELETE",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            fileId: fileRecord.id,
-                            folderStackIDs: folderStackIDs
-                        }),
-                    });
+                    await handleFailedUploadMutation.mutateAsync({id: fileRecord.id, folderStackIDs: folderStackIDs});
                     setFailedUploadErr(`Upload of file: ${file.name} failed`, e.target);
                     return;
                 }
@@ -99,8 +102,8 @@ export const UploadButton = () => {
                 setUploadPercentage(prev => prev + chunkPercentage);
             }
 
-            queryClient.invalidateQueries({queryKey: ["capacity"]});
-            queryClient.invalidateQueries({queryKey: ["files"]});
+            queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
+            queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
             setStatus("");
         }
         e.target.value = "";
@@ -115,7 +118,7 @@ export const UploadButton = () => {
         formData.append('folderStackIDs', JSON.stringify(folderStackIDs));
         
 
-        const res = await fetch("/api/files/uploadChunk", {
+        const res = await fetch("/api/uploads/uploadChunk", {
             method: "POST",
             body: formData
         });
@@ -124,18 +127,11 @@ export const UploadButton = () => {
     }
 
     const createFileRecord = async (fileName: string, fileType: string, fileSize: number, folderId: number | null) => {
-        const res = await fetch("/api/files/createFileRecord", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                fileName: fileName,
-                fileType: fileType,
-                fileSize: fileSize,
-                folderId: folderId
-            })
-        });
-
-        return res;
+        try {
+            return createFileRecordMutation.mutateAsync({fileName: fileName, fileSize: fileSize, fileType: fileType, folderId: folderId});
+        } catch (err) {
+            return null;
+        }
     }
 
     return (

@@ -1,9 +1,7 @@
 import { appendFile, statfs } from "fs/promises";
 import { NextResponse } from "next/server";
-import path from "path";
 import prisma from "@/app/lib/prisma";
 import { FILE_CHUNK_SIZE } from "@/app/constants";
-import { DBFolder } from "@/app/types";
 import { headers } from "next/headers";
 import { auth } from "@/app/lib/auth";
 import { getFilePath } from "@/app/lib/fileHelpers";
@@ -13,17 +11,24 @@ export const POST = async (req: Request) => {
             headers: await headers()
     });
 
+    if (!session) {
+        return NextResponse.json(
+        { errMessage: `Upload failed`},
+        { status: 401 }
+        );
+    }
+
     const formData = await req.formData();
     const chunk = formData.get("chunk") as Blob;
     const fileName = formData.get("fileName") as string;
     const fileID = formData.get("fileID") as string;
-    const folderStackIDs = JSON.parse(formData.get('folderStackIDs') as string);
-
-    if (!session) {
-        return NextResponse.json(
-        { errMessage: `Upload of file: ${fileName} failed`},
-        { status: 401 }
-        );
+    let folderStackIDs: number[];
+    try {
+        folderStackIDs = JSON.parse(formData.get('folderStackIDs') as string);
+          if (!Array.isArray(folderStackIDs) || !folderStackIDs.every(n => typeof n === "number"))
+            return NextResponse.json({ errMessage: "Upload failed" }, { status: 400 });
+    } catch (err) {
+        return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`}, { status: 400 });
     }
 
     if (!fileName || !fileID || !chunk || chunk.size > FILE_CHUNK_SIZE || !folderStackIDs) {
