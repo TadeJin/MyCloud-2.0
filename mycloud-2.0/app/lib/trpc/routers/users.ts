@@ -6,7 +6,9 @@ import { existsSync } from "fs";
 import prisma from "../../prisma";
 import z from "zod";
 import { UserSortPreference } from "@/generated/prisma/enums";
+import { Resend } from "resend";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const userRouter = createTRPCRouter({
     fetchCapacity: protectedProcedure
@@ -31,6 +33,21 @@ export const userRouter = createTRPCRouter({
             await mkdir(dirPath);
         } catch (err) {
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error creating root directory"});
+        }
+
+        try {
+            await resend.emails.send({
+                from: 'noreply@mycld.cz',
+                to: ctx.user.email,
+                subject: "Welcome to Mycloud-2.0!",
+                html: `<h1>Welcome to MyCloud 2.0!</h1>
+                <p>Your account has been created successfully.</p>
+                <p>You start with <strong>1GB of free storage</strong>. Upload files, organize them into folders, and access them from anywhere.</p>
+                    <br/>
+                <p>— The MyCloud 2.0 Team</p>`
+            });
+        } catch(err) {
+            throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error sending welcome email"});
         }
     }),
     deleteUserData: protectedProcedure
