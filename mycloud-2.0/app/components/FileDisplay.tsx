@@ -40,7 +40,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
     const renderSpinner = (text: string) => {
         return (
-            <div className="flex flex-col w-full items-center justify-center py-14 gap-4">
+            <div className="flex flex-col w-full items-center justify-center py-14 gap-4" style={{ animation: "spinnerDelay 0s 300ms both" }}>
                 <svg
                     className="animate-spin w-8 h-8 text-stone-400"
                     style={{ animationDuration: "0.6s" }}

@@ -8,7 +8,7 @@ export const SpinnerDisplay = () => {
     if (!spinnerHeader) return null;
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex justify-center items-center p-4 z-40">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex justify-center items-center p-4 z-40" style={{ animation: "spinnerDelay 0s 300ms both" }}>
             <div className="flex flex-col bg-white rounded-2xl shadow-2xl border border-stone-200 w-full max-w-sm overflow-hidden">
                 <div className="flex items-center gap-3 bg-stone-50 border-b border-stone-100 px-5 py-4">
                     <div className="flex items-center justify-center w-9 h-9 rounded-full bg-stone-100 shrink-0">
