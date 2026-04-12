@@ -9,7 +9,6 @@ export const FilePreview = () => {
     const {activeFile, previewVisible, setPreviewVisible} = useFiles()
     const [srcUrl, setSrcUrl] = useState("");
     const {name, mimeType, id} = activeFile;
-    const [svgContent, setSvgContent] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const {folderStackIDs} = useFolders();
@@ -30,11 +29,6 @@ export const FilePreview = () => {
                 return
             }
 
-            if (mimeType === "image/svg+xml") {
-                setSvgContent(await res.text());
-                return;
-            }
-
             const blob = await res.blob();
             url = URL.createObjectURL(blob);
             setSrcUrl(url);
@@ -52,7 +46,7 @@ export const FilePreview = () => {
             return <div className="text-red-500 font-bold">Error previewing file</div>;
         }
 
-        if (loading || (!srcUrl && !svgContent)) {
+        if (loading || (!srcUrl)) {
             return (
                 <div className="flex flex-col w-full items-center justify-center py-14 gap-4">
                 <svg
@@ -69,10 +63,6 @@ export const FilePreview = () => {
             )
         }
 
-        if (mimeType === "image/svg+xml") {
-            return <div dangerouslySetInnerHTML={{ __html: svgContent }} />
-        }
-    
         if (mimeType === "application/pdf") {
             return <iframe src={srcUrl} className="w-full h-full" />;
         }
@@ -90,7 +80,6 @@ export const FilePreview = () => {
 
     const exitPreview = () => {
         setSrcUrl("");
-        setSvgContent("");
         setPreviewVisible(false);
     }
 

@@ -328,7 +328,7 @@ export const fileRouter = createTRPCRouter({
         }
     }),
     rename: protectedFileProcedure
-    .input(z.object({oldName: z.string(), newName: z.string()}))
+    .input(z.object({oldName: safeName, newName: safeName}))
     .mutation(async ({input, ctx}) => {
         const {oldName, newName, folderStackIDs} = input;
 
@@ -363,9 +363,11 @@ export const fileRouter = createTRPCRouter({
         }
     }),
     renameFolder: protectedFolderProcedure
-    .input(z.object({oldName: z.string(), newName: z.string()}))
+    .input(z.object({oldName: safeName, newName: safeName}))
     .mutation(async ({input, ctx}) => {
         const {oldName, newName, folderStackIDs} = input;
+
+        if (invalidChars.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
 
         const [existingFile, existingFolder] = await Promise.all([
             prisma.file.findFirst({
