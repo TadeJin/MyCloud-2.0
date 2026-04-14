@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
-import { useDialog, useErrors, useFiles, useFolders, useSpinners } from ".";
+import { useDialog, useErrors, useFiles, useSpinners } from ".";
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
@@ -17,7 +17,6 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const {setDialogVisible, setDialogProps} = useDialog();
     const {setDropDownVisible} = props;
     const {activeFile, dropDownPosition, dropDownVisible, setPreviewVisible} = useFiles();
-    const {folderStackIDs} = useFolders();
     const {id, name, mimeType, variant, isCorrupted} = activeFile;
 
     const trpc = useTRPC();
@@ -48,7 +47,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const handleFileDownload = async () => {
         setDropDownVisible(false);
         setSpinnerHeader("Downloading file");
-        const res = await fetch(`/api/downloads/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+        const res = await fetch(`/api/downloads/download?id=${id}`);
 
         if (!res.ok) {
             const resJSON = await res.json();
@@ -71,7 +70,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const handleFolderDownload = async () => {
         setDropDownVisible(false);
         setSpinnerHeader("Downloading folder");
-        const res = await fetch(`/api/downloads/downloadFolder?folderId=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+        const res = await fetch(`/api/downloads/downloadFolder?folderId=${id}`);
 
         if (!res.ok) {
             const resJSON = await res.json();
@@ -104,7 +103,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         setSpinnerHeader("Deleting file");
 
         try {
-            await deleteFileMutation.mutateAsync({id: id, folderStackIDs: folderStackIDs});
+            await deleteFileMutation.mutateAsync({id: id});
         } catch (err) {
             if (err instanceof TRPCClientError) {
                 setErrorMessage(err.message);
@@ -122,7 +121,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         setSpinnerHeader("Deleting folder");
         
         try {
-            await deleteFolderMutation.mutateAsync({id: id, folderStackIDs: folderStackIDs});
+            await deleteFolderMutation.mutateAsync({id: id});
         } catch (err) {
             if (err instanceof TRPCClientError) {
                 setErrorMessage(err.message);
@@ -152,7 +151,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         setSpinnerHeader("Renaming file");
         
         try {
-            await renameFileMutation.mutateAsync({id: id, oldName: name, newName: newName, folderStackIDs: folderStackIDs});
+            await renameFileMutation.mutateAsync({id: id, oldName: name, newName: newName});
         } catch(err) {
             if (err instanceof TRPCClientError) {
                 setErrorMessage(err.message);
@@ -169,7 +168,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         setSpinnerHeader("Renaming folder");
 
         try {
-            await renameFolderMutation.mutateAsync({id: id, oldName: name, newName: newName, folderStackIDs: folderStackIDs});
+            await renameFolderMutation.mutateAsync({id: id, oldName: name, newName: newName});
         } catch(err) {
             if (err instanceof TRPCClientError) {
                 setErrorMessage(err.message);

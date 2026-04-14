@@ -3,7 +3,6 @@
 import { useFiles } from "./ActiveFileProvider";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useFolders } from "./FolderProvider";
 
 export const FilePreview = () => {
     const {activeFile, previewVisible, setPreviewVisible} = useFiles()
@@ -11,7 +10,6 @@ export const FilePreview = () => {
     const {name, mimeType, id} = activeFile;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
-    const {folderStackIDs} = useFolders();
 
     useEffect(() => {
         if (!previewVisible) return;
@@ -20,7 +18,7 @@ export const FilePreview = () => {
 
         const load = async () => {
             setLoading(true);
-            const res = await fetch(`/api/downloads/download?id=${id}&folderStackIDs=${encodeURIComponent(JSON.stringify(folderStackIDs))}`);
+            const res = await fetch(`/api/downloads/download?id=${id}`);
             if (res.ok) {
                 setError(false);
                 setLoading(false);
@@ -39,7 +37,7 @@ export const FilePreview = () => {
         return () => {
             if (url) URL.revokeObjectURL(url);
         }
-    }, [folderStackIDs, id, mimeType, previewVisible]);
+    }, [id, mimeType, previewVisible]);
 
     const renderPreview = () => {
         if (error) {

@@ -14,7 +14,6 @@ export const UploadButton = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const {getOpenedFolderID} = useFolders();
     const [uploadPercentage, setUploadPercentage] = useState(0);
-    const {folderStackIDs} = useFolders();
     const {setErrorMessage} = useErrors();
     
     const trpc = useTRPC();
@@ -94,7 +93,7 @@ export const UploadButton = () => {
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
                 const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name, fileID);
                 if (!res.ok) {
-                    await handleFailedUploadMutation.mutateAsync({id: fileRecord.id, folderStackIDs: folderStackIDs});
+                    await handleFailedUploadMutation.mutateAsync({id: fileRecord.id});
                     setFailedUploadErr(`Upload of file: ${file.name} failed`, e.target);
                     return;
                 }
@@ -115,7 +114,6 @@ export const UploadButton = () => {
         formData.append("fileName", fileName);
         formData.append("fileID", fileID);
         formData.append("chunk", chunk);
-        formData.append('folderStackIDs', JSON.stringify(folderStackIDs));
         
 
         const res = await fetch("/api/uploads/uploadChunk", {

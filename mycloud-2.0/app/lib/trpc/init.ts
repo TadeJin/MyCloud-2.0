@@ -1,11 +1,10 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { auth } from "../auth";
-import { getFilePath } from "../fileHelpers";
 import z, { ZodError } from "zod";
 import prisma from "../prisma";
 import { DBFile, DBFolder } from "@/app/types";
 import superjson from "superjson";
-import { folderStackIDsType } from "../validators";
+import { getFullPath } from "../fileHelpers";
 
 /**
  * This context creator accepts `headers` so it can be reused in both
@@ -61,7 +60,6 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
 
 const inputSchema = z.object({
   id: z.number(),
-  folderStackIDs: folderStackIDsType,
 });
 
 const isVerifiedFile = t.middleware(async ({ctx, next, input}) => {
@@ -70,18 +68,13 @@ const isVerifiedFile = t.middleware(async ({ctx, next, input}) => {
     const result = inputSchema.safeParse(input);
     if (!result.success) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid file data"});
 
-    const { folderStackIDs, id } = result.data;
+    const { id } = result.data;
     
     const file: DBFile | null = await prisma.file.findFirst({ where: { id, userId: ctx.authUser.id } });
 
     if (!file) throw new TRPCError({ code: "NOT_FOUND", message: "File not found" });
 
-    const filePath = await getFilePath(
-      folderStackIDs,
-      file.name,
-      ctx.authUser.id,
-    );
-
+    const filePath = await getFullPath(file, ctx.authUser.id);
     if (!filePath) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
     return next({ ctx: { ...ctx, user: ctx.user, filePath, file } });
@@ -93,17 +86,13 @@ const isVerifiedFolder = t.middleware(async ({ctx, next, input}) => {
     const result = inputSchema.safeParse(input);
     if (!result.success) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid folder data" });
 
-    const { folderStackIDs, id } = result.data;
+    const { id } = result.data;
 
     const folder: DBFolder | null = await prisma.folder.findFirst({ where: { id, userId: ctx.authUser.id } });
 
     if (!folder) throw new TRPCError({ code: "NOT_FOUND", message: "Folder not found" });
 
-    const filePath = await getFilePath(
-      folderStackIDs,
-      folder.name,
-      ctx.authUser.id,
-    );
+    const filePath = await getFullPath(folder, ctx.authUser.id);
 
     if (!filePath) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 

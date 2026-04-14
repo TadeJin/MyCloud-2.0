@@ -4,7 +4,7 @@ import { auth } from "@/app/lib/auth";
 import archiver from "archiver";
 import prisma from "@/app/lib/prisma";
 import { Readable } from "stream";
-import { getFileFullPath } from "@/app/lib/fileHelpers";
+import { getFullPath } from "@/app/lib/fileHelpers";
 import { DBFile } from "@/app/types";
 
 export const POST = async (req: NextRequest) => {
@@ -42,9 +42,11 @@ export const POST = async (req: NextRequest) => {
         const archive = archiver("zip");
         archive.on("error", (err) => {});
     
-        files.forEach((file: DBFile) => {
-            archive.file(getFileFullPath(folderMap, file, session.user.id), { name: file.name });
-        });
+        await Promise.all(files.map(async (file: DBFile) => {
+            const path = await getFullPath(file, session.user.id, folderMap);
+            if (!path) return NextResponse.json({ errMessage: "Error downloading files" }, { status: 500 });
+            archive.file(path, { name: file.name });
+        }));
 
         archive.finalize();
         

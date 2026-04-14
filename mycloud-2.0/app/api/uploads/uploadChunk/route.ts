@@ -4,7 +4,7 @@ import prisma from "@/app/lib/prisma";
 import { FILE_CHUNK_SIZE } from "@/app/constants";
 import { headers } from "next/headers";
 import { auth } from "@/app/lib/auth";
-import { getFilePath } from "@/app/lib/fileHelpers";
+import { getFullPath } from "@/app/lib/fileHelpers";
 
 export const POST = async (req: Request) => {
     const session = await auth.api.getSession({
@@ -22,16 +22,8 @@ export const POST = async (req: Request) => {
     const chunk = formData.get("chunk") as Blob;
     const fileName = formData.get("fileName") as string;
     const fileID = formData.get("fileID") as string;
-    let folderStackIDs: number[];
-    try {
-        folderStackIDs = JSON.parse(formData.get('folderStackIDs') as string);
-          if (!Array.isArray(folderStackIDs) || !folderStackIDs.every(n => typeof n === "number"))
-            return NextResponse.json({ errMessage: "Upload failed" }, { status: 400 });
-    } catch (err) {
-        return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`}, { status: 400 });
-    }
 
-    if (!fileName || !fileID || !chunk || chunk.size > FILE_CHUNK_SIZE || !folderStackIDs) {
+    if (!fileName || !fileID || !chunk || chunk.size > FILE_CHUNK_SIZE) {
         return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`},{ status: 400 });
     }
 
@@ -57,7 +49,7 @@ export const POST = async (req: Request) => {
             );
         }
 
-        const filePath = await getFilePath(folderStackIDs, file.name, session.user.id);
+        const filePath = await getFullPath(file, session.user.id);
 
         if (!filePath) {
             return NextResponse.json({ errMessage: `Upload of file: ${fileName} failed`},{ status: 500 });

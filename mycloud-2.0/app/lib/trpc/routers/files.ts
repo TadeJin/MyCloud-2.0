@@ -2,7 +2,7 @@ import z from "zod";
 import prisma from "../../prisma";
 import { createTRPCRouter, protectedFileProcedure, protectedFolderProcedure, protectedProcedure } from "../init";
 import { filterOptions, folderIdType, folderStackIDsType, safeName } from "../../validators";
-import { getFileFullPath, getFilePath } from "../../fileHelpers";
+import { deriveFilePath, getFullPath } from "../../fileHelpers";
 import { mkdir, rename, rm, stat, statfs, unlink } from "fs/promises";
 import { TRPCError } from "@trpc/server";
 import path from "path";
@@ -44,7 +44,8 @@ export const fileRouter = createTRPCRouter({
         const folderMap = new Map(allFolders.map(f => [f.id, f]));
 
         const convertedFiles = await Promise.all(files.map(async (file) => {
-            const filePath = getFileFullPath(folderMap, file, ctx.user.id);
+            const filePath = await getFullPath( file, ctx.user.id, folderMap);
+            if (!filePath) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
             const fileStat = await stat(filePath).catch(() => null);
             return {
                 ...file,
@@ -147,11 +148,12 @@ export const fileRouter = createTRPCRouter({
     .mutation(async ({input, ctx}) => {
         const {name, folderId, folderStackIDs} = input;
 
-        const filePath = await getFilePath(
-                  folderStackIDs,
-                  path.basename(name),
-                  ctx.user.id,
-            );
+        const filePath = await deriveFilePath(
+                folderStackIDs,
+                path.basename(name),
+                ctx.user.id,
+        );
+
         if(!filePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error creating folder"});
 
         try {
@@ -270,8 +272,9 @@ export const fileRouter = createTRPCRouter({
             const folderMap = new Map(allFolders.map(f => [f.id, f]));
             
             const results = await Promise.allSettled(
-                files.map((file: DBFile) => {
-                    const filePath = getFileFullPath(folderMap, file, ctx.user.id);
+                files.map(async (file: DBFile) => {
+                    const filePath = await getFullPath( file, ctx.user.id, folderMap);
+                    if (!filePath) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
                     if (existsSync(filePath))
                         return unlink(filePath).then(() => file.id)
                     else
@@ -337,7 +340,7 @@ export const fileRouter = createTRPCRouter({
     rename: protectedFileProcedure
     .input(z.object({oldName: safeName, newName: safeName}))
     .mutation(async ({input, ctx}) => {
-        const {oldName, newName, folderStackIDs} = input;
+        const {oldName, newName} = input;
 
         if (invalidChars.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
 
@@ -357,12 +360,12 @@ export const fileRouter = createTRPCRouter({
         }
 
         try {
-            await prisma.file.update({
+            const file = await prisma.file.update({
                 where: {id: ctx.file.id, userId: ctx.user.id},
                 data: {name: newName}
             });
 
-            const newFilePath = await getFilePath(folderStackIDs, newName, ctx.user.id);
+            const newFilePath = await getFullPath(file, ctx.user.id);
             if (!newFilePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming file"});
             await rename(ctx.filePath, newFilePath);
         } catch(err) {
@@ -372,7 +375,7 @@ export const fileRouter = createTRPCRouter({
     renameFolder: protectedFolderProcedure
     .input(z.object({oldName: safeName, newName: safeName}))
     .mutation(async ({input, ctx}) => {
-        const {oldName, newName, folderStackIDs} = input;
+        const {oldName, newName} = input;
 
         if (invalidChars.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
 
@@ -390,12 +393,12 @@ export const fileRouter = createTRPCRouter({
         if (existingFile || existingFolder) throw new TRPCError({code: "BAD_REQUEST", message: `Cannot rename "${oldName}": a folder/file named "${newName}" already exists`});
         
         try {
-            await prisma.folder.update({
+            const folder = await prisma.folder.update({
                 where: {id: ctx.folder.id, userId: ctx.user.id},
                 data: {name: newName}
             });
 
-            const newFilePath = await getFilePath(folderStackIDs, newName, ctx.user.id);
+            const newFilePath = await getFullPath(folder, ctx.user.id);
             if (!newFilePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming folder"});
             await rename(ctx.filePath, newFilePath);
         } catch (err) {
