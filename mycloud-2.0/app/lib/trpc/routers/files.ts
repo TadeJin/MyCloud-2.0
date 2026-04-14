@@ -29,7 +29,14 @@ export const fileRouter = createTRPCRouter({
                 name: { contains: searchString, mode: "insensitive" },
                 userId: ctx.user.id,
                 ...(!searchString && { folderId: folderId }),
-                ...(filter && { type: { startsWith: typeMap[filter] } }),
+                ...(filter && (
+                    filter !== "Other" ? { type: { startsWith: typeMap[filter] } } :
+                    {NOT: {
+                        OR: Object.values(typeMap).filter(type => type != "").map(type => ({
+                            type: {startsWith: type}
+                        }))
+                    }}
+                )),
             },
             orderBy: {[ctx.user.sortPreference]: "asc"}
         });
