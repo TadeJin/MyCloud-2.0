@@ -5,7 +5,7 @@ import { Dispatch, Ref, SetStateAction} from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface UserStatsProps {
     hide: Dispatch<SetStateAction<boolean>>,
@@ -26,7 +26,7 @@ export const UserStats = (props: UserStatsProps) => {
             </div>
             <p className="font-bold text-center truncate">Welcome {data ? data.email : "Error fetching email"}</p>
             {hasSettings && 
-            <button className="flex items-center justify-center relative p-1 bg-stone-50 border border-stone-200 rounded-md hover:bg-stone-200 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200" onClick={() => router.push("/")}>
+            <button className="flex items-center justify-center relative p-1 bg-stone-50 border border-stone-200 rounded-md hover:bg-stone-200 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200" onClick={() => router.push("/settings")}>
                 <Image src="./cog.svg" alt="cog-icon" width={20} height={20}/>
                 Settings
             </button>}

@@ -24,7 +24,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
     const deleteFolderMutation = useMutation(trpc.files.deleteFolder.mutationOptions());
     const renameFileMutation = useMutation(trpc.files.rename.mutationOptions());
     const renameFolderMutation = useMutation(trpc.files.renameFolder.mutationOptions());
-    const {setSpinnerHeader} = useSpinners();
+    const {showSpinner, hideSpinner} = useSpinners();
 
     const isFile = variant === "file";
     const isPreviewable = mimeType && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType === "application/pdf");
@@ -46,10 +46,11 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDownload = async () => {
         setDropDownVisible(false);
-        setSpinnerHeader("Downloading file");
+        showSpinner("Downloading file");
         const res = await fetch(`/api/downloads/download?id=${id}`);
 
         if (!res.ok) {
+            hideSpinner();
             const resJSON = await res.json();
             setErrorMessage(resJSON.errMessage);
             return;
@@ -64,15 +65,16 @@ export const FileDropDown = (props: FileDropDownProps) => {
         a.click();
 
         URL.revokeObjectURL(url);
-        setSpinnerHeader("");
+        hideSpinner();
     }
 
     const handleFolderDownload = async () => {
         setDropDownVisible(false);
-        setSpinnerHeader("Downloading folder");
+        showSpinner("Downloading folder");
         const res = await fetch(`/api/downloads/downloadFolder?folderId=${id}`);
 
         if (!res.ok) {
+            hideSpinner();
             const resJSON = await res.json();
             setErrorMessage(resJSON.errMessage);
             return;
@@ -85,7 +87,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         a.download = `${name}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        setSpinnerHeader("");
+        hideSpinner();
     }
 
     const handleDelete = () => {
@@ -100,36 +102,38 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDelete = async () => {
         setDialogVisible(false);
-        setSpinnerHeader("Deleting file");
+        showSpinner("Deleting file");
 
         try {
             await deleteFileMutation.mutateAsync({id: id});
         } catch (err) {
             if (err instanceof TRPCClientError) {
+                hideSpinner();
                 setErrorMessage(err.message);
                 return
             }
         }
 
-        setSpinnerHeader("");
+        hideSpinner();
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
         queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
     }
 
     const handleFolderDelete = async () => {
         setDialogVisible(false);
-        setSpinnerHeader("Deleting folder");
+        showSpinner("Deleting folder");
         
         try {
             await deleteFolderMutation.mutateAsync({id: id});
         } catch (err) {
             if (err instanceof TRPCClientError) {
+                hideSpinner();
                 setErrorMessage(err.message);
                 return;
             }
         }
 
-        setSpinnerHeader("");
+        hideSpinner();
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
         queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
         queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
@@ -148,35 +152,37 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileRename = async (newName: string) => {
         setDialogVisible(false);
-        setSpinnerHeader("Renaming file");
+        showSpinner("Renaming file");
         
         try {
             await renameFileMutation.mutateAsync({id: id, oldName: name, newName: newName});
         } catch(err) {
             if (err instanceof TRPCClientError) {
+                hideSpinner();
                 setErrorMessage(err.message);
                 return;
             }
         }
 
-        setSpinnerHeader("");
+        hideSpinner();
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }
 
     const handleFolderRename = async (newName: string) => {
         setDialogVisible(false);
-        setSpinnerHeader("Renaming folder");
+        showSpinner("Renaming folder");
 
         try {
             await renameFolderMutation.mutateAsync({id: id, oldName: name, newName: newName});
         } catch(err) {
             if (err instanceof TRPCClientError) {
+                hideSpinner();
                 setErrorMessage(err.message);
                 return;
             }
         }
 
-        setSpinnerHeader("");
+        hideSpinner();
         queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
     };
 

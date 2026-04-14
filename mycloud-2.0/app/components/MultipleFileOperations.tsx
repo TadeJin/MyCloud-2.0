@@ -5,7 +5,7 @@ import { SelectOpButton, useDialog, useErrors, useFolders, useSpinners } from ".
 import { useFiles } from "./ActiveFileProvider";
 import { DBFile } from "../types";
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
 import { TRPCClientError } from "@trpc/client";
 
@@ -22,7 +22,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
     const [selectedOpen, setSelectedOpen] = useState(false);
     const selectedRef = useRef<HTMLDivElement>(null);
     const {getOpenedFolderID} = useFolders()
-    const {setSpinnerHeader} = useSpinners();
+    const {showSpinner, hideSpinner} = useSpinners();
     
     const trpc = useTRPC();
     const deleteSelectedMutation = useMutation(trpc.files.deleteSelected.mutationOptions());
@@ -57,7 +57,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             setErrorMessage("No files selected");
             return;
         }
-        setSpinnerHeader("Downloading files");
+        showSpinner("Downloading files");
         const res = await fetch("/api/downloads/downloadSelected", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -65,6 +65,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         });
 
         if (!res.ok) {
+            hideSpinner();
             setErrorMessage((await res.json()).errMessage);
             return;
         }
@@ -76,7 +77,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         a.download = "selected_files.zip";
         a.click();
         URL.revokeObjectURL(url);
-        setSpinnerHeader("");
+        hideSpinner();
     }
 
     const openDeleteDialog = () => {
@@ -91,17 +92,18 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
 
     const deleteSelected = async () => {
         setDialogVisible(false);
-        setSpinnerHeader("Deleting files");
+        showSpinner("Deleting files");
 
         try {
             await deleteSelectedMutation.mutateAsync({ids: [...selectedFilesIds]});
         } catch (err) {
             if (err instanceof TRPCClientError) {
+                hideSpinner();
                 setErrorMessage(err.message);
                 return;
             }
         }
-        setSpinnerHeader("");
+        hideSpinner();
         clearSelectedFiles();
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }

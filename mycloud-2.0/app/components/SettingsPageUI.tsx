@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "../lib/auth-client";
 import { useTRPC } from "../lib/trpc/client";
 import { TRPCClientError } from "@trpc/client";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export const SettingsPageUI = () => {
     const router = useRouter();
