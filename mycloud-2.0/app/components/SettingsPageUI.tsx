@@ -4,14 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
-import { redirect } from "next/navigation";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "../lib/auth-client";
 import { useTRPC } from "../lib/trpc/client";
 import { TRPCClientError } from "@trpc/client";
+import { useRouter } from "next/router";
 
 export const SettingsPageUI = () => {
+    const router = useRouter();
     const [content, setContent] = useState<SettingsContentVariants>("account"); 
     const [showEmailInput, setShowEmailInput] = useState(false);
     const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -80,7 +81,7 @@ export const SettingsPageUI = () => {
             return;
         }
 
-        redirect("/");
+        router.push("/");
     }
 
     const handleAccountDelete = () => {
@@ -205,7 +206,7 @@ export const SettingsPageUI = () => {
                         src="./mycloud-logo-small.svg" 
                         alt="mycloud-logo" 
                         fill
-                        onClick={() => redirect("/")} 
+                        onClick={() => router.push("/")} 
                         className="cursor-pointer"
                     />
                 </div>
@@ -216,7 +217,7 @@ export const SettingsPageUI = () => {
                         src="./logo.svg"
                         alt="mycloud-logo"
                         fill
-                        onClick={() => redirect("/")}
+                        onClick={() => router.push("/")}
                         className="cursor-pointer object-contain"
                     />
                 </div>
