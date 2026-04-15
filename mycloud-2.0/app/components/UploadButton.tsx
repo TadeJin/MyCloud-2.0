@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { ProgressBar, useErrors, useFolders } from ".";
+import { ProgressBar, useErrors, useFolders, useSpinners } from ".";
 import Image from "next/image";
 import { FILE_CHUNK_SIZE } from "../constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,11 +10,13 @@ import { TRPCClientError } from "@trpc/client";
 
 export const UploadButton = () => {
     const [status, setStatus] = useState("");
+    const cancelledRef = useRef(false);
     const queryClient = useQueryClient();
     const inputRef = useRef<HTMLInputElement>(null);
     const {getOpenedFolderID} = useFolders();
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const {setErrorMessage} = useErrors();
+    const {showSpinner, hideSpinner} = useSpinners();
     
     const trpc = useTRPC();
     const fetchDiskCapacityMutation = useMutation(trpc.fetchDiskCapacity.mutationOptions());
@@ -91,7 +93,15 @@ export const UploadButton = () => {
             const chunkPercentage = (FILE_CHUNK_SIZE * 100) / file.size;
 
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
+                if (cancelledRef.current) {
+                    cancelledRef.current = false;
+                    await handleFailedUploadMutation.mutateAsync({id: fileRecord.id});
+                    hideSpinner();
+                    break;
+                }
+
                 const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name, fileID);
+
                 if (!res.ok) {
                     await handleFailedUploadMutation.mutateAsync({id: fileRecord.id});
                     setFailedUploadErr(`Upload of file: ${file.name} failed`, e.target);
@@ -104,6 +114,7 @@ export const UploadButton = () => {
             queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
             queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
             setStatus("");
+            if (cancelledRef) break;
         }
         e.target.value = "";
     }
@@ -140,8 +151,9 @@ export const UploadButton = () => {
                 <p className="hidden md:block">Upload Files</p>
             </button>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
-            <div className={`overflow-hidden transition-all duration-500 ease-out w-full ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="flex flex-col w-full gap-1 bg-white mt-3 p-2 rounded-md border border-stone-200">
+            <div className={`overflow-hidden transition-all duration-500 ease-out w-full relative ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="absolute top-4 right-1 hover:bg-stone-200 rounded-full cursor-pointer" onClick={() => {showSpinner("Cancelling upload"); cancelledRef.current = true}}><Image src="./x.svg" width={16} height={16} alt=""/></div>
+                <div className="flex flex-col w-full gap-1 bg-white mt-3 p-3.5 rounded-md border border-stone-200">
                     <p className="text-center font-bold text-xs truncate">{status}</p>
                     <ProgressBar percentage={uploadPercentage} color="bg-blue-500"/>
                 </div>
