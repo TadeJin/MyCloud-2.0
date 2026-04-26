@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { MoonIcon, SunIcon } from ".";
 
 export const DarkSwitch = () => {
-    const [isDark, setIsDark] = useState( typeof document !== "undefined" ? document.documentElement.classList.contains("dark") : false);
+    const [isDark, setIsDark] = useState(false);
+
+    useLayoutEffect(() => {
+        setIsDark(document.documentElement.classList.contains("dark"));
+    }, []);
 
     const setMode = (dark: boolean) => {
         setIsDark(dark);
@@ -15,7 +19,7 @@ export const DarkSwitch = () => {
     return (
         <div className="relative flex bg-stone-100 dark:bg-dark-card border border-stone-300 dark:border-dark-border-strong rounded-lg p-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.07)] dark:shadow-none w-fit">
             {/* Sliding pill */}
-            <div
+            <div 
                 className="absolute top-0.5 bottom-0.5 left-0.5 bg-stone-900 dark:bg-stone-500 rounded-md shadow-sm transition-transform duration-150 ease-in-out"
                 style={{
                 width: "calc(50% - 2px)",

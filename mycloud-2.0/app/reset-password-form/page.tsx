@@ -1,5 +1,10 @@
-import { ResetForm } from "../components"
+import { Suspense } from "react";
+import { ResetForm } from "../components";
 
 export default function ResetPage() {
-    return <ResetForm variant="email"/>
+    return (
+        <Suspense>
+            <ResetForm variant="email"/>
+        </Suspense>
+    );
 }

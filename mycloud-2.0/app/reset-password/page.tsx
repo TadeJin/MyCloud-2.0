@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { ResetForm } from "../components";
 
 export default function ResetPageExe() {
     return (
-        <ResetForm variant="password"/>
+        <Suspense>
+            <ResetForm variant="password"/>
+        </Suspense>
     );
 }
