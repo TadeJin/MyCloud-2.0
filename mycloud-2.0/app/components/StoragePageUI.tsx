@@ -4,7 +4,7 @@ import { FileDisplay, FilePreview, NavBar, SideBar } from "."
 
 export const StoragePageUI = () => {
     return (
-        <div className="flex flex-row relative w-screen h-screen overflow-y-hidden">
+        <div className="flex flex-row relative w-screen h-screen overflow-y-hidden bg-stone-50 dark:bg-dark-page">
             <SideBar />
             <div className="flex flex-col h-screen flex-1 min-w-0">
                 <NavBar />

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Image from "next/image";
+import { LogoIcon } from ".";
 import { authClient } from "../lib/auth-client";
 
 interface ResetFormProps {
@@ -75,7 +75,7 @@ export const ResetForm = (props: ResetFormProps) => {
             <div className="flex flex-col gap-6 bg-white p-10 pt-3 rounded-2xl shadow-lg w-full max-w-sm">
 
                 <div className="flex justify-center cursor-pointer" onClick={() => router.replace("/")}>
-                    <Image src="/logo.svg" alt="mycloud-logo" width={180} height={130} />
+                    <LogoIcon className="w-[180px] h-[130px]" />
                 </div>
 
                 <div className="flex flex-col gap-1">

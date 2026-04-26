@@ -3,7 +3,7 @@
 import { FileBox } from "./FileBox";
 import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
 import { useState } from "react";
-import Image from "next/image";
+import { FileXIcon } from ".";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
 import { DisplayFile } from "../types";
@@ -55,16 +55,14 @@ export const FileDisplay = (props: FileDisplayProps) => {
         )
     }
 
-    const style = "flex flex-col w-full h-full bg-stone-50 overflow-y-scroll " + className
-
     return (
-        <div className={style}>
+        <div className={`flex flex-col w-full h-full overflow-y-scroll dark:bg-dark-page ${className}`}>
             <FolderTrace />
             {!isLoadingFolders && !errorFolders && (!folders || folders.length == 0) ? <></> :
                 <>
                     <button 
                         onClick={() => setFoldersOpen(!foldersOpen)}
-                        className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-stone-200 py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150">
+                        className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-stone-200 dark:hover:bg-dark-hover py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150 dark:text-dark-text-primary">
                         Folders
                         <svg 
                             width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
@@ -84,7 +82,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
 
             <button 
                 onClick={() => setFilesOpen(!filesOpen)}
-                className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-stone-200 py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150">
+                className="cursor-pointer group font-black text-2xl md:text-4xl mt-4 w-fit hover:bg-stone-200 dark:hover:bg-dark-hover py-1 px-5 rounded-full flex items-center gap-2 transition-colors duration-150 dark:text-dark-text-primary">
                 Files
                 <svg 
                     width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
@@ -93,7 +91,7 @@ export const FileDisplay = (props: FileDisplayProps) => {
                 </svg>
             </button>
             {filesOpen && <div className="flex flex-row flex-wrap gap-3 mt-3 mb-[5%] ml-3">
-            {!isLoadingFiles && !errorFiles && (!files || files.length == 0) ? <div className="flex justify-center w-full items-center mt-50"><div className="relative w-6 h-6 md:w-10 md:h-10"><Image src="./file-x.svg" alt="no-file-icon" fill/></div><p className="text-sm md:text-xl font-bold">{searchString ? "No files found" : "No files provided"}</p></div> :
+            {!isLoadingFiles && !errorFiles && (!files || files.length == 0) ? <div className="flex justify-center w-full items-center mt-50 dark:text-dark-text-idle"><FileXIcon className="w-6 h-6 md:w-10 md:h-10" /><p className="text-sm md:text-xl font-bold">No files found</p></div> :
                 <>
                 {isLoadingFiles ? renderSpinner("Loading files") : (errorFiles || !files) ?<p>Error loading files</p> :
 

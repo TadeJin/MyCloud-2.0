@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ArrowDownAZIcon, CalendarDownArrowIcon } from ".";
 import { SortPreference } from "../types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
@@ -41,13 +41,13 @@ export const SortPicker = () => {
     // Translate to "name": calc(100% + 17px)
 
     return (
-        <div className="w-[90%] flex flex-col gap-2 border-t border-stone-300 pt-3">
-            <p className="text-xs uppercase font-bold text-stone-500 md:text-sm">SORT BY</p>
+        <div className="w-[90%] flex flex-col gap-2 border-t border-stone-300 dark:border-dark-border pt-3">
+            <p className="text-xs uppercase font-bold text-stone-500 dark:text-dark-text-idle md:text-sm">SORT BY</p>
 
-            <div className="relative flex bg-stone-100 border border-stone-300 rounded-lg p-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.07)]">
+            <div className="relative flex bg-stone-100 dark:bg-dark-card border border-stone-300 dark:border-dark-border-strong rounded-lg p-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.07)] dark:shadow-none">
                 {/* Sliding rectangular indicator */}
                 <div
-                    className="absolute top-1 bottom-1 left-1 bg-stone-900  rounded-lg shadow-sm transition-transform duration-200 ease-in-out"
+                    className="absolute top-1 bottom-1 left-1 bg-stone-900  rounded-lg shadow-sm transition-transform duration-100 ease-in-out"
                     style={{
                         width: "calc(50% - 12.5px)",
                         transform: preference === "name" ? "translateX(calc(100% + 17px))" : "translateX(0)"
@@ -55,20 +55,20 @@ export const SortPicker = () => {
                 />
 
                 <div
-                    className={`relative flex flex-1 items-center justify-center md:gap-1 cursor-pointer py-1.5 transition-colors duration-150 ${preference === "uploadedAt" ? "text-white" : "text-stone-600 hover:text-stone-800"}`}
+                    className={`relative flex flex-1 items-center justify-center md:gap-1 cursor-pointer py-1.5 transition-colors duration-150 ${preference === "uploadedAt" ? "text-white" : "text-stone-600 dark:text-dark-text-idle hover:text-stone-800 dark:hover:text-dark-text-primary"}`}
                     onClick={() => setPreference("uploadedAt")}
                 >
-                    <Image src="./calendar-down-arrow.svg" alt="calendar-down-arrow" width={16} height={16} className={`transition-all duration-200 ${preference === "uploadedAt" ? "invert" : ""}`}/>
+                    <CalendarDownArrowIcon size={16} className="transition-all duration-100" />
                     <p className="hidden md:block text-xs md:text-base">Date</p>
                 </div>
 
-                <div className="relative self-center h-5 w-px bg-stone-300 shrink-0 mx-2" />
+                <div className="relative self-center h-5 w-px bg-stone-300 dark:bg-dark-border-subtle shrink-0 mx-2" />
 
                 <div
-                    className={`relative flex flex-1 items-center justify-center md:gap-1 cursor-pointer py-1.5 transition-colors duration-150 ${preference === "name" ? "text-white" : "text-stone-600 hover:text-stone-800"}`}
+                    className={`relative flex flex-1 items-center justify-center md:gap-1 cursor-pointer py-1.5 transition-colors duration-150 ${preference === "name" ? "text-white" : "text-stone-600 dark:text-dark-text-idle hover:text-stone-800 dark:hover:text-dark-text-primary"}`}
                     onClick={() => setPreference("name")}
                 >
-                    <Image src="./arrow-down-a-z.svg" alt="arrow-down-a-z.svg" width={16} height={16} className={`transition-all duration-200 ${preference === "name" ? "invert" : ""}`}/>
+                    <ArrowDownAZIcon size={16} className="transition-all duration-100" />
                     <p className="hidden md:block text-xs md:text-base">Name</p>
                 </div>
             </div>

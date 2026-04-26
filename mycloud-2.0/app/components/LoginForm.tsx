@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import Image from "next/image";
+import { LogoIcon } from ".";
 import { authClient } from "../lib/auth-client";
 import { useTRPC } from "../lib/trpc/client";
 import { useMutation } from "@tanstack/react-query";
@@ -60,7 +60,7 @@ export const LoginForm = () => {
 
                 <div className="flex flex-col gap-5">
                     <div className="flex justify-center">
-                        <Image src="/logo.svg" alt="mycloud-logo" width={180} height={60} />
+                        <LogoIcon className="w-[180px] h-[60px]" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-stone-800 tracking-tight">Welcome back</h1>

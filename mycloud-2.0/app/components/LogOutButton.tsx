@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ArrowOutRightSquareHalfIcon } from ".";
 import { useRouter } from "next/navigation";
 import { authClient } from "../lib/auth-client";
 
@@ -12,8 +12,6 @@ export const LogOutButton = (props: LogOutButtonProps) => {
     const router = useRouter();
     const {className} = props;
 
-    const css = "flex items-center justify-center p-1 bg-stone-50 border border-stone-200 rounded-md hover:bg-red-50 hover:border-red-200 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 " + className;
-
     const handleSignOut = async () => {
         await authClient.signOut({
             fetchOptions: {
@@ -24,5 +22,13 @@ export const LogOutButton = (props: LogOutButtonProps) => {
         });
     }
 
-    return <button className = {css} onClick = {handleSignOut}><Image src="arrow-out-right-square-half.svg" alt="logout-icon" width={20} height={20}/>Log out</button>
+    return (
+    <button 
+    className = {"flex items-center justify-center p-1 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md " +
+        "hover:bg-red-50 hover:border-red-200 cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary dark:hover:bg-red-300/40 " + className} 
+    onClick = {handleSignOut}>
+            <ArrowOutRightSquareHalfIcon size={20} />
+            Log out
+    </button>
+    );
 }

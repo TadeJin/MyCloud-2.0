@@ -257,7 +257,7 @@ export const fileRouter = createTRPCRouter({
     .mutation(async ({input, ctx}) => {
         const {ids} = input;
 
-        if (ids.length === 0) throw new TRPCError({code: "BAD_REQUEST", message: "No files provided"});
+        if (ids.length === 0) throw new TRPCError({code: "BAD_REQUEST", message: "No files found"});
 
         let successfulIds: number[] = [];
         let deletedSize = 0;

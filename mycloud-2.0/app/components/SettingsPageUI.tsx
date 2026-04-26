@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { LogoIcon, MycloudLogoSmallIcon } from ".";
 import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
 
@@ -201,25 +201,13 @@ export const SettingsPageUI = () => {
         <div className="flex w-screen h-screen">
             <div className="flex flex-col w-16 md:w-[17%] h-full items-center justify-between gap-10 shrink-0 bg-stone-100 border-r border-stone-200">
                 {/* Mobile */}
-                <div className="w-15 h-15 relative block md:hidden">
-                    <Image 
-                        src="./mycloud-logo-small.svg" 
-                        alt="mycloud-logo" 
-                        fill
-                        onClick={() => router.push("/")} 
-                        className="cursor-pointer"
-                    />
+                <div className="w-15 h-15 relative block md:hidden cursor-pointer" onClick={() => router.push("/")}>
+                    <MycloudLogoSmallIcon className="w-full h-full object-contain" />
                 </div>
 
                 {/* Viewport => md */}
-                <div className="relative w-[85%] h-14 hidden md:block mt-1">
-                    <Image
-                        src="./logo.svg"
-                        alt="mycloud-logo"
-                        fill
-                        onClick={() => router.push("/")}
-                        className="cursor-pointer object-contain"
-                    />
+                <div className="relative w-[85%] h-14 hidden md:block mt-1 cursor-pointer" onClick={() => router.push("/")}>
+                    <LogoIcon className="object-contain w-full h-full" />
                 </div>
                 <SettingsMenu content={content} setContent={setContent}/>
             </div>

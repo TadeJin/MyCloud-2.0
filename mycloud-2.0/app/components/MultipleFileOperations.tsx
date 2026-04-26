@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ArchiveArrowDownIcon, SelectAllIcon, SelectManyIcon, SelectNoneIcon, TrashAltIcon, XIcon } from ".";
 import { SelectOpButton, useDialog, useErrors, useFolders, useSpinners } from ".";
 import { useFiles } from "./ActiveFileProvider";
 import { DBFile } from "../types";
@@ -124,21 +124,21 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             {selectActive &&
             <>
                 <div className="relative">
-                    <p className="text-xs md:text-base underline decoration-dotted decoration-stone-400 underline-offset-2 cursor-pointer" onClick={() =>{if(selectedFilesIds.size > 0) setSelectedOpen(true);}}>
+                    <p className="text-xs md:text-base underline decoration-dotted decoration-stone-400 underline-offset-2 cursor-pointer dark:text-dark-text-primary" onClick={() =>{if(selectedFilesIds.size > 0) setSelectedOpen(true);}}>
                         {selectedFilesIds.size} files selected
                     </p>
 
                     {selectedFilesIds.size > 0 && selectedOpen && (
-                        <div className={`absolute z-20 bg-white border border-stone-200 rounded-lg shadow-lg p-1.5 w-56 max-h-52 overflow-y-auto ${column ? "left-full top-0 ml-2" : "left-0 top-full mt-3"}`} ref={selectedRef}>
-                            <p className="text-xs font-semibold">Currently selected files:</p>
+                        <div className={`absolute z-20 bg-white dark:bg-dark-dropdown border border-stone-200 dark:border-dark-border rounded-lg shadow-lg p-1.5 w-56 max-h-52 overflow-y-auto ${column ? "left-full top-0 ml-2" : "left-0 top-full mt-3"}`} ref={selectedRef}>
+                            <p className="text-xs font-semibold dark:text-dark-text-secondary">Currently selected files:</p>
                             {[...selectedFilesNames.entries()].map(([id, name]) => (
                                 <div key={id} className="flex items-center gap-2 py-1 px-2 rounded-md">
-                                    <span className="text-xs text-stone-700 truncate flex-1" title={name}>{name}</span>
+                                    <span className="text-xs text-stone-700 dark:text-dark-text-secondary truncate flex-1" title={name}>{name}</span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); removeSelectedFileId(id); }}
-                                        className="shrink-0 cursor-pointer hover:bg-stone-200 rounded-full p-0.5 transition-colors duration-100"
+                                        className="shrink-0 cursor-pointer hover:bg-stone-200 dark:hover:bg-dark-hover rounded-full p-0.5 transition-colors duration-100"
                                     >
-                                        <Image src="/x.svg" alt="remove" width={12} height={12} />
+                                        <XIcon size={12} className="dark:text-dark-text-primary"/>
                                     </button>
                                 </div>
                             ))}
@@ -146,13 +146,13 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
                     )}
                 </div>
 
-                <SelectOpButton text="Select all" imgSrc="./select-all.svg" onClick={selectAll} styles="hover:bg-stone-100 hover:border-stone-300"/>
-                <SelectOpButton text="Download selected" imgSrc="./archive-arrow-down.svg" onClick={downloadSelected} styles="hover:bg-stone-100 hover:border-stone-300"/>
-                <SelectOpButton text="Delete selected" imgSrc="./trash-alt.svg" onClick={openDeleteDialog} styles="hover:bg-red-50 hover:border-red-200"/>
+                <SelectOpButton text="Select all" icon={<SelectAllIcon size={24} className="dark:text-dark-text-primary"/>} onClick={selectAll} />
+                <SelectOpButton text="Download selected" icon={<ArchiveArrowDownIcon size={24} className="dark:text-dark-text-primary"/>} onClick={downloadSelected}/>
+                <SelectOpButton text="Delete selected" icon={<TrashAltIcon size={24} className="dark:text-dark-text-primary"/>} onClick={openDeleteDialog} styles="hover:bg-red-50 hover:border-red-200 dark:hover:border-red-200/40"/>
             </>
             }
 
-            <SelectOpButton text={selectActive ? "Disable select" : "Select files"} imgSrc={selectActive ? "./select-none.svg" : "./select-many.svg"} onClick={!selectActive ? activateSelect : disableSelect} styles="hover:bg-stone-100 hover:border-stone-300"/>
+            <SelectOpButton text={selectActive ? "Disable select" : "Select files"} icon={selectActive ? <SelectNoneIcon size={24} className="dark:text-dark-text-primary"/> : <SelectManyIcon size={24} className="dark:text-dark-text-primary"/>} onClick={!selectActive ? activateSelect : disableSelect} />
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react"
 import { useDialog, useErrors, useFiles, useSpinners } from ".";
-import Image from "next/image";
+import { DownloadIcon, FullscreenIcon, RenameIcon, TrashIcon } from ".";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
 import { TRPCClientError } from "@trpc/client";
@@ -195,23 +195,23 @@ export const FileDropDown = (props: FileDropDownProps) => {
     return (
         <>
         {dropDownVisible && (
-            <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-36 p-1 border border-gray-100">
+            <div ref={dropdownRef} style={{ top: dropDownPosition.top, left: dropDownPosition.left }} className="flex flex-col fixed bg-white dark:bg-dark-dropdown rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-36 p-1 border border-gray-100 dark:border-dark-border">
                 {isPreviewable && 
-                <button className={`flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md ${isCorrupted ? "text-gray-400" : "cursor-pointer hover:bg-gray-100"} transition-colors duration-100`} onClick={!isCorrupted ? openPreview : () => {}}>
-                    <Image src={`${!isCorrupted ? "./fullscreen.svg" : "./fullscreen-gray.svg"}`} alt="preview-icon" width={16} height={16}/>
+                <button className={`flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md ${isCorrupted ? "text-gray-400 dark:text-dark-text-faint" : "cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-hover dark:text-dark-text-primary"} transition-colors duration-100`} onClick={!isCorrupted ? openPreview : () => {}}>
+                    <FullscreenIcon size={16} className={isCorrupted ? "text-[#99a1af] dark:text-dark-text-idle" : ""} />
                     Preview
                 </button>}
-                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-100" onClick={isFile ? handleFileDownload : handleFolderDownload}>
-                    <Image src="/download.svg" alt="download-icon" width={16} height={16}/>
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 dark:hover:bg-dark-hover cursor-pointer transition-colors duration-100 dark:text-dark-text-primary" onClick={isFile ? handleFileDownload : handleFolderDownload}>
+                    <DownloadIcon size={16} />
                     Download
                 </button>
-                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-100" onClick={handleRename}>
-                    <Image src="/rename.svg" alt="rename-icon" width={16} height={16}/>
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-gray-100 dark:hover:bg-dark-hover cursor-pointer transition-colors duration-100 dark:text-dark-text-primary" onClick={handleRename}>
+                    <RenameIcon size={16} />
                     Rename
                 </button>
-                <div className="h-px bg-gray-100 my-1"/>
-                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-red-50 text-red-500 cursor-pointer transition-colors duration-100" onClick={handleDelete}>
-                    <Image src="/trash.svg" alt="delete-icon" width={16} height={16}/>
+                <div className="h-px bg-gray-100 dark:bg-dark-border-subtle my-1"/>
+                <button className="flex items-center gap-2 px-3 py-2 text-sm text-left rounded-md hover:bg-red-50 dark:hover:bg-red-300/40 text-red-500 cursor-pointer transition-colors duration-100" onClick={handleDelete}>
+                    <TrashIcon size={16} />
                     Delete
                 </button>
             </div>

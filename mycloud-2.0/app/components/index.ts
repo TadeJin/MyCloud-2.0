@@ -31,3 +31,4 @@ export * from "./UserInfo";
 export * from "./UserStats";
 export * from "./SpinnerProvider";
 export * from "./SpinnerDisplay";
+export * from "./Icons";

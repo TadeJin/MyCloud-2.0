@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { UserStats } from ".";
-import Image from "next/image";
+import { UserIcon } from ".";
 
 interface UserInfoProps {
     hasSettings?: boolean
@@ -30,7 +30,7 @@ export const UserInfo = (props: UserInfoProps) => {
     return (
         <div className="flex flex-col absolute right-4">
             <div className = "ml-auto hover:cursor-pointer" onClick={() => setVisible(!visible)}>
-                <Image src="/user.svg" alt="userIcon" height={24} width={24} />
+                <UserIcon size={24} className="dark:text-dark-text-primary"/>
             </div>
             {visible && <UserStats hasSettings={hasSettings} ref={dropdownRef} hide={setVisible} />}
         </div>

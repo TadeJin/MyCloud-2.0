@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { ProgressBar, useErrors, useFolders, useSpinners } from ".";
-import Image from "next/image";
+import { FilePlusIcon, XIcon } from ".";
 import { FILE_CHUNK_SIZE } from "../constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
@@ -145,16 +145,16 @@ export const UploadButton = () => {
 
     return (
         <div className="flex flex-col w-[80%] relative">
-            <button className="flex items-center gap-1 p-2 bg-stone-50 border border-stone-200 rounded-md hover:bg-stone-100 hover:border-stone-300 cursor-pointer shadow-sm hover:shadow-md transition-all duration-200" onClick={handleClick}>
-                <Image src="/file-plus.svg" alt="uploadIcon" width={24} height={24}/>
+            <button className="flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={handleClick}>
+                <FilePlusIcon size={24} />
                 <p className="text-xs md:hidden">Upload</p>
                 <p className="hidden md:block">Upload Files</p>
             </button>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
             <div className={`overflow-hidden transition-all duration-500 ease-out w-full relative ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="absolute top-4 right-1 hover:bg-stone-200 rounded-full cursor-pointer" onClick={() => {showSpinner("Cancelling upload"); cancelledRef.current = true}}><Image src="./x.svg" width={16} height={16} alt=""/></div>
-                <div className="flex flex-col w-full gap-1 bg-white mt-3 p-3.5 rounded-md border border-stone-200">
-                    <p className="text-center font-bold text-xs truncate">{status}</p>
+                <div className="absolute top-4 right-1 hover:bg-stone-200 rounded-full dark:hover:bg-dark-hover cursor-pointer" onClick={() => {showSpinner("Cancelling upload"); cancelledRef.current = true}}><XIcon size={16} className="dark:text-dark-text-primary"/></div>
+                <div className="flex flex-col w-full gap-1 bg-white dark:bg-dark-card mt-3 p-3.5 rounded-md border border-stone-200 dark:border-dark-border">
+                    <p className="text-center font-bold text-xs truncate dark:text-dark-text-status">{status}</p>
                     <ProgressBar percentage={uploadPercentage} color="bg-blue-500"/>
                 </div>
             </div>

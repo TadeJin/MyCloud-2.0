@@ -2,7 +2,7 @@
 
 import { useFiles } from "./ActiveFileProvider";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { XIcon } from ".";
 
 export const FilePreview = () => {
     const {activeFile, previewVisible, setPreviewVisible} = useFiles()
@@ -85,10 +85,10 @@ export const FilePreview = () => {
         <>
         {previewVisible &&
         <div className="absolute w-screen h-screen flex items-center justify-center backdrop-blur-sm z-20">
-            <div className="flex flex-col items-center border border-stone-600 bg-white w-[90%] h-[90%] rounded-lg p-5 relative gap-2">
+            <div className="flex flex-col items-center border border-stone-600 dark:border-dark-border-strong bg-white dark:bg-dark-card w-[90%] h-[90%] rounded-lg p-5 relative gap-2">
                 <div className="flex w-full justify-center">
-                    <h2 className="text-sm font-medium text-stone-600 truncate max-w-[70%]">{name}</h2>
-                    <div className=" absolute right-5 p-1 rounded-full hover:bg-gray-200 cursor-pointer" onClick={exitPreview}><Image src="./x.svg" alt="close-preview-icon" width={24} height={24} /></div>
+                    <h2 className="text-sm font-medium text-stone-600 dark:text-dark-text-secondary truncate max-w-[70%]">{name}</h2>
+                    <div className="absolute right-5 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-dark-hover cursor-pointer dark:text-dark-text-primary" onClick={exitPreview}><XIcon size={24} /></div>
                 </div>
                 <div className="flex-1 flex justify-center items-center relative overflow-hidden w-full">
                 {renderPreview()}
