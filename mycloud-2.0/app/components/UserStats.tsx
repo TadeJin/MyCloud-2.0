@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOutButton } from ".";
+import { DarkSwitch, LogOutButton } from ".";
 import { Dispatch, Ref, SetStateAction} from "react";
 import { CogIcon, XIcon } from ".";
 import { useQuery } from "@tanstack/react-query";
@@ -20,11 +20,14 @@ export const UserStats = (props: UserStatsProps) => {
     const {data} = useQuery(trpc.users.fetchUserData.queryOptions());
 
     return (
-        <div ref = {ref} className="flex flex-col border border-stone-200 dark:border-dark-border shadow-lg rounded-xl w-64 absolute -right-1 md:right-3 top-full mt-6 p-4 bg-white dark:bg-dark-dropdown">
+        <div ref = {ref} className="flex flex-col border border-stone-200 gap-0.5 dark:border-dark-border shadow-lg rounded-xl w-64 absolute -right-1 md:right-3 top-full mt-6 p-4 bg-white dark:bg-dark-dropdown">
             <div className = "flex justify-center items-center right-0.5 top-0.5 cursor-pointer hover:bg-stone-100 dark:hover:bg-dark-hover rounded-full w-[24] h-[24] absolute transition dark:text-dark-text-primary" onClick={() => hide(false)}>
                 <XIcon size={20} className="dark:text-dark-text-primary"/>
             </div>
             <p className="font-bold text-center truncate dark:text-dark-text-primary">Welcome {data ? data.email : "Error fetching email"}</p>
+            <div className="flex justify-center my-2">
+                <DarkSwitch />
+            </div>
             {hasSettings &&
             <button className="flex items-center justify-center relative p-1 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-200 dark:hover:bg-dark-hover cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={() => router.push("/settings")}>
                 <CogIcon size={20} />

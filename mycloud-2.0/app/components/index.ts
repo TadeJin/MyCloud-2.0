@@ -2,6 +2,7 @@ export * from "./ActiveFileProvider";
 export * from "./CapacityDisplay";
 export * from "./ConfirmationDialog";
 export * from "./CreateFolderButton";
+export * from "./DarkSwitch";
 export * from "./DialogProvider"
 export * from "./ErrorDisplay";
 export * from "./ErrorProvider";
@@ -11,6 +12,7 @@ export * from "./FileDropDown";
 export * from "./FilePreview";
 export * from "./FolderProvider";
 export * from "./FolderTrace";
+export * from "./Icons";
 export * from "./LoginForm";
 export * from "./LogOutButton";
 export * from "./MultipleFileOperations"
@@ -25,10 +27,9 @@ export * from "./SettingsMenuButton";
 export * from "./SettingsPageUI";
 export * from "./SideBar";
 export * from "./SortPicker";
+export * from "./SpinnerDisplay";
+export * from "./SpinnerProvider";
 export * from "./StoragePageUI";
 export * from "./UploadButton";
 export * from "./UserInfo";
 export * from "./UserStats";
-export * from "./SpinnerProvider";
-export * from "./SpinnerDisplay";
-export * from "./Icons";
