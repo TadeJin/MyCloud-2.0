@@ -146,13 +146,13 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
                     )}
                 </div>
 
-                <SelectOpButton text="Select all" icon={<SelectAllIcon size={24} className="dark:text-dark-text-primary"/>} onClick={selectAll} />
-                <SelectOpButton text="Download selected" icon={<ArchiveArrowDownIcon size={24} className="dark:text-dark-text-primary"/>} onClick={downloadSelected}/>
-                <SelectOpButton text="Delete selected" icon={<TrashAltIcon size={24} className="dark:text-dark-text-primary"/>} onClick={openDeleteDialog} styles="hover:bg-red-50 hover:border-red-200 dark:hover:border-red-200/40"/>
+                <SelectOpButton text="Select all" icon={<SelectAllIcon className="dark:text-dark-text-primary"/>} onClick={selectAll} styles={column ? "w-[90%]" : ""} />
+                <SelectOpButton text="Download selected" icon={<ArchiveArrowDownIcon className="dark:text-dark-text-primary"/>} onClick={downloadSelected} styles={column ? "w-[90%]" : ""}/>
+                <SelectOpButton text="Delete selected" icon={<TrashAltIcon className="dark:text-dark-text-primary"/>} onClick={openDeleteDialog} styles={`hover:bg-red-50 hover:border-red-200 dark:hover:border-red-200/40 ${column ? "w-[90%]" : ""}`}/>
             </>
             }
 
-            <SelectOpButton text={selectActive ? "Disable select" : "Select files"} icon={selectActive ? <SelectNoneIcon size={24} className="dark:text-dark-text-primary"/> : <SelectManyIcon size={24} className="dark:text-dark-text-primary"/>} onClick={!selectActive ? activateSelect : disableSelect} />
+            <SelectOpButton text={selectActive ? "Disable select" : "Select files"} icon={selectActive ? <SelectNoneIcon className="dark:text-dark-text-primary"/> : <SelectManyIcon className="dark:text-dark-text-primary"/>} onClick={!selectActive ? activateSelect : disableSelect} styles={column ? "w-[90%]" : ""} />
         </div>
     );
 }

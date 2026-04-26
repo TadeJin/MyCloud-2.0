@@ -145,8 +145,8 @@ export const UploadButton = () => {
 
     return (
         <div className="flex flex-col w-[80%] relative">
-            <button className="flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={handleClick}>
-                <FilePlusIcon size={24} />
+            <button className="h-9 md:h-10 flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={handleClick}>
+                <FilePlusIcon />
                 <p className="text-xs md:hidden">Upload</p>
                 <p className="hidden md:block">Upload Files</p>
             </button>

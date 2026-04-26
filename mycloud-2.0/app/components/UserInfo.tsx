@@ -30,7 +30,7 @@ export const UserInfo = (props: UserInfoProps) => {
     return (
         <div className="flex flex-col absolute right-4">
             <div className = "ml-auto hover:cursor-pointer" onClick={() => setVisible(!visible)}>
-                <UserIcon size={24} className="dark:text-dark-text-primary"/>
+                <UserIcon className="dark:text-dark-text-primary w-5 md:w-6"/>
             </div>
             {visible && <UserStats hasSettings={hasSettings} ref={dropdownRef} hide={setVisible} />}
         </div>

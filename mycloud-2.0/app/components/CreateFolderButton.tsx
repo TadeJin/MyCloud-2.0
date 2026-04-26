@@ -49,8 +49,8 @@ export const CreateFolderButton = () => {
 
     return (
          <div className="flex flex-col w-[80%]">
-            <button className="flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={handleClick}>
-                <FolderPlusIcon size={24} />
+            <button className="flex items-center gap-1 p-2 h-9 md:h-10 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={handleClick}>
+                <FolderPlusIcon />
                 <p className="text-xs md:hidden">Create</p>
                 <p className="hidden md:block">Create Folder</p>
             </button>

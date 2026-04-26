@@ -88,7 +88,7 @@ export const FilePreview = () => {
             <div className="flex flex-col items-center border border-stone-600 dark:border-dark-border-strong bg-white dark:bg-dark-card w-[90%] h-[90%] rounded-lg p-5 relative gap-2">
                 <div className="flex w-full justify-center">
                     <h2 className="text-sm font-medium text-stone-600 dark:text-dark-text-secondary truncate max-w-[70%]">{name}</h2>
-                    <div className="absolute right-5 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-dark-hover cursor-pointer dark:text-dark-text-primary" onClick={exitPreview}><XIcon size={24} /></div>
+                    <div className="absolute right-5 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-dark-hover cursor-pointer dark:text-dark-text-primary" onClick={exitPreview}><XIcon /></div>
                 </div>
                 <div className="flex-1 flex justify-center items-center relative overflow-hidden w-full">
                 {renderPreview()}
