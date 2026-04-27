@@ -46,11 +46,13 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDownload = async () => {
         setDropDownVisible(false);
-        showSpinner("Downloading file");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Downloading file");
+    
         const res = await fetch(`/api/downloads/download?id=${id}`);
 
         if (!res.ok) {
-            hideSpinner();
+            hideSpinner(actionId);
             const resJSON = await res.json();
             setErrorMessage(resJSON.errMessage);
             return;
@@ -65,16 +67,17 @@ export const FileDropDown = (props: FileDropDownProps) => {
         a.click();
 
         URL.revokeObjectURL(url);
-        hideSpinner();
+        hideSpinner(actionId);
     }
 
     const handleFolderDownload = async () => {
         setDropDownVisible(false);
-        showSpinner("Downloading folder");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Downloading folder");
         const res = await fetch(`/api/downloads/downloadFolder?folderId=${id}`);
 
         if (!res.ok) {
-            hideSpinner();
+            hideSpinner(actionId);
             const resJSON = await res.json();
             setErrorMessage(resJSON.errMessage);
             return;
@@ -87,7 +90,7 @@ export const FileDropDown = (props: FileDropDownProps) => {
         a.download = `${name}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        hideSpinner();
+        hideSpinner(actionId);
     }
 
     const handleDelete = () => {
@@ -102,38 +105,40 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileDelete = async () => {
         setDialogVisible(false);
-        showSpinner("Deleting file");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Deleting file");
 
         try {
             await deleteFileMutation.mutateAsync({id: id});
         } catch (err) {
             if (err instanceof TRPCClientError) {
-                hideSpinner();
+                hideSpinner(actionId);
                 setErrorMessage(err.message);
                 return
             }
         }
 
-        hideSpinner();
+        hideSpinner(actionId);
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
         queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
     }
 
     const handleFolderDelete = async () => {
         setDialogVisible(false);
-        showSpinner("Deleting folder");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Deleting folder");
         
         try {
             await deleteFolderMutation.mutateAsync({id: id});
         } catch (err) {
             if (err instanceof TRPCClientError) {
-                hideSpinner();
+                hideSpinner(actionId);
                 setErrorMessage(err.message);
                 return;
             }
         }
 
-        hideSpinner();
+        hideSpinner(actionId);
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
         queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
         queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
@@ -152,37 +157,39 @@ export const FileDropDown = (props: FileDropDownProps) => {
 
     const handleFileRename = async (newName: string) => {
         setDialogVisible(false);
-        showSpinner("Renaming file");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Renaming file");
         
         try {
             await renameFileMutation.mutateAsync({id: id, oldName: name, newName: newName});
         } catch(err) {
             if (err instanceof TRPCClientError) {
-                hideSpinner();
+                hideSpinner(actionId);
                 setErrorMessage(err.message);
                 return;
             }
         }
 
-        hideSpinner();
+        hideSpinner(actionId);
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }
 
     const handleFolderRename = async (newName: string) => {
         setDialogVisible(false);
-        showSpinner("Renaming folder");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Renaming folder");
 
         try {
             await renameFolderMutation.mutateAsync({id: id, oldName: name, newName: newName});
         } catch(err) {
             if (err instanceof TRPCClientError) {
-                hideSpinner();
+                hideSpinner(actionId);
                 setErrorMessage(err.message);
                 return;
             }
         }
 
-        hideSpinner();
+        hideSpinner(actionId);
         queryClient.invalidateQueries(trpc.files.fetchFolders.queryFilter());
     };
 

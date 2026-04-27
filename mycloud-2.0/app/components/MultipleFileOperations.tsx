@@ -57,7 +57,9 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
             setErrorMessage("No files selected");
             return;
         }
-        showSpinner("Downloading files");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Downloading files");
+
         const res = await fetch("/api/downloads/downloadSelected", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -65,7 +67,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         });
 
         if (!res.ok) {
-            hideSpinner();
+            hideSpinner(actionId);
             setErrorMessage((await res.json()).errMessage);
             return;
         }
@@ -77,7 +79,7 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
         a.download = "selected_files.zip";
         a.click();
         URL.revokeObjectURL(url);
-        hideSpinner();
+        hideSpinner(actionId);
     }
 
     const openDeleteDialog = () => {
@@ -92,18 +94,19 @@ export const MultipleFileOperations = (props: MultipleFileOperationsProps) => {
 
     const deleteSelected = async () => {
         setDialogVisible(false);
-        showSpinner("Deleting files");
+        const actionId = crypto.randomUUID();
+        showSpinner(actionId, "Deleting files");
 
         try {
             await deleteSelectedMutation.mutateAsync({ids: [...selectedFilesIds]});
         } catch (err) {
             if (err instanceof TRPCClientError) {
-                hideSpinner();
+                hideSpinner(actionId);
                 setErrorMessage(err.message);
                 return;
             }
         }
-        hideSpinner();
+        hideSpinner(actionId);
         clearSelectedFiles();
         queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
     }

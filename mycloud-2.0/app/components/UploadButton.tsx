@@ -17,6 +17,7 @@ export const UploadButton = () => {
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const {setErrorMessage} = useErrors();
     const {showSpinner, hideSpinner} = useSpinners();
+    const [actionId, setActionId] = useState("");
     
     const trpc = useTRPC();
     const fetchDiskCapacityMutation = useMutation(trpc.fetchDiskCapacity.mutationOptions());
@@ -36,6 +37,7 @@ export const UploadButton = () => {
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files ?? []);
+        if (cancelledRef.current) cancelledRef.current = false;
 
         if (files?.length == 0) return;
 
@@ -76,6 +78,8 @@ export const UploadButton = () => {
             return;
         }
 
+        const localActionId = crypto.randomUUID();
+        setActionId(localActionId);
         const folderId = getOpenedFolderID();
 
         for (const file of files) {
@@ -94,9 +98,8 @@ export const UploadButton = () => {
 
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
                 if (cancelledRef.current) {
-                    cancelledRef.current = false;
                     await handleFailedUploadMutation.mutateAsync({id: fileRecord.id});
-                    hideSpinner();
+                    hideSpinner(localActionId);
                     break;
                 }
 
@@ -114,7 +117,7 @@ export const UploadButton = () => {
             queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
             queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
             setStatus("");
-            if (cancelledRef) break;
+            if (cancelledRef.current) break;
         }
         e.target.value = "";
     }
@@ -152,7 +155,7 @@ export const UploadButton = () => {
             </button>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
             <div className={`overflow-hidden transition-all duration-500 ease-out w-full relative ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="absolute top-4 right-1 hover:bg-stone-200 rounded-full dark:hover:bg-dark-hover cursor-pointer" onClick={() => {showSpinner("Cancelling upload"); cancelledRef.current = true}}><XIcon size={16} className="dark:text-dark-text-primary"/></div>
+                <div className="absolute top-4 right-1 hover:bg-stone-200 rounded-full dark:hover:bg-dark-hover cursor-pointer" onClick={() => {showSpinner(actionId, "Cancelling upload"); cancelledRef.current = true}}><XIcon size={16} className="dark:text-dark-text-primary"/></div>
                 <div className="flex flex-col w-full gap-1 bg-white dark:bg-dark-card mt-3 p-3.5 rounded-md border border-stone-200 dark:border-dark-border">
                     <p className="text-center font-bold text-xs truncate dark:text-dark-text-status">{status}</p>
                     <ProgressBar percentage={uploadPercentage} color="bg-blue-500"/>
