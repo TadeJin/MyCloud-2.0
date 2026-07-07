@@ -12,9 +12,11 @@ The app is self-hosted on a Raspberry Pi.
 - **Better Auth** — authentication
 - **Resend** — email sending
 - **Docker** — containerized deployment
+- **Upstash** — rate limiting
 
 ## Features
 - Upload and manage files from any device
+- Drag & Drop
 - Responsive design
 - File search, folder system, file type filter
 - 1GB free storage per user, unlimited storage for users with maxCapacity set as -1
@@ -33,5 +35,7 @@ BETTER_AUTH_SECRET=          # random secret — generate with: openssl rand -ba
 BETTER_AUTH_URL=             # your app's base URL e.g. http://localhost:3000
 RESEND_API_KEY=           # from resend.com dashboard
 SITE_DOMAIN=              # base URL used in email links
+UPSTASH_URL=              #from upstash.com
+UPSTASH_TOKEN             #from upstash.com
 ```
 2. Set the storage path in `docker-compose.yml` and run `docker compose up --build` in root directory
