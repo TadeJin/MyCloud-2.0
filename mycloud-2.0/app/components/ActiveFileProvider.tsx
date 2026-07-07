@@ -37,7 +37,7 @@ interface FileContextType {
     addSelectedFileId: (id: number, name: string) => void,
     removeSelectedFileId: (id: number) => void,
     setSelectedFilesIds: Dispatch<SetStateAction<Set<number>>>,
-    clearSelectedFiles: () => void
+    clearSelectedFiles: () => void,
 }
 
 const FileContext = createContext<FileContextType | null>(null);

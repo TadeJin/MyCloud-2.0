@@ -1,8 +1,8 @@
 "use client";
 
 import { FileBox } from "./FileBox";
-import { FileDropDown, FolderTrace, useFiles, useFolders } from ".";
-import { useState } from "react";
+import { DragDisplay, FileDropDown, FolderTrace, useFiles, useFolders } from ".";
+import { RefObject, useState } from "react";
 import { FileXIcon } from ".";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
@@ -10,15 +10,16 @@ import { DisplayFile } from "../types";
 
 interface FileDisplayProps {
     className?: string
+    fileInputRef: RefObject<HTMLInputElement | null>;
 }
 
 
-export const FileDisplay = (props: FileDisplayProps) => {
+export const FileDisplay = ({className, fileInputRef}: FileDisplayProps) => {
     const {getOpenedFolderID} = useFolders();
     const {setDropDownVisible, searchString, filter} = useFiles();
-    const {className} = props;
     const [filesOpen, setFilesOpen] = useState(true);
-    const [foldersOpen, setFoldersOpen] = useState(true)
+    const [foldersOpen, setFoldersOpen] = useState(true);
+    const [isDragging, setIsDragging] = useState(false);
 
     const trpc = useTRPC();
     const currentId = getOpenedFolderID();
@@ -55,8 +56,8 @@ export const FileDisplay = (props: FileDisplayProps) => {
         )
     }
 
-    return (
-        <div className={`flex flex-col w-full h-full overflow-y-scroll dark:bg-dark-page ${className}`}>
+    const displayContent = (
+        <div className={`flex flex-col w-full h-full overflow-y-scroll dark:bg-dark-page relative ${className}`} onDragEnter={() => setIsDragging(true)}>
             <FolderTrace />
             {!isLoadingFolders && !errorFolders && (!folders || folders.length == 0) ? <></> :
                 <>
@@ -104,4 +105,11 @@ export const FileDisplay = (props: FileDisplayProps) => {
             <FileDropDown setDropDownVisible={setDropDownVisible}/>
         </div>
     )
+
+    return (
+        <div className="relative w-full h-full">
+            {isDragging && <DragDisplay fileInputRef={fileInputRef} setIsDragging={setIsDragging} />}
+            {displayContent}
+        </div>
+    );
 };

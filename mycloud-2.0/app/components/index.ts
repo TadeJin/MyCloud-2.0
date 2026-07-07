@@ -3,7 +3,8 @@ export * from "./CapacityDisplay";
 export * from "./ConfirmationDialog";
 export * from "./CreateFolderButton";
 export * from "./DarkSwitch";
-export * from "./DialogProvider"
+export * from "./DialogProvider";
+export * from "./DragDisplay";
 export * from "./ErrorDisplay";
 export * from "./ErrorProvider";
 export * from "./FileBox";
@@ -15,9 +16,11 @@ export * from "./FolderTrace";
 export * from "./Icons";
 export * from "./LoginForm";
 export * from "./LogOutButton";
-export * from "./MultipleFileOperations"
+export * from "./MultipleFileOperations";
 export * from "./NavBar";
-export * from "./ProgressBar"
+export * from "./ProcessingActionsDisplay";
+export * from "./ProcessingActionSpinner";
+export * from "./ProgressBar";
 export * from "./RegisterForm";
 export * from "./ResetForm";
 export * from "./SearchBar";
@@ -31,7 +34,6 @@ export * from "./SpinnerDisplay";
 export * from "./SpinnerProvider";
 export * from "./StoragePageUI";
 export * from "./UploadButton";
+export * from "./UploadProvider";
 export * from "./UserInfo";
 export * from "./UserStats";
-export * from "./ProcessingActionsDisplay";
-export * from "./ProcessingActionSpinner";

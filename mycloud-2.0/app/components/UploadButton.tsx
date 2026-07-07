@@ -1,24 +1,26 @@
 "use client"
-
-import { useRef, useState } from "react"
-import { ProgressBar, useErrors, useFolders, useSpinners } from ".";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react"
+import { ProgressBar, useErrors, useFolders, useSpinners, useUpload } from ".";
 import { FilePlusIcon, XIcon } from ".";
 import { FILE_CHUNK_SIZE } from "../constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../lib/trpc/client";
 import { TRPCClientError } from "@trpc/client";
 
-export const UploadButton = () => {
+export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement, []);
+
     const [status, setStatus] = useState("");
     const cancelledRef = useRef(false);
     const queryClient = useQueryClient();
-    const inputRef = useRef<HTMLInputElement>(null);
     const {getOpenedFolderID} = useFolders();
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const {setErrorMessage} = useErrors();
     const {showSpinner, hideSpinner} = useSpinners();
     const [actionId, setActionId] = useState("");
-    
+    const {isUploading, setIsUploading} = useUpload();
+
     const trpc = useTRPC();
     const fetchDiskCapacityMutation = useMutation(trpc.fetchDiskCapacity.mutationOptions());
     const duplicateCheckMutation = useMutation(trpc.files.checkDuplicates.mutationOptions());
@@ -26,12 +28,14 @@ export const UploadButton = () => {
     const createFileRecordMutation = useMutation(trpc.files.createFileRecord.mutationOptions());
 
     const handleClick = () => {
+        if (isUploading) return;
         inputRef.current?.click();
     }
 
     const setFailedUploadErr = (errMessage: string, fileInput: HTMLInputElement) => {
         setErrorMessage(errMessage);
         setStatus("");
+        setIsUploading(false);
         fileInput.value = "";
     }
 
@@ -40,6 +44,8 @@ export const UploadButton = () => {
         if (cancelledRef.current) cancelledRef.current = false;
 
         if (files?.length == 0) return;
+
+        setIsUploading(true);
 
         let availableDiskSpace;
         let availableUserSpace;
@@ -67,7 +73,7 @@ export const UploadButton = () => {
                 return;
             }
         }
-     
+
         let totalSize = 0;
         files.forEach(async (file) => {
             totalSize += file.size;
@@ -86,7 +92,7 @@ export const UploadButton = () => {
             setStatus("Uploading: " + file.name);
             setUploadPercentage(0);
             const fileRecord = await createFileRecord(file.name, file.type, file.size, folderId);
-            
+
             if(!fileRecord) {
                 setFailedUploadErr(`Error uploading file: ${file.name}`, e.target);
                 return;
@@ -99,7 +105,6 @@ export const UploadButton = () => {
             for (let start = 0; start < file.size; start += FILE_CHUNK_SIZE) {
                 if (cancelledRef.current) {
                     await handleFailedUploadMutation.mutateAsync({id: fileRecord.id});
-                    hideSpinner(localActionId);
                     break;
                 }
 
@@ -117,9 +122,13 @@ export const UploadButton = () => {
             queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
             queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
             setStatus("");
-            if (cancelledRef.current) break;
+            if (cancelledRef.current) {
+                hideSpinner(localActionId);
+                break;
+            }
         }
         e.target.value = "";
+        setIsUploading(false);
     }
 
     const uploadChunk = async (chunk: Blob, fileName: string, fileID: string) => {
@@ -128,7 +137,7 @@ export const UploadButton = () => {
         formData.append("fileName", fileName);
         formData.append("fileID", fileID);
         formData.append("chunk", chunk);
-        
+
 
         const res = await fetch("/api/uploads/uploadChunk", {
             method: "POST",
@@ -148,7 +157,7 @@ export const UploadButton = () => {
 
     return (
         <div className="flex flex-col w-[80%] relative">
-            <button className="h-9 md:h-10 flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={handleClick}>
+            <button className={`h-9 md:h-10 flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary ${isUploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`} onClick={handleClick} disabled={isUploading}>
                 <FilePlusIcon />
                 <p className="text-xs md:hidden">Upload</p>
                 <p className="hidden md:block">Upload Files</p>
@@ -163,4 +172,6 @@ export const UploadButton = () => {
             </div>
         </div>
     );
-}
+});
+
+UploadButton.displayName = "UploadButton";

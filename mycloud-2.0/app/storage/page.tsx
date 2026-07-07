@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { FolderProvider, ActiveFileProvider, StoragePageUI, ErrorProvider } from "../components";
+import { FolderProvider, ActiveFileProvider, StoragePageUI, ErrorProvider, UploadProvider } from "../components";
 import { auth } from "../lib/auth";
 import { headers } from "next/headers";
 
@@ -12,7 +12,9 @@ export default async function StoragePage() {
             <FolderProvider>
                 <ActiveFileProvider>
                     <ErrorProvider>
-                        <StoragePageUI />
+                        <UploadProvider>
+                            <StoragePageUI />
+                        </UploadProvider>
                     </ErrorProvider>
                 </ActiveFileProvider>
             </FolderProvider>
