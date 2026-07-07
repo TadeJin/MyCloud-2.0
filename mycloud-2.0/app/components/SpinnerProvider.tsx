@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useRef, useState } from "react";
 import { ProcessingActionsDisplay, SpinnerDisplay } from ".";
 
 interface UserAction {
@@ -26,7 +26,13 @@ export const SpinnerProvider = ({ children }: { children: ReactNode }) => {
     const [spinnerHeader, setSpinnerHeader] = useState("");
     const [mainSpinnerVisible, setMainSpinnerVisible] = useState(false);
     const [inBackgroundActions, setInBackgroundActions] = useState<UserAction[]>([]);
-    const [currentActionId, setCurrentActionId] = useState("");
+    const [currentActionId, setCurrentActionIdState] = useState("");
+    const currentActionIdRef = useRef("");
+
+    const setCurrentActionId = (id: string) => {
+        currentActionIdRef.current = id;
+        setCurrentActionIdState(id);
+    }
 
     const showSpinner = (id: string, header: string) => {
         setSpinnerHeader(header);
@@ -36,7 +42,7 @@ export const SpinnerProvider = ({ children }: { children: ReactNode }) => {
 
     const hideSpinner = (id: string) => {
         removeBackgroundAction(id);
-        if (id === currentActionId) {
+        if (id === currentActionIdRef.current) {
             setSpinnerHeader("");
             setMainSpinnerVisible(false);
         }
