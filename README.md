@@ -36,6 +36,6 @@ BETTER_AUTH_URL=             # your app's base URL e.g. http://localhost:3000
 RESEND_API_KEY=           # from resend.com dashboard
 SITE_DOMAIN=              # base URL used in email links
 UPSTASH_URL=              #from upstash.com
-UPSTASH_TOKEN             #from upstash.com
+UPSTASH_TOKEN=             #from upstash.com
 ```
 2. Set the storage path in `docker-compose.yml` and run `docker compose up --build` in root directory
