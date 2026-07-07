@@ -91,10 +91,11 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
         for (const file of files) {
             setStatus("Uploading: " + file.name);
             setUploadPercentage(0);
-            const fileRecord = await createFileRecord(file.name, file.type, file.size, folderId);
-
-            if(!fileRecord) {
-                setFailedUploadErr(`Error uploading file: ${file.name}`, e.target);
+            let fileRecord;
+            try {
+                fileRecord = await createFileRecordMutation.mutateAsync({fileName: file.name, fileSize: file.size, fileType: file.type, folderId: folderId});
+            } catch (err) {
+                setFailedUploadErr(err instanceof TRPCClientError ? err.message : `Error uploading file: ${file.name}`, e.target);
                 return;
             }
 
@@ -111,8 +112,13 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
                 const res = await uploadChunk(file.slice(start, start + FILE_CHUNK_SIZE), file.name, fileID);
 
                 if (!res.ok) {
-                    await handleFailedUploadMutation.mutateAsync({id: fileRecord.id});
-                    setFailedUploadErr(`Upload of file: ${file.name} failed`, e.target);
+                    const { errMessage } = await res.json().catch(() => ({ errMessage: `Upload of file: ${file.name} failed` }));
+
+                    if (res.status !== 429) {
+                        await handleFailedUploadMutation.mutateAsync({id: fileRecord.id}).catch(() => {});
+                    }
+
+                    setFailedUploadErr(errMessage, e.target);
                     return;
                 }
 
@@ -145,14 +151,6 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
         });
 
         return res;
-    }
-
-    const createFileRecord = async (fileName: string, fileType: string, fileSize: number, folderId: number | null) => {
-        try {
-            return createFileRecordMutation.mutateAsync({fileName: fileName, fileSize: fileSize, fileType: fileType, folderId: folderId});
-        } catch (err) {
-            return null;
-        }
     }
 
     return (

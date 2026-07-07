@@ -5,6 +5,7 @@ import { FILE_CHUNK_SIZE } from "@/app/constants";
 import { headers } from "next/headers";
 import { auth } from "@/app/lib/auth";
 import { getFullPath } from "@/app/lib/fileHelpers";
+import { uploadRateLimit } from "@/app/lib/rateLimit";
 
 export const POST = async (req: Request) => {
     const session = await auth.api.getSession({
@@ -16,6 +17,11 @@ export const POST = async (req: Request) => {
         { errMessage: `Upload failed`},
         { status: 401 }
         );
+    }
+
+    const { success } = await uploadRateLimit.limit(session.user.id);
+    if (!success) {
+        return NextResponse.json({ errMessage: "Too many upload requests, please slow down" }, { status: 429 });
     }
 
     const formData = await req.formData();

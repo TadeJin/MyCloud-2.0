@@ -1,5 +1,5 @@
 import { mkdir, rm, statfs } from "fs/promises";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, rateLimitedProcedure } from "../init";
 import { TRPCError } from "@trpc/server";
 import path from "path";
 import { existsSync } from "fs";
@@ -11,7 +11,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const userRouter = createTRPCRouter({
-    fetchCapacity: protectedProcedure
+    fetchCapacity: rateLimitedProcedure
     .query(async ({ctx}) => {
         try {
             let maxStorage = Number(ctx.user.maxStorage);
@@ -25,7 +25,7 @@ export const userRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error fetching capacity"});
         }
     }),
-    createRootFolder: protectedProcedure
+    createRootFolder: rateLimitedProcedure
     .mutation(async ({ctx}) => {
         try {
             const dirPath = path.join(process.env.FILE_STORAGE_PATH!, ctx.user.id);
@@ -50,7 +50,7 @@ export const userRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error sending welcome email"});
         }
     }),
-    deleteUserData: protectedProcedure
+    deleteUserData: rateLimitedProcedure
     .mutation(async ({ctx}) => {
         try {
             const userFolderPath = path.join(process.env.FILE_STORAGE_PATH!, ctx.user.id);
@@ -59,11 +59,11 @@ export const userRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error deleting account"});
         }
     }),
-    fetchSortPreference: protectedProcedure
+    fetchSortPreference: rateLimitedProcedure
     .query(async ({ctx}) => {
         return {sortPreference: ctx.user.sortPreference};
     }),
-    fetchUserData: protectedProcedure
+    fetchUserData: rateLimitedProcedure
     .query(async ({ctx}) => {
         try {
             const count = await prisma.file.count({
@@ -75,7 +75,7 @@ export const userRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error fetcing user data"});
         }
     }),
-    setSortPreference: protectedProcedure
+    setSortPreference: rateLimitedProcedure
     .input(z.object({preference: z.enum(UserSortPreference)}))
     .mutation(async ({input, ctx}) => {
         const {preference} = input;
