@@ -5,6 +5,7 @@ import { Readable } from "stream";
 import { headers } from "next/headers";
 import { auth } from "@/app/lib/auth";
 import { getFullPath } from "@/app/lib/fileHelpers";
+import { fileOpRateLimit } from "@/app/lib/rateLimit";
 
 
 export const GET = async (req: NextRequest) => {
@@ -13,9 +14,14 @@ export const GET = async (req: NextRequest) => {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session) {
-        return NextResponse.json({ 
+        return NextResponse.json({
         errMessage: "Error downloading folder" },
-        {status: 401}); 
+        {status: 401});
+    }
+
+    const { success } = await fileOpRateLimit.limit(session.user.id);
+    if (!success) {
+        return NextResponse.json({ errMessage: "Too many requests, please slow down" }, { status: 429 });
     }
 
     const folder = await prisma.folder.findFirst({

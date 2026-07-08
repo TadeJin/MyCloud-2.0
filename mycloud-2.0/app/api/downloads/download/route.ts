@@ -6,6 +6,7 @@ import { stat } from "fs/promises";
 import { Readable } from "stream";
 import prisma from "@/app/lib/prisma";
 import { getFullPath } from "@/app/lib/fileHelpers";
+import { fileOpRateLimit } from "@/app/lib/rateLimit";
 
 export const GET = async (req: NextRequest ) => {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -16,6 +17,11 @@ export const GET = async (req: NextRequest ) => {
         { errMessage: "Error downloading file" },
         { status: 401 }
         );
+    }
+
+    const { success } = await fileOpRateLimit.limit(session.user.id);
+    if (!success) {
+        return NextResponse.json({ errMessage: "Too many requests, please slow down" }, { status: 429 });
     }
 
     const file = await prisma.file.findFirst({

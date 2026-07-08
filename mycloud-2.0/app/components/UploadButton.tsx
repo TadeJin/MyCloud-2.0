@@ -20,6 +20,7 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
     const {showSpinner, hideSpinner} = useSpinners();
     const [actionId, setActionId] = useState("");
     const {isUploading, setIsUploading} = useUpload();
+    const timerOnRef = useRef(false);
 
     const trpc = useTRPC();
     const fetchDiskCapacityMutation = useMutation(trpc.fetchDiskCapacity.mutationOptions());
@@ -30,6 +31,16 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
     const handleClick = () => {
         if (isUploading) return;
         inputRef.current?.click();
+    }
+
+    const scheduleInvalidate = () => {
+        if (timerOnRef.current) return;
+        timerOnRef.current = true;
+        setTimeout(() => {
+            queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
+            queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
+            timerOnRef.current = false;
+        }, 500);
     }
 
     const setFailedUploadErr = (errMessage: string, fileInput: HTMLInputElement) => {
@@ -125,8 +136,7 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
                 setUploadPercentage(prev => prev + chunkPercentage);
             }
 
-            queryClient.invalidateQueries(trpc.users.fetchCapacity.queryFilter());
-            queryClient.invalidateQueries(trpc.files.fetchFiles.queryFilter());
+            scheduleInvalidate();
             setStatus("");
             if (cancelledRef.current) {
                 hideSpinner(localActionId);

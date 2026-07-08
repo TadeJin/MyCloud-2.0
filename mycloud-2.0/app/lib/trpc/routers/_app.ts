@@ -1,5 +1,5 @@
 import { statfs } from 'fs/promises';
-import { createTRPCRouter, rateLimitedProcedure } from '../init';
+import { createTRPCRouter, baseRateLimitedProcedure } from '../init';
 import { fileRouter } from './files';
 import { userRouter } from './users';
 import { TRPCError } from '@trpc/server';
@@ -7,7 +7,7 @@ import { TRPCError } from '@trpc/server';
 export const appRouter = createTRPCRouter({
     files: fileRouter,
     users: userRouter,
-    fetchDiskCapacity: rateLimitedProcedure
+    fetchDiskCapacity: baseRateLimitedProcedure
     .mutation(async ({ctx}) => {
         try {
             const diskStats = await statfs(process.env.FILE_STORAGE_PATH!);

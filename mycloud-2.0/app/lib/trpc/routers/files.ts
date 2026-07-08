@@ -1,6 +1,6 @@
 import z from "zod";
 import prisma from "../../prisma";
-import { createTRPCRouter, protectedFileProcedure, protectedFolderProcedure, rateLimitedProcedure } from "../init";
+import { createTRPCRouter, rateLimitedFileUploadProcedure, rateLimitedFileProcedure, rateLimitedFolderProcedure, rateLimitedFileOpProcedure } from "../init";
 import { filterOptions, folderIdType, folderStackIDsType, safeName } from "../../validators";
 import { deriveFilePath, getFullPath } from "../../fileHelpers";
 import { mkdir, rename, rm, stat, statfs, unlink } from "fs/promises";
@@ -13,7 +13,7 @@ import { typeMap } from "@/app/constants";
 const invalidChars = /[<>:"/\\|?*\x00-\x1F]/;
 
 export const fileRouter = createTRPCRouter({
-    fetchFiles: rateLimitedProcedure
+    fetchFiles: rateLimitedFileUploadProcedure
     .input(z.object({ searchString: z.string(), filter: filterOptions, folderId: folderIdType}))
     .query(async ({ input, ctx }) => {
 
@@ -59,7 +59,7 @@ export const fileRouter = createTRPCRouter({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     }
     }),
-    fetchFolders: rateLimitedProcedure
+    fetchFolders: rateLimitedFileUploadProcedure
     .input(z.object({folderId: folderIdType, searchString: z.string()}))
     .query(async ({input, ctx}) => {
         const {folderId, searchString} = input;
@@ -76,7 +76,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error fetching folders"});
         }
     }),
-    checkDuplicates: rateLimitedProcedure
+    checkDuplicates: rateLimitedFileOpProcedure
     .input(z.object({fileNames: z.array(z.string()), folderId: folderIdType}))
     .mutation(async ({input, ctx}) => {
         const {fileNames, folderId} = input;
@@ -106,7 +106,7 @@ export const fileRouter = createTRPCRouter({
                 throw new TRPCError({code: "CONFLICT", message: `Files/folders with names: ${(duplicateNames.join(", "))} already exist`})
         }
     }),
-    createFileRecord: rateLimitedProcedure
+    createFileRecord: rateLimitedFileUploadProcedure
     .input(z.object({fileName: safeName, fileType: z.string(), fileSize: z.number().nonnegative(), folderId: folderIdType}))
     .mutation(async ({input, ctx}) => {
         const {fileName, fileSize, fileType, folderId} = input;
@@ -143,7 +143,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message:  `Upload of file: ${sanitizedFileName} failed`});
         }
     }),
-    createFolder: rateLimitedProcedure
+    createFolder: rateLimitedFileOpProcedure
     .input(z.object({name: safeName, folderId: folderIdType, folderStackIDs: folderStackIDsType}))
     .mutation(async ({input, ctx}) => {
         const {name, folderId, folderStackIDs} = input;
@@ -175,7 +175,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error creating folder"});
         }
     }),
-    delete: protectedFileProcedure
+    delete: rateLimitedFileProcedure
     .mutation(async ({ctx}) => {
         try {
             if (existsSync(ctx.filePath)) {
@@ -204,7 +204,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error removing file"});
         }
     }),
-    deleteFolder: protectedFolderProcedure
+    deleteFolder: rateLimitedFolderProcedure
     .mutation(async ({ctx}) => {
         try {
             await rm(ctx.filePath, { recursive: true, force: true })
@@ -252,7 +252,7 @@ export const fileRouter = createTRPCRouter({
            throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error removing folder"}); 
         }
     }),
-    deleteSelected: rateLimitedProcedure
+    deleteSelected: rateLimitedFileOpProcedure
     .input(z.object({ids: z.array(z.number())}))
     .mutation(async ({input, ctx}) => {
         const {ids} = input;
@@ -312,7 +312,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error deleting files"});
         }
     }),
-    handleFailedUpload: protectedFileProcedure
+    handleFailedUpload: rateLimitedFileProcedure
     .mutation(async ({ctx}) => {
         try {
             if (existsSync(ctx.filePath)) {
@@ -337,7 +337,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error handling failed upload"});
         }
     }),
-    rename: protectedFileProcedure
+    rename: rateLimitedFileProcedure
     .input(z.object({oldName: safeName, newName: safeName}))
     .mutation(async ({input, ctx}) => {
         const {oldName, newName} = input;
@@ -372,7 +372,7 @@ export const fileRouter = createTRPCRouter({
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming file"});
         }
     }),
-    renameFolder: protectedFolderProcedure
+    renameFolder: rateLimitedFolderProcedure
     .input(z.object({oldName: safeName, newName: safeName}))
     .mutation(async ({input, ctx}) => {
         const {oldName, newName} = input;

@@ -6,6 +6,7 @@ import prisma from "@/app/lib/prisma";
 import { Readable } from "stream";
 import { getFullPath } from "@/app/lib/fileHelpers";
 import { DBFile } from "@/app/types";
+import { fileOpRateLimit } from "@/app/lib/rateLimit";
 
 export const POST = async (req: NextRequest) => {
     const {ids} = await req.json();
@@ -23,6 +24,11 @@ export const POST = async (req: NextRequest) => {
             {errMessage: "Error downloading files"},
             {status: 401}
         );
+    }
+
+    const { success } = await fileOpRateLimit.limit(session.user.id);
+    if (!success) {
+        return NextResponse.json({ errMessage: "Too many requests, please slow down" }, { status: 429 });
     }
 
     try {

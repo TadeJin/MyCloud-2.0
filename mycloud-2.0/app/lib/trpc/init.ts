@@ -5,7 +5,7 @@ import prisma from "../prisma";
 import { DBFile, DBFolder } from "@/app/types";
 import superjson from "superjson";
 import { getFullPath } from "../fileHelpers";
-import { apiRateLimit } from "../rateLimit";
+import { baseApiRateLimit, fileFetchRateLimit, fileOpRateLimit } from "../rateLimit";
 
 /**
  * This context creator accepts `headers` so it can be reused in both
@@ -63,10 +63,28 @@ const inputSchema = z.object({
   id: z.number(),
 });
 
-const rateLimit = t.middleware(async ({ ctx, next }) => {
+const baseRateLimit = t.middleware(async ({ ctx, next }) => {
   if (!ctx.authUser || !ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-  const { success } = await apiRateLimit.limit(ctx.authUser.id);
+  const { success } = await baseApiRateLimit.limit(ctx.authUser.id);
+  if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many requests, please slow down" });
+
+  return next({ ctx: { ...ctx, authUser: ctx.authUser, user: ctx.user } });
+});
+
+const fileFetchLimit = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.authUser || !ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  const { success } = await fileFetchRateLimit.limit(ctx.authUser.id);
+  if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many requests, please slow down" });
+
+  return next({ ctx: { ...ctx, authUser: ctx.authUser, user: ctx.user } });
+});
+
+const fileOpLimit = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.authUser || !ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  const { success } = await fileOpRateLimit.limit(ctx.authUser.id);
   if (!success) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many requests, please slow down" });
 
   return next({ ctx: { ...ctx, authUser: ctx.authUser, user: ctx.user } });
@@ -113,6 +131,8 @@ export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 export const protectedProcedure = baseProcedure.use(isAuthed);
-export const rateLimitedProcedure = protectedProcedure.use(rateLimit);
-export const protectedFileProcedure = rateLimitedProcedure.input(inputSchema).use(isVerifiedFile);
-export const protectedFolderProcedure = rateLimitedProcedure.input(inputSchema).use(isVerifiedFolder);
+export const baseRateLimitedProcedure = protectedProcedure.use(baseRateLimit);
+export const rateLimitedFileUploadProcedure = protectedProcedure.use(fileFetchLimit);
+export const rateLimitedFileOpProcedure = protectedProcedure.use(fileOpLimit);
+export const rateLimitedFileProcedure = rateLimitedFileOpProcedure.input(inputSchema).use(isVerifiedFile);
+export const rateLimitedFolderProcedure = rateLimitedFileOpProcedure.input(inputSchema).use(isVerifiedFolder);
