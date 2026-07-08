@@ -1,10 +1,10 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 COPY . .
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
-RUN npm run build
+RUN UPSTASH_URL="https://dummy.upstash.io" UPSTASH_TOKEN="dummy" RESEND_API_KEY="re_dummy" npm run build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
