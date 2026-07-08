@@ -107,7 +107,7 @@ export const fileRouter = createTRPCRouter({
         }
     }),
     createFileRecord: rateLimitedProcedure
-    .input(z.object({fileName: safeName, fileType: z.string(), fileSize: z.number(), folderId: folderIdType}))
+    .input(z.object({fileName: safeName, fileType: z.string(), fileSize: z.number().nonnegative(), folderId: folderIdType}))
     .mutation(async ({input, ctx}) => {
         const {fileName, fileSize, fileType, folderId} = input;
         const sanitizedFileName = path.basename(fileName);
