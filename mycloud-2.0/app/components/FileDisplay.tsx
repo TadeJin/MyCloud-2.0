@@ -107,7 +107,7 @@ export const FileDisplay = ({className, fileInputRef}: FileDisplayProps) => {
     )
 
     return (
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full flex-1 min-h-0">
             {isDragging && <DragDisplay fileInputRef={fileInputRef} setIsDragging={setIsDragging} />}
             {displayContent}
         </div>
