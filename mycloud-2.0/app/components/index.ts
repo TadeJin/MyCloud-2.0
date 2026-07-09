@@ -4,6 +4,7 @@ export * from "./CapacityDisplay";
 export * from "./ConfirmationDialog";
 export * from "./CreateFolderButton";
 export * from "./DarkSwitch";
+export * from "./DialogButton";
 export * from "./DialogProvider";
 export * from "./DragDisplay";
 export * from "./ErrorDisplay";

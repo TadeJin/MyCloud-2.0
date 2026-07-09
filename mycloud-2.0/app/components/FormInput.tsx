@@ -3,7 +3,7 @@
 import { Dispatch, memo, SetStateAction, useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "./Icons";
 
-type FormInputVariant = "password" | "email";
+type FormInputVariant = "password" | "email" | "text";
 type FormInputVariantSizes = "default" | "small";
 interface PasswordInputProps {
     variant: FormInputVariant;
@@ -45,9 +45,9 @@ export const FormInput = memo(({variant, value, setValue, setErrorMessage, enfor
     return (
         <input
             className={styles}
-            type="email"
+            type={variant}
             name={name ?? "email"}
-            placeholder={placeholder ?? "Email"}
+            placeholder={!placeholder && variant === "email" ? "Email" : placeholder }
             value={value}
             onChange={e => {setValue(e.target.value); if (setErrorMessage) setErrorMessage(""); onChange?.();}}
         />

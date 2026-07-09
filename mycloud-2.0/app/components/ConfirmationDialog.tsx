@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { ConfirmationDialogProps } from "../types";
 import { useDialog } from "./DialogProvider";
+import { FormInput } from "./FormInput";
+import { DialogButton } from "./DialogButton";
 
 
 export const ConfirmationDialog = (props: ConfirmationDialogProps) => {
@@ -18,13 +20,15 @@ export const ConfirmationDialog = (props: ConfirmationDialogProps) => {
                     <h2 className="text-center font-bold mb-2 dark:text-dark-text-primary">{headerText}</h2>
 
                     {hasInput && <>
-                        <input type="text" name="name" className="block mx-auto border w-[60%] h-8 mb-2 p-3 border-gray-300 dark:border-dark-border dark:bg-dark-base dark:text-dark-text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" onChange={(e) => setName(e.target.value)}/>
-                        {invalidFileName.test(name) && <p className="text-red-600 w-full text-center font-bold mb-2">Name contains forbidden characters!</p>}
+                        <div className="flex flex-col mx-auto w-[60%] mb-2">
+                            <FormInput variant="text" size="small" name="name" value={name} setValue={setName} />
+                        </div>
+                        {invalidFileName.test(name) && <p className="text-red-500 w-full text-center font-bold mb-2">Name contains forbidden characters!</p>}
                     </>}
 
                     <div className="flex w-full justify-between">
-                        <button className="p-1 w-16 bg-gray-100 dark:bg-dark-hover dark:text-dark-text-primary rounded-md hover:bg-blue-200 dark:hover:bg-dark-pill cursor-pointer shadow-md hover:shadow-lg transition-all duration-100" type="button" onClick={() => setDialogVisible(false)}>Back</button>
-                        <button className="p-1 w-16 bg-gray-100 dark:bg-dark-hover dark:text-dark-text-primary rounded-md hover:bg-blue-200 dark:hover:bg-dark-pill cursor-pointer shadow-md hover:shadow-lg transition-all duration-100 disabled:opacity-40 disabled:bg-gray-300 disabled:cursor-not-allowed" type="submit" disabled= {hasInput && invalidFileName.test(name)}>{hasInput ? "Submit" : "Confirm"}</button>
+                        <DialogButton onClick={() => setDialogVisible(false)}>Back</DialogButton>
+                        <DialogButton type="submit" disabled={hasInput && invalidFileName.test(name)}>{hasInput ? "Submit" : "Confirm"}</DialogButton>
                     </div>
                 </form>
             </div>
