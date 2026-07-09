@@ -30,6 +30,6 @@ export const ErrorProvider = ({ children }: { children: ReactNode }) => {
 
 export const useErrors = () => {
     const ctx = useContext(ErrorContext);
-    if (!ctx) throw new Error("useFolders must be used within a FolderProvider");
+    if (!ctx) throw new Error("useErrors must be used within an ErrorProvider");
     return ctx;
 };
