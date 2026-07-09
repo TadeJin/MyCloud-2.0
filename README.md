@@ -31,14 +31,53 @@ The app is self-hosted on a Raspberry Pi and deployed at [mycld.cz](https://mycl
 
 ## Screenshots
 
-| | Light | Dark |
-|---|---|---|
-| Login | ![Login light](screenshots/login-light.png) | ![Login dark](screenshots/login-dark.png) |
-| Storage | ![Storage light](screenshots/storage-light.png) | ![Storage dark](screenshots/storage-dark.png) |
-| Upload | ![Upload light](screenshots/upload-light.png) | ![Upload dark](screenshots/upload-dark.png) |
-| Drag & Drop | ![Drag & drop light](screenshots/drag-drop-light.png) | ![Drag & drop dark](screenshots/drag-drop-dark.png) |
-| File Preview | ![File preview light](screenshots/preview-light.png) | ![File preview dark](screenshots/preview-dark.png) |
-| Settings | ![Settings light](screenshots/settings-light.png) | ![Settings dark](screenshots/settings-dark.png) |
+### Login
+
+**Light**
+<img src="screenshots/login-light.png" width="100%">
+
+**Dark**
+<img src="screenshots/login-dark.png" width="100%">
+
+### Storage
+
+**Light**
+<img src="screenshots/storage-light.png" width="100%">
+
+**Dark**
+<img src="screenshots/storage-dark.png" width="100%">
+
+### Upload
+
+**Light**
+<img src="screenshots/upload-light.png" width="100%">
+
+**Dark**
+<img src="screenshots/upload-dark.png" width="100%">
+
+### Drag & Drop
+
+**Light**
+<img src="screenshots/drag-drop-light.png" width="100%">
+
+**Dark**
+<img src="screenshots/drag-drop-dark.png" width="100%">
+
+### File Preview
+
+**Light**
+<img src="screenshots/preview-light.png" width="100%">
+
+**Dark**
+<img src="screenshots/preview-dark.png" width="100%">
+
+### Settings
+
+**Light**
+<img src="screenshots/settings-light.png" width="100%">
+
+**Dark**
+<img src="screenshots/settings-dark.png" width="100%">
 
 ## Getting started
 1. Create a `.env` file:
