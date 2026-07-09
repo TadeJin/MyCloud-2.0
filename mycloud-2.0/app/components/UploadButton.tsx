@@ -1,6 +1,6 @@
 "use client"
 import { forwardRef, useImperativeHandle, useRef, useState } from "react"
-import { ProgressBar, useErrors, useFolders, useSpinners, useUpload } from ".";
+import { ActionButton, ProgressBar, useErrors, useFolders, useSpinners, useUpload } from ".";
 import { FilePlusIcon, XIcon } from ".";
 import { FILE_CHUNK_SIZE } from "../constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -165,11 +165,11 @@ export const UploadButton = forwardRef<HTMLInputElement>((_props, forwardedRef) 
 
     return (
         <div className="flex flex-col w-[80%] relative">
-            <button className={`h-9 md:h-10 flex items-center gap-1 p-2 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-100 dark:hover:bg-dark-hover hover:border-stone-300 dark:hover:border-dark-border-strong shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary ${isUploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`} onClick={handleClick} disabled={isUploading}>
+            <ActionButton className="h-9 md:h-10 gap-1 p-2" onClick={handleClick} disabled={isUploading}>
                 <FilePlusIcon />
                 <p className="text-xs md:hidden">Upload</p>
                 <p className="hidden md:block">Upload Files</p>
-            </button>
+            </ActionButton>
             <input ref={inputRef} type="file" className="hidden" id="upload" onChange={handleUpload} multiple/>
             <div className={`overflow-hidden transition-all duration-500 ease-out w-full relative ${status ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="absolute top-4 right-1 hover:bg-stone-200 rounded-full dark:hover:bg-dark-hover cursor-pointer" onClick={() => {showSpinner(actionId, "Cancelling upload"); cancelledRef.current = true}}><XIcon size={16} className="dark:text-dark-text-primary"/></div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { DarkSwitch, LogOutButton } from ".";
+import { ActionButton, DarkSwitch, LogOutButton } from ".";
 import { Dispatch, Ref, SetStateAction} from "react";
 import { CogIcon, XIcon } from ".";
 import { useQuery } from "@tanstack/react-query";
@@ -29,10 +29,10 @@ export const UserStats = (props: UserStatsProps) => {
                 <DarkSwitch />
             </div>
             {hasSettings &&
-            <button className="flex items-center justify-center relative p-1 bg-stone-50 dark:bg-dark-card border border-stone-200 dark:border-dark-border rounded-md hover:bg-stone-200 dark:hover:bg-dark-hover cursor-pointer shadow-sm hover:shadow-md transition-all duration-100 dark:text-dark-text-primary" onClick={() => router.push("/settings")}>
+            <ActionButton className="justify-center relative p-1" onClick={() => router.push("/settings")}>
                 <CogIcon size={20} />
                 Settings
-            </button>}
+            </ActionButton>}
             <LogOutButton className="mt-2"/>
         </div>
     );
