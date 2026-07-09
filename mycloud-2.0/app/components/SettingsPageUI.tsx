@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { LogoIcon, MycloudLogoSmallIcon } from ".";
+import { useCallback, useState } from "react";
+import { FormError, FormInput, FormSubmit, LogoIcon, MycloudLogoSmallIcon, useAsyncSubmit, UserSettingsForm } from ".";
 import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
 
@@ -14,14 +14,18 @@ import { useRouter } from "next/navigation";
 export const SettingsPageUI = () => {
     const router = useRouter();
     const [content, setContent] = useState<SettingsContentVariants>("account");
-    const [showEmailInput, setShowEmailInput] = useState(false);
-    const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [newEmail, setNewEmail] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [emailSuccessMessage, setEmailSuccessMessage] = useState("");
+    const [passwordSuccessMessage, setPasswordSuccessMessage] = useState("");
+    const clearEmailSuccess = useCallback(() => setEmailSuccessMessage(""), []);
+    const clearPasswordSuccess = useCallback(() => setPasswordSuccessMessage(""), []);
     const [accountDeleteError, setAccountDeleteError] = useState("")
+    const { isSubmitting: isEmailSubmitting, submit: submitEmail } = useAsyncSubmit();
+    const { isSubmitting: isPasswordSubmitting, submit: submitPassword } = useAsyncSubmit();
     const queryClient = useQueryClient();
     const {setDialogProps, setDialogVisible} = useDialog();
 
@@ -31,35 +35,43 @@ export const SettingsPageUI = () => {
     const {data, error} = useQuery(trpc.users.fetchUserData.queryOptions());
 
     const updateEmail = async () => {
-        const {error} = await authClient.changeEmail({
-            newEmail: newEmail,
+        setEmailSuccessMessage("");
+
+        await submitEmail(async () => {
+            const {error} = await authClient.changeEmail({
+                newEmail: newEmail,
+            });
+
+            if (error?.message) {
+                setEmailError(error.message);
+                return;
+            }
+
+            setNewEmail("");
+            setEmailSuccessMessage("Email updated");
+            queryClient.invalidateQueries(trpc.users.fetchUserData.queryFilter());
         });
-
-        if (error?.message) {
-            setEmailError(error.message);
-            return;
-        }
-
-        setShowEmailInput(false);
-        setNewEmail("");
-        queryClient.invalidateQueries(trpc.users.fetchUserData.queryFilter());
     }
 
     const updatePassword = async () => {
-        const { error } = await authClient.changePassword({
-            newPassword: newPassword,
-            currentPassword: currentPassword,
-            revokeOtherSessions: true,
+        setPasswordSuccessMessage("");
+
+        await submitPassword(async () => {
+            const { error } = await authClient.changePassword({
+                newPassword: newPassword,
+                currentPassword: currentPassword,
+                revokeOtherSessions: true,
+            });
+
+            if (error?.message) {
+                setPasswordError(error.message);
+                return;
+            }
+
+            setNewPassword("");
+            setCurrentPassword("");
+            setPasswordSuccessMessage("Password updated");
         });
-
-        if (error?.message) {
-            setPasswordError(error.message);
-            return;
-        }
-
-        setNewPassword("");
-        setCurrentPassword("");
-        setShowPasswordInput(false);
     }
 
     const deleteAccount = async () => {
@@ -89,93 +101,66 @@ export const SettingsPageUI = () => {
         setDialogVisible(true);
     }
 
-    const inputClass = "border border-stone-300 dark:border-dark-border dark:bg-dark-base dark:text-dark-text-primary dark:placeholder-dark-text-idle rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-stone-400 dark:focus:ring-dark-border-focus";
-
     const renderContent = () => {
         if (content === "account") {
             return (
                 <div className="max-w-xl flex flex-col gap-8">
                     <h1 className="text-2xl font-bold text-stone-800 dark:text-dark-text-primary">Account settings</h1>
 
-                    <div className="bg-white dark:bg-dark-card rounded-xl border border-stone-200 dark:border-dark-border p-5 flex flex-col gap-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs text-stone-400 dark:text-dark-text-idle uppercase font-semibold tracking-wide">Email</p>
-                                <p className="text-stone-700 dark:text-dark-text-secondary mt-0.5">{error ? "Error fetching email" : data?.email}</p>
+                    <UserSettingsForm
+                        headerText="Email"
+                        displayText={error ? "Error fetching email" : data?.email}
+                        buttonText="Change"
+                        isExpandable
+                        onClose={clearEmailSuccess}
+                    >
+                        <form className="flex flex-col gap-3 pt-2 border-t border-stone-100 dark:border-dark-border-subtle" onSubmit={e => { e.preventDefault(); updateEmail(); }}>
+                            <FormInput variant="email" value={newEmail} setValue={setNewEmail} placeholder="New email address" onChange={clearEmailSuccess} />
+                            <FormError text={emailError} />
+                            <div className="flex items-center gap-3">
+                                <FormSubmit size="small" disabled={newEmail === ""} isSubmitting={isEmailSubmitting}>Save email</FormSubmit>
+                                {emailSuccessMessage !== "" && emailError === "" && (
+                                    <span className="text-sm text-stone-500 dark:text-dark-text-secondary font-bold">{emailSuccessMessage}</span>
+                                )}
                             </div>
-                            <button
-                                onClick={() => { setShowEmailInput(v => !v); setShowPasswordInput(false); }}
-                                className="text-sm text-stone-500 dark:text-dark-text-secondary border border-stone-300 dark:border-dark-border rounded-lg px-3 py-1.5 hover:bg-stone-100 dark:hover:bg-dark-hover transition-colors cursor-pointer"
-                            >
-                                {showEmailInput ? "Cancel" : "Change"}
-                            </button>
-                        </div>
+                        </form>
+                    </UserSettingsForm>
 
-                        {showEmailInput && (
-                            <div className="flex flex-col gap-3 pt-2 border-t border-stone-100 dark:border-dark-border-subtle">
-                                <input
-                                    type="email"
-                                    placeholder="New email address"
-                                    value={newEmail}
-                                    onChange={e => setNewEmail(e.target.value)}
-                                    className={inputClass}
-                                />
-                                {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-                                <button className="self-start bg-stone-800 dark:bg-dark-base dark:hover:bg-dark-hover dark:border dark:border-dark-border text-white text-sm px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors cursor-pointer" onClick={updateEmail}>
-                                    Save email
-                                </button>
+                    <UserSettingsForm
+                        headerText="Password"
+                        displayText="••••••••"
+                        buttonText="Change"
+                        isExpandable
+                        onClose={clearPasswordSuccess}
+                    >
+                        <form className="flex flex-col gap-3 pt-2 border-t border-stone-100 dark:border-dark-border-subtle" onSubmit={e => { e.preventDefault(); updatePassword(); }}>
+                            <FormInput variant="password" value={currentPassword} setValue={setCurrentPassword} size="small" name="currentPassword" placeholder="Current password" onChange={clearPasswordSuccess}/>
+                            <FormInput variant="password" value={newPassword} setValue={setNewPassword} size="small" name="newPassword" placeholder="New Password" setErrorMessage={setPasswordError} enforceMinPasswordLength onChange={clearPasswordSuccess}/>
+                            <FormError text={passwordError} />
+                            <div className="flex items-center gap-3">
+                                <FormSubmit size="small" disabled={currentPassword === "" || newPassword === "" || passwordError !== ""} isSubmitting={isPasswordSubmitting}>Save password</FormSubmit>
+                                {passwordSuccessMessage !== "" && passwordError === "" && (
+                                    <span className="text-sm text-stone-500 dark:text-dark-text-secondary font-bold">{passwordSuccessMessage}</span>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </form>
+                    </UserSettingsForm>
 
-                    <div className="bg-white dark:bg-dark-card rounded-xl border border-stone-200 dark:border-dark-border p-5 flex flex-col gap-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs text-stone-400 dark:text-dark-text-idle uppercase font-semibold tracking-wide">Password</p>
-                                <p className="text-stone-700 dark:text-dark-text-secondary mt-0.5">••••••••</p>
-                            </div>
-                            <button
-                                onClick={() => { setShowPasswordInput(v => !v); setShowEmailInput(false); }}
-                                className="text-sm text-stone-500 dark:text-dark-text-secondary border border-stone-300 dark:border-dark-border rounded-lg px-3 py-1.5 hover:bg-stone-100 dark:hover:bg-dark-hover transition-colors cursor-pointer"
-                            >
-                                {showPasswordInput ? "Cancel" : "Change"}
-                            </button>
-                        </div>
-
-                        {showPasswordInput && (
-                            <div className="flex flex-col gap-3 pt-2 border-t border-stone-100 dark:border-dark-border-subtle">
-                                <input
-                                    type="password"
-                                    placeholder="Current password"
-                                    value={currentPassword}
-                                    onChange={e => setCurrentPassword(e.target.value)}
-                                    className={inputClass}
-                                />
-                                <input
-                                    type="password"
-                                    placeholder="Confirm new password"
-                                    value={newPassword}
-                                    onChange={e => {setNewPassword(e.target.value); if (e.target.value.length < 8) setPasswordError("New password length must be at least 8 characters"); else setPasswordError("");}}
-                                    className={inputClass}
-                                />
-                                {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-                                <button className="self-start bg-stone-800 dark:bg-dark-base dark:hover:bg-dark-hover dark:border dark:border-dark-border text-white text-sm px-4 py-2 rounded-lg hover:bg-stone-600 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:bg-stone-600" disabled={passwordError !== ""} onClick={updatePassword}>
-                                    Save password
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="bg-white dark:bg-dark-card rounded-xl border-2 border-red-200 dark:border-red-900/50 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs text-stone-400 dark:text-dark-text-idle uppercase font-semibold tracking-wide">Delete account</p>
-                            <p className="text-stone-700 dark:text-dark-text-secondary mt-0.5"><b>Permanently</b> delete your account and all data</p>
-                            {accountDeleteError && <p className="text-red-500">{accountDeleteError}</p>}
-                        </div>
-                        <button className="text-sm text-red-500 border border-red-300 dark:border-red-900/50 rounded-lg px-3 py-1.5 hover:bg-red-50 dark:hover:bg-red-300/10 transition-colors cursor-pointer" onClick={handleAccountDelete}>
-                            Delete account
-                        </button>
-                    </div>
+                    <UserSettingsForm
+                        headerText="Delete account"
+                        displayText={
+                            <>
+                                <p><b>Permanently</b> delete your account and all data</p>
+                                <FormError text={accountDeleteError} />
+                            </>
+                        }
+                        buttonText="Delete account"
+                        onExpand={handleAccountDelete}
+                        styles={{
+                            container: "bg-white dark:bg-dark-card rounded-xl border-2 border-red-200 dark:border-red-900/50 p-5 flex flex-col gap-4",
+                            button: "text-sm text-red-500 border border-red-300 dark:border-red-900/50 rounded-lg px-3 py-1.5 hover:bg-red-50 dark:hover:bg-red-300/10 transition-colors cursor-pointer",
+                        }}
+                    />
                 </div>
             );
         }

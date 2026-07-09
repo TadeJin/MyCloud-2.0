@@ -2,7 +2,7 @@
 
 import { useFiles } from "./ActiveFileProvider";
 import { useEffect, useState } from "react";
-import { XIcon } from ".";
+import { FormError, XIcon } from ".";
 
 export const FilePreview = () => {
     const {activeFile, previewVisible, setPreviewVisible} = useFiles()
@@ -41,7 +41,7 @@ export const FilePreview = () => {
 
     const renderPreview = () => {
         if (error) {
-            return <div className="text-red-500 font-bold">Error previewing file</div>;
+            return <FormError text="Error previewing file" bold />;
         }
 
         if (loading || (!srcUrl)) {

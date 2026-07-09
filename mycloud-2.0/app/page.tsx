@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LoginForm } from "./components";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -7,6 +8,10 @@ export default async function Home() {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (session) redirect("/storage");
-    
-    return <LoginForm />;
+
+    return (
+        <Suspense>
+            <LoginForm />
+        </Suspense>
+    );
 }
