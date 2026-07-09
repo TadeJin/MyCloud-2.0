@@ -14,6 +14,9 @@ The app is self-hosted on a Raspberry Pi and deployed at [mycld.cz](https://mycl
 - **Docker** — containerized deployment
 - **Upstash** — rate limiting
 
+## Credits
+- Icons from [Boxicons](https://boxicons.com/)
+
 ## Features
 - Upload and manage files from any device
 - Drag & Drop
