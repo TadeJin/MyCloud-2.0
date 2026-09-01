@@ -5,10 +5,9 @@ import { FormError, FormInput, FormSubmit, LogoIcon, MycloudLogoSmallIcon, useAs
 import { SettingsContentVariants } from "../types";
 import { CapacityDisplay, SettingsMenu, useDialog, UserInfo } from "../components";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "../lib/auth-client";
 import { useTRPC } from "../lib/trpc/client";
-import { TRPCClientError } from "@trpc/client";
 import { useRouter } from "next/navigation";
 
 export const SettingsPageUI = () => {
@@ -30,7 +29,6 @@ export const SettingsPageUI = () => {
     const {setDialogProps, setDialogVisible} = useDialog();
 
     const trpc = useTRPC();
-    const deleteAccountMutation = useMutation(trpc.users.deleteUserData.mutationOptions());
 
     const {data, error} = useQuery(trpc.users.fetchUserData.queryOptions());
 
@@ -76,15 +74,6 @@ export const SettingsPageUI = () => {
 
     const deleteAccount = async () => {
         setDialogVisible(false);
-
-        try {
-            await deleteAccountMutation.mutateAsync();
-        } catch (err) {
-            if (err instanceof TRPCClientError) {
-                setAccountDeleteError(err.message);
-                return;
-            }
-        }
 
         const {error} = await authClient.deleteUser();
 

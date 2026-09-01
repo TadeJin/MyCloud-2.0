@@ -1,4 +1,4 @@
-import { mkdir, rm, statfs } from "fs/promises";
+import { mkdir, statfs } from "fs/promises";
 import { createTRPCRouter, baseRateLimitedProcedure, rateLimitedFileUploadProcedure } from "../init";
 import { TRPCError } from "@trpc/server";
 import path from "path";
@@ -48,15 +48,6 @@ export const userRouter = createTRPCRouter({
             });
         } catch(err) {
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error sending welcome email"});
-        }
-    }),
-    deleteUserData: baseRateLimitedProcedure
-    .mutation(async ({ctx}) => {
-        try {
-            const userFolderPath = path.join(process.env.FILE_STORAGE_PATH!, ctx.user.id);
-            await rm(userFolderPath, { recursive: true, force: true })
-        } catch (err) {
-            throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error deleting account"});
         }
     }),
     fetchSortPreference: baseRateLimitedProcedure

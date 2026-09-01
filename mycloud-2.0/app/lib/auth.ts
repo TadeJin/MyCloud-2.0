@@ -3,6 +3,8 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 import { DEFAULT_MAX_STORAGE } from "../constants";
 import { Resend } from "resend";
+import { rm } from "fs/promises";
+import path from "path";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -32,8 +34,11 @@ export const auth = betterAuth({
                 });
             },
         },
-        deleteUser: { 
-            enabled: true
+        deleteUser: {
+            enabled: true,
+            afterDelete: async (user) => {
+                await rm(path.join(process.env.FILE_STORAGE_PATH!, user.id), { recursive: true, force: true });
+            },
         },
         additionalFields: {
             maxStorage: {
