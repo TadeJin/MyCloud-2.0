@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { HyperText } from "./HyperText";
 
 interface AuthFooterLinkItem {
     text: string;
@@ -16,9 +16,9 @@ export const AuthFooterLink = ({ links }: AuthFooterLinkProps) => {
             {links.map(({ text, href, label }) => (
                 <p key={href}>
                     {text}{" "}
-                    <Link href={href} className="text-stone-800 dark:text-dark-text-primary font-semibold underline underline-offset-2 hover:text-stone-600 dark:hover:text-dark-text-secondary transition">
+                    <HyperText href={href} color="text-stone-800 dark:text-dark-text-primary" className="font-semibold">
                         {label}
-                    </Link>
+                    </HyperText>
                 </p>
             ))}
         </div>

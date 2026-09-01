@@ -73,6 +73,7 @@ export const ResetForm = (props: ResetFormProps) => {
             header="Reset password"
             subheader={isEmail ? "Enter your email to receive a reset link" : "Enter your new password"}
             onLogoClick={() => router.replace("/")}
+            hidePolicy
         >
             <form className="flex flex-col gap-3" onSubmit={isEmail ? handleSubmitEmail : handleSubmitPassword}>
                 <FormInput variant={isEmail ? "email" : "password"} setValue={isEmail ? setEmail : setPassword} setErrorMessage={setErrorMessage} enforceMinPasswordLength/>

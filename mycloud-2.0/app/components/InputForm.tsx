@@ -1,5 +1,6 @@
 import { DarkSwitch } from "./DarkSwitch";
 import { LogoIcon } from "./Icons";
+import { PolicyNotice } from "./PolicyNotice";
 
 interface InputFormProps {
     header: string;
@@ -7,9 +8,10 @@ interface InputFormProps {
     children: React.ReactNode;
     showLogo?: boolean;
     onLogoClick?: () => void;
+    hidePolicy?: boolean;
 }
 
-export const InputForm = ({ header, subheader, children, showLogo = true, onLogoClick }: InputFormProps) => {
+export const InputForm = ({ header, subheader, children, showLogo = true, onLogoClick, hidePolicy }: InputFormProps) => {
     return (
         <div className="grid place-items-center h-screen bg-stone-100 dark:bg-dark-page relative">
             <div className="absolute top-4 right-4"><DarkSwitch /></div>
@@ -28,6 +30,8 @@ export const InputForm = ({ header, subheader, children, showLogo = true, onLogo
                 </div>
 
                 {children}
+
+                {!hidePolicy && <PolicyNotice />}
 
             </div>
         </div>
