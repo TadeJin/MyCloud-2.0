@@ -1,7 +1,7 @@
 import z from "zod";
 import prisma from "../../prisma";
 import { createTRPCRouter, rateLimitedFileUploadProcedure, rateLimitedFileProcedure, rateLimitedFolderProcedure, rateLimitedFileOpProcedure } from "../init";
-import { filterOptions, folderIdType, folderStackIDsType, safeName } from "../../validators";
+import { dotOnlyName, filterOptions, folderIdType, folderStackIDsType, safeName } from "../../validators";
 import { deriveFilePath, getFullPath } from "../../fileHelpers";
 import { mkdir, rename, rm, stat, statfs, unlink } from "fs/promises";
 import { TRPCError } from "@trpc/server";
@@ -342,7 +342,7 @@ export const fileRouter = createTRPCRouter({
     .mutation(async ({input, ctx}) => {
         const {oldName, newName} = input;
 
-        if (invalidChars.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
+        if (invalidChars.test(newName) || dotOnlyName.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
 
         const [existingFile, existingFolder] = await Promise.all([
             prisma.file.findFirst({
@@ -360,14 +360,16 @@ export const fileRouter = createTRPCRouter({
         }
 
         try {
-            const file = await prisma.file.update({
-                where: {id: ctx.file.id, userId: ctx.user.id},
-                data: {name: newName}
-            });
+            await prisma.$transaction(async (tx) => {
+                const file = await tx.file.update({
+                    where: {id: ctx.file.id, userId: ctx.user.id},
+                    data: {name: newName}
+                });
 
-            const newFilePath = await getFullPath(file, ctx.user.id);
-            if (!newFilePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming file"});
-            await rename(ctx.filePath, newFilePath);
+                const newFilePath = await getFullPath(file, ctx.user.id);
+                if (!newFilePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming file"});
+                await rename(ctx.filePath, newFilePath);
+            });
         } catch(err) {
             throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming file"});
         }
@@ -377,7 +379,7 @@ export const fileRouter = createTRPCRouter({
     .mutation(async ({input, ctx}) => {
         const {oldName, newName} = input;
 
-        if (invalidChars.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
+        if (invalidChars.test(newName) || dotOnlyName.test(newName)) throw new TRPCError({code: "BAD_REQUEST", message: "Filename contains forbidden characters"});
 
         const [existingFile, existingFolder] = await Promise.all([
             prisma.file.findFirst({
@@ -393,14 +395,16 @@ export const fileRouter = createTRPCRouter({
         if (existingFile || existingFolder) throw new TRPCError({code: "BAD_REQUEST", message: `Cannot rename "${oldName}": a folder/file named "${newName}" already exists`});
         
         try {
-            const folder = await prisma.folder.update({
-                where: {id: ctx.folder.id, userId: ctx.user.id},
-                data: {name: newName}
-            });
+            await prisma.$transaction(async (tx) => {
+                const folder = await tx.folder.update({
+                    where: {id: ctx.folder.id, userId: ctx.user.id},
+                    data: {name: newName}
+                });
 
-            const newFilePath = await getFullPath(folder, ctx.user.id);
-            if (!newFilePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming folder"});
-            await rename(ctx.filePath, newFilePath);
+                const newFilePath = await getFullPath(folder, ctx.user.id);
+                if (!newFilePath) throw new TRPCError({code: "INTERNAL_SERVER_ERROR", message: "Error renaming folder"});
+                await rename(ctx.filePath, newFilePath);
+            });
         } catch (err) {
             throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error renaming folder" });
         }
