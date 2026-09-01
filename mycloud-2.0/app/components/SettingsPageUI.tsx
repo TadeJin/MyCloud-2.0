@@ -48,7 +48,7 @@ export const SettingsPageUI = () => {
             }
 
             setNewEmail("");
-            setEmailSuccessMessage("Email updated");
+            setEmailSuccessMessage("Check your inbox to approve");
             queryClient.invalidateQueries(trpc.users.fetchUserData.queryFilter());
         });
     }

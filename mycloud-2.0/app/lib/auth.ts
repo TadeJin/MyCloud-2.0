@@ -22,6 +22,15 @@ export const auth = betterAuth({
     user: {
         changeEmail: {
             enabled: true,
+            sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+                void sendEmail({
+                    to: user.email,
+                    subject: "MyCloud 2.0 email change request",
+                    text: `<p>We received a request to change the email on your MyCloud 2.0 account to <strong>${newEmail}</strong>.</p>
+                    <p>To approve it, confirm here: <a href="${url}">${url}</a>.</p>
+                    <p>If you didn't request this, ignore this email - your address stays unchanged. We'd recommend changing your password, as someone may have access to your account.</p>`,
+                });
+            },
         },
         deleteUser: { 
             enabled: true
