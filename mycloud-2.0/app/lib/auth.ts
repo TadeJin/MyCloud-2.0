@@ -30,11 +30,13 @@ export const auth = betterAuth({
             maxStorage: {
                 type: "number",
                 required: false,
+                input: false,
                 defaultValue: DEFAULT_MAX_STORAGE,
             },
             takenSpace: {
                 type: "number",
                 required: false,
+                input: false,
                 defaultValue: 0,
             },
         }
